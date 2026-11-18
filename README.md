@@ -1,8 +1,24 @@
-# Durable Profile
+# shepherdr-effect
 
-Bootstrap profile for a maintained product, shared library, or long-lived code
-owner. Bootstrap copies the contents of this directory to the generated
-repository's root.
+Scratch repository. It holds a design experiment: how the Shepherdr fork
+(`nathanvale/herdr-projects` main at `9859c344`) would look if written today
+in TypeScript on Effect v4, running on Bun 1.4.4 with no Python.
+
+This is a design with compiling stubs and one proven thin slice. It is not a
+working replacement, and nothing here runs against a live Herdr install.
+
+- **Run:** `bun run start --help`
+- **Check:** `bun run check`
+- **Source:** the C4 diagram named under Source packet below, and the fork's
+  code at `9859c344`. No vault project packet exists yet.
+- **Promote** to `~/code/<repository>/` with a vault project packet if the
+  design is accepted for a real build.
+- **Retire** once the design is rejected or superseded and its findings are
+  recorded. Deletion is Nathan's decision.
+
+It was generated from the durable profile of `bun-typescript-template`, so it
+carries that profile's full toolchain, including Fallow. The rest of this file
+is the profile's own guide.
 
 ## Source packet
 
