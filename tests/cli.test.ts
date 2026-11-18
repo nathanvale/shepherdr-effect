@@ -385,12 +385,12 @@ test("missing command is a focused usage refusal", () => {
   });
 });
 
-async function operationPreload(
+async function resultPreload(
   guidance: Record<string, unknown> | string,
 ): Promise<string> {
   const root = await mkdtemp("/tmp/simple-starter-test-");
   scratchRoots.push(root);
-  const preload = join(root, "operation.ts");
+  const preload = join(root, "result.ts");
   await writeFile(
     preload,
     `import { commands } from ${JSON.stringify(join(ROOT, "src/commands.ts"))};
@@ -413,7 +413,7 @@ test("domain handoff guidance excludes the success nextAction", async () => {
     inspect: ["Inspect implementation."],
   };
   const observed = invokeWithPreload(
-    await operationPreload({ handoff }),
+    await resultPreload({ handoff }),
     "status",
     "--json",
   );
@@ -437,7 +437,7 @@ test("domain handoff guidance preserves a valid optional resource", async () => 
     resource: { kind: "file", id: "example" },
   };
   const observed = invokeWithPreload(
-    await operationPreload({ handoff }),
+    await resultPreload({ handoff }),
     "status",
     "--json",
   );
@@ -543,7 +543,7 @@ const invalidGuidance: [string, Record<string, unknown> | string][] = [
 for (const [name, guidance] of invalidGuidance) {
   test(`invalid domain guidance uses bounded fallback: ${name}`, async () => {
     const observed = invokeWithPreload(
-      await operationPreload(guidance),
+      await resultPreload(guidance),
       "status",
       "--json",
     );

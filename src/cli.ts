@@ -5,7 +5,7 @@ import {
   builtInStations,
   commandSummaries,
   type CommandDefinition,
-  type OperationResult,
+  type CommandResult,
 } from "./commands-contract.ts";
 
 const CONTRACT_VERSION = "2.0.0";
@@ -472,7 +472,7 @@ function validHandoff(value: unknown): boolean {
 }
 
 function validateGuidance(
-  guidance: Pick<OperationResult, "nextAction" | "handoff">,
+  guidance: Pick<CommandResult, "nextAction" | "handoff">,
 ): void {
   if (
     Object.hasOwn(guidance, "nextAction") ===
@@ -487,7 +487,7 @@ function validateGuidance(
 }
 
 function formatResult(
-  result: { result: Omit<OperationResult, "message"> & { runId: string } },
+  result: { result: Omit<CommandResult, "message"> & { runId: string } },
   message: string,
   json: boolean,
 ): string {

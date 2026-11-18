@@ -2,7 +2,7 @@ export type EffectClass = "inspect" | "repository-local";
 export type Outcome = "failed" | "refused" | "success";
 export type TransactionState = "completed" | "unchanged" | "unknown";
 
-export interface OperationResult {
+export interface CommandResult {
   causeCode: string;
   commandIdentity: string;
   data: unknown;
@@ -31,7 +31,7 @@ export interface CommandDefinition {
   effectClass: EffectClass;
   route: readonly string[];
   summary: string;
-  execute(args: string[]): Promise<OperationResult>;
+  execute(args: string[]): Promise<CommandResult>;
   stations(): readonly unknown[];
 }
 

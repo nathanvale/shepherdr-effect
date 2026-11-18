@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Effect, Result, Schema, SchemaIssue } from "effect";
-import type { OperationResult } from "../../commands-contract.ts";
+import type { CommandResult } from "../../commands-contract.ts";
 import { DIAGRAM, readSources } from "./fork.ts";
 import { type List, lists } from "./lists.ts";
 import type { Item } from "./source.ts";
@@ -11,7 +11,7 @@ const FOLDER = "inventory";
 // A list can differ in every item: a few ids say enough.
 const SHOWN = 8;
 
-type Command = Pick<OperationResult, "commandIdentity" | "effectClass"> & {
+type Command = Pick<CommandResult, "commandIdentity" | "effectClass"> & {
   readonly usage: string;
 };
 
@@ -27,7 +27,7 @@ const CHECK: Command = {
 };
 
 /** A step of a command: its value, or the result the command ends with instead. */
-type Step<Value> = Effect.Effect<Value, OperationResult>;
+type Step<Value> = Effect.Effect<Value, CommandResult>;
 
 /** One list with its items: read from the fork, or from its kept file. */
 interface Listed {
@@ -45,12 +45,12 @@ const counts = (listed: readonly Listed[]) =>
     .map(({ list, items }) => `${list.name} ${String(items.length)}`)
     .join(", ");
 
-function settle(step: Step<OperationResult>): Promise<OperationResult> {
+function settle(step: Step<CommandResult>): Promise<CommandResult> {
   const either = { onFailure: same, onSuccess: same };
   return Effect.runPromise(Effect.match(step, either));
 }
 
-function same(result: OperationResult): OperationResult {
+function same(result: CommandResult): CommandResult {
   return result;
 }
 
@@ -66,7 +66,7 @@ function unchanged({ commandIdentity, effectClass }: Command) {
     },
     retryable: false,
     transactionState: "unchanged",
-  } satisfies Partial<OperationResult>;
+  } satisfies Partial<CommandResult>;
 }
 
 function refused(
@@ -75,7 +75,7 @@ function refused(
   causeCode: string,
   message: string,
   repairAction: string,
-): OperationResult {
+): CommandResult {
   return {
     ...unchanged(command),
     causeCode,
@@ -96,7 +96,7 @@ function failed(
   headline: string,
   lines: readonly string[],
   repairAction: string,
-): OperationResult {
+): CommandResult {
   return {
     ...unchanged(CHECK),
     causeCode,
@@ -178,7 +178,7 @@ async function write(
 }
 
 /** A write that stopped part way: which of these files changed is not known here. */
-function writeFailed(files: string[], cause: unknown): OperationResult {
+function writeFailed(files: string[], cause: unknown): CommandResult {
   const reason = `The inventory files could not all be written: ${why(cause)}`;
   return {
     ...unchanged(EXTRACT),
@@ -219,7 +219,7 @@ function extractedResult(
   fork: string,
   listed: readonly Listed[],
   written: string[],
-): OperationResult {
+): CommandResult {
   const total = String(listed.length);
   const wrote = written.length > 0;
   const files = wrote
@@ -258,7 +258,7 @@ function extractedResult(
  */
 export function extractInventory(
   args: readonly string[],
-): Promise<OperationResult> {
+): Promise<CommandResult> {
   const repository = process.cwd();
   const fork = forkOption(args)?.fork;
   if (fork === undefined)
@@ -418,7 +418,7 @@ function matchFork(
 function checkedResult(
   kept: readonly Listed[],
   fork: string | undefined,
-): OperationResult {
+): CommandResult {
   const total = String(kept.length);
   const stateFiles = stateFileItems().length;
   const matches = fork === undefined ? "" : " They match the fork.";
@@ -452,7 +452,7 @@ function checkedResult(
  */
 export function checkInventory(
   args: readonly string[],
-): Promise<OperationResult> {
+): Promise<CommandResult> {
   const repository = process.cwd();
   const option = forkOption(args);
   if (option === undefined)

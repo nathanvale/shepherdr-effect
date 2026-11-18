@@ -1,10 +1,10 @@
-import type { OperationResult } from "../commands-contract.ts";
+import type { CommandResult } from "../commands-contract.ts";
 
 export function status(
   commandIdentity: string,
   data: unknown,
   message: string,
-): OperationResult {
+): CommandResult {
   return {
     commandIdentity,
     data,

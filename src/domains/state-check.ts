@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { Effect } from "effect";
-import type { OperationResult } from "../commands-contract.ts";
+import type { CommandResult } from "../commands-contract.ts";
 import { type Family, findStateFile } from "../state-files/registry.ts";
 import { roundTrip, type Verdict } from "../state-files/round-trip.ts";
 
@@ -29,7 +29,7 @@ function unchanged() {
     },
     retryable: false,
     transactionState: "unchanged",
-  } satisfies Partial<OperationResult>;
+  } satisfies Partial<CommandResult>;
 }
 
 function refused(
@@ -37,7 +37,7 @@ function refused(
   causeCode: string,
   message: string,
   repairAction: string,
-): OperationResult {
+): CommandResult {
   return {
     ...unchanged(),
     causeCode,
@@ -120,7 +120,7 @@ function familyCounts(files: readonly CheckedFile[]) {
   return [...counts].map(([family, checked]) => ({ family, files: checked }));
 }
 
-function report(root: string, files: readonly CheckedFile[]): OperationResult {
+function report(root: string, files: readonly CheckedFile[]): CommandResult {
   if (files.length === 0)
     return refused(
       "domain",
@@ -174,7 +174,7 @@ function report(root: string, files: readonly CheckedFile[]): OperationResult {
  */
 export function checkStateFiles(
   args: readonly string[],
-): Promise<OperationResult> {
+): Promise<CommandResult> {
   const root = rootArgument(args);
   if (root === undefined)
     return Promise.resolve(
