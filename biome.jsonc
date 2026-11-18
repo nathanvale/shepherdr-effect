@@ -8,7 +8,9 @@
       "!**/dist",
       "!**/coverage",
       "!**/.fallow",
-      "!**/bun.lock"
+      "!**/bun.lock",
+      // Written by `inventory extract`, which is the one owner of their text.
+      "!inventory"
     ]
   },
   "formatter": {

@@ -1,0 +1,211 @@
+[
+  {
+    "id": "attach",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/news.py:318",
+    "callers": [
+      "mods/tasks/bin/herdr_task/news.py"
+    ]
+  },
+  {
+    "id": "connect",
+    "kind": "hc-cli-subcommand",
+    "source": "service/hc/client.ts:67",
+    "callers": [
+      "service/hc/client.ts"
+    ]
+  },
+  {
+    "id": "exec",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/backups.py:43",
+    "callers": [
+      "mods/tasks/bin/herdr_task/backups.py",
+      "mods/tasks/bin/herdr_task/cli.py",
+      "mods/tasks/bin/herdr_task/home.py",
+      "mods/tasks/bin/herdr_task/link.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "service/usage.ts"
+    ]
+  },
+  {
+    "id": "file write",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/cli.py:88",
+    "callers": [
+      "mods/tasks/bin/herdr_task/cli.py"
+    ]
+  },
+  {
+    "id": "get",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/agents.py:54",
+    "callers": [
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/archive.py",
+      "mods/tasks/bin/herdr_task/assistant_settings.py",
+      "mods/tasks/bin/herdr_task/automations.py",
+      "mods/tasks/bin/herdr_task/autopilot.py",
+      "mods/tasks/bin/herdr_task/feedback.py",
+      "mods/tasks/bin/herdr_task/home.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/scheduler.py",
+      "mods/tasks/bin/herdr_task/store.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/agents.ts",
+      "service/chats.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "interrupt",
+    "kind": "hc-cli-subcommand",
+    "source": "service/actions.ts:697",
+    "callers": [
+      "service/actions.ts"
+    ]
+  },
+  {
+    "id": "keys",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/machines.py:971",
+    "callers": [
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "service/actions.ts",
+      "service/agents.ts",
+      "service/codex-ask.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "kill",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/commands.py:1244",
+    "callers": [
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/scheduler.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "service/actions.ts"
+    ]
+  },
+  {
+    "id": "label",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/assistant_settings.py:192",
+    "callers": [
+      "mods/tasks/bin/herdr_task/assistant_settings.py",
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/store.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/actions.ts",
+      "service/agents.ts",
+      "service/secrets.ts"
+    ]
+  },
+  {
+    "id": "ls",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/agents.py:33",
+    "callers": [
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/archive.py",
+      "mods/tasks/bin/herdr_task/github.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/tick.py"
+    ]
+  },
+  {
+    "id": "machine add",
+    "kind": "hc-cli-subcommand",
+    "source": "service/actions.ts:402",
+    "callers": [
+      "service/actions.ts"
+    ]
+  },
+  {
+    "id": "machine ls",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/backups.py:65",
+    "callers": [
+      "mods/tasks/bin/herdr_task/backups.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "service/actions.ts",
+      "service/agents.ts"
+    ]
+  },
+  {
+    "id": "put",
+    "kind": "hc-cli-subcommand",
+    "source": "service/actions.ts:61",
+    "callers": [
+      "service/actions.ts"
+    ]
+  },
+  {
+    "id": "read",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/agents.py:351",
+    "callers": [
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "service/agents.ts",
+      "service/codex-ask.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "rm",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/scheduler.py:35",
+    "callers": [
+      "mods/tasks/bin/herdr_task/scheduler.py"
+    ]
+  },
+  {
+    "id": "run",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/backups.py:200",
+    "callers": [
+      "mods/tasks/bin/herdr_task/backups.py",
+      "mods/tasks/bin/herdr_task/link.py",
+      "mods/tasks/bin/herdr_task/scheduler.py"
+    ]
+  },
+  {
+    "id": "send",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/launch_admission.py:412",
+    "callers": [
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/codex-ask.ts"
+    ]
+  },
+  {
+    "id": "server status",
+    "kind": "hc-cli-subcommand",
+    "source": "mods/tasks/bin/herdr_task/machines.py:530",
+    "callers": [
+      "mods/tasks/bin/herdr_task/machines.py"
+    ]
+  }
+]

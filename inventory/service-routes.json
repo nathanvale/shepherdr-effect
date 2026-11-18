@@ -1,0 +1,238 @@
+[
+  {
+    "id": "/^\\/api\\/artifacts\\/([\\w.-]+)\\/(recipe|file\\/(.+))$/",
+    "kind": "service-route",
+    "source": "service/main.ts:822",
+    "websocket": false
+  },
+  {
+    "id": "/api/*",
+    "kind": "service-route",
+    "source": "service/main.ts:965",
+    "websocket": false
+  },
+  {
+    "id": "/api/action",
+    "kind": "service-route",
+    "source": "service/main.ts:932",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/activity",
+    "kind": "service-route",
+    "source": "service/main.ts:921",
+    "websocket": false
+  },
+  {
+    "id": "/api/browser",
+    "kind": "service-route",
+    "source": "service/main.ts:752",
+    "websocket": true
+  },
+  {
+    "id": "/api/commands",
+    "kind": "service-route",
+    "source": "service/main.ts:850",
+    "websocket": false
+  },
+  {
+    "id": "/api/dictate",
+    "kind": "service-route",
+    "source": "service/main.ts:843",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/dictate/live",
+    "kind": "service-route",
+    "source": "service/main.ts:847",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/file",
+    "kind": "service-route",
+    "source": "service/main.ts:792",
+    "websocket": false
+  },
+  {
+    "id": "/api/folders",
+    "kind": "service-route",
+    "source": "service/main.ts:861",
+    "websocket": false
+  },
+  {
+    "id": "/api/health",
+    "kind": "service-route",
+    "source": "service/main.ts:741",
+    "websocket": false
+  },
+  {
+    "id": "/api/machines/find",
+    "kind": "service-route",
+    "source": "service/main.ts:860",
+    "websocket": false
+  },
+  {
+    "id": "/api/me",
+    "kind": "service-route",
+    "source": "service/main.ts:783",
+    "websocket": false
+  },
+  {
+    "id": "/api/newspace",
+    "kind": "service-route",
+    "source": "service/main.ts:866",
+    "websocket": false
+  },
+  {
+    "id": "/api/push/*",
+    "kind": "service-route",
+    "source": "service/main.ts:891",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/push/choose",
+    "kind": "service-route",
+    "source": "service/main.ts:896",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/push/key",
+    "kind": "service-route",
+    "source": "service/main.ts:885",
+    "websocket": false
+  },
+  {
+    "id": "/api/push/state",
+    "kind": "service-route",
+    "source": "service/main.ts:894",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/push/subscribe",
+    "kind": "service-route",
+    "source": "service/main.ts:886",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/push/test",
+    "kind": "service-route",
+    "source": "service/main.ts:899",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/push/unsubscribe",
+    "kind": "service-route",
+    "source": "service/main.ts:895",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/reach",
+    "kind": "service-route",
+    "source": "service/main.ts:859",
+    "websocket": false
+  },
+  {
+    "id": "/api/spaces",
+    "kind": "service-route",
+    "source": "service/main.ts:872",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/state",
+    "kind": "service-route",
+    "source": "service/main.ts:784",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/terminal",
+    "kind": "service-route",
+    "source": "service/main.ts:752",
+    "websocket": true
+  },
+  {
+    "id": "/api/upload",
+    "kind": "service-route",
+    "source": "service/main.ts:831",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/voice",
+    "kind": "service-route",
+    "source": "service/main.ts:752",
+    "websocket": true
+  },
+  {
+    "id": "/api/voice/hear",
+    "kind": "service-route",
+    "source": "service/main.ts:946",
+    "methods": [
+      "DELETE",
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/voice/tool",
+    "kind": "service-route",
+    "source": "service/main.ts:933",
+    "methods": [
+      "POST"
+    ],
+    "websocket": false
+  },
+  {
+    "id": "/api/worktree",
+    "kind": "service-route",
+    "source": "service/main.ts:901",
+    "websocket": false
+  },
+  {
+    "id": "/api/ws",
+    "kind": "service-route",
+    "source": "service/main.ts:752",
+    "websocket": true
+  },
+  {
+    "id": "/shepherdr/*",
+    "kind": "service-route",
+    "source": "service/main.ts:739",
+    "websocket": false
+  }
+]

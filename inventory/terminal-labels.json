@@ -1,0 +1,299 @@
+[
+  {
+    "id": "herdr.action",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/link.py:117",
+    "files": [
+      "mods/tasks/bin/herdr_task/link.py"
+    ]
+  },
+  {
+    "id": "herdr.agent",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/agents.py:346",
+    "files": [
+      "core/chat-view.js",
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/feedback.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/news.py",
+      "mods/tasks/bin/herdr_task/output.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "service/actions.ts",
+      "service/compat.ts"
+    ]
+  },
+  {
+    "id": "herdr.alert",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/commands.py:722",
+    "files": [
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/push.ts"
+    ]
+  },
+  {
+    "id": "herdr.chat",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch_admission.py:603",
+    "files": [
+      "core/spaces.js",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "service/actions.ts",
+      "service/agents.ts",
+      "service/saved-spaces.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "herdr.chat.origin",
+    "kind": "terminal-label",
+    "source": "service/actions.ts:599",
+    "files": [
+      "core/chat-view.js",
+      "service/actions.ts",
+      "service/agents.ts"
+    ]
+  },
+  {
+    "id": "herdr.chat.read",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/news.py:238",
+    "files": [
+      "core/spaces.js",
+      "mods/tasks/bin/herdr_task/news.py"
+    ]
+  },
+  {
+    "id": "herdr.chat.slot",
+    "kind": "terminal-label",
+    "source": "service/actions.ts:599",
+    "files": [
+      "core/chat-view.js",
+      "service/actions.ts"
+    ]
+  },
+  {
+    "id": "herdr.coordinator",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch.py:884",
+    "files": [
+      "mods/tasks/bin/herdr_task/launch.py"
+    ]
+  },
+  {
+    "id": "herdr.coordinator.space",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/assistant_settings.py:36",
+    "files": [
+      "core/agents.js",
+      "core/notify.js",
+      "core/spaces.js",
+      "mods/tasks/bin/herdr_task/assistant_settings.py",
+      "mods/tasks/bin/herdr_task/autopilot.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "service/actions.ts",
+      "service/compat.ts",
+      "service/main.ts",
+      "service/saved-spaces.ts",
+      "service/spaces.ts"
+    ]
+  },
+  {
+    "id": "herdr.coordinator.tab",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch.py:936",
+    "files": [
+      "mods/tasks/bin/herdr_task/launch.py",
+      "service/actions.ts",
+      "service/compat.ts"
+    ]
+  },
+  {
+    "id": "herdr.launch",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch_admission.py:53",
+    "files": [
+      "mods/tasks/bin/herdr_task/launch_admission.py"
+    ]
+  },
+  {
+    "id": "herdr.provider",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch.py:881",
+    "files": [
+      "core/agents.js",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/revive.py"
+    ]
+  },
+  {
+    "id": "herdr.reactions",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/reactions.py:19",
+    "files": [
+      "mods/tasks/bin/herdr_task/reactions.py"
+    ]
+  },
+  {
+    "id": "herdr.resume",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/launch_admission.py:610",
+    "files": [
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "service/jobs.ts"
+    ]
+  },
+  {
+    "id": "herdr.role",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/agents.py:29",
+    "files": [
+      "core/agents.js",
+      "core/chat-view.js",
+      "core/spaces.js",
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/link.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/output.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/actions.ts",
+      "service/jobs.ts",
+      "service/model.ts",
+      "service/push.ts",
+      "service/saved-spaces.ts",
+      "service/spaces.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "herdr.secret.ask.*",
+    "kind": "terminal-label",
+    "source": "core/secrets.js:7",
+    "files": [
+      "core/secrets.js"
+    ]
+  },
+  {
+    "id": "herdr.secret.want",
+    "kind": "terminal-label",
+    "source": "service/secrets.ts:184",
+    "files": [
+      "service/secrets.ts"
+    ]
+  },
+  {
+    "id": "herdr.settings",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/assistant_settings.py:21",
+    "files": [
+      "mods/tasks/bin/herdr_task/assistant_settings.py"
+    ]
+  },
+  {
+    "id": "herdr.show",
+    "kind": "terminal-label",
+    "source": "service/show.ts:9",
+    "files": [
+      "service/show.ts"
+    ]
+  },
+  {
+    "id": "herdr.space",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/assistant_settings.py:36",
+    "files": [
+      "core/agents.js",
+      "core/notify.js",
+      "mods/tasks/bin/herdr_task/assistant_settings.py",
+      "mods/tasks/bin/herdr_task/autopilot.py",
+      "mods/tasks/bin/herdr_task/backups.py",
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/machines.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/store.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "mods/tasks/bin/herdr_task/tick.py",
+      "service/actions.ts",
+      "service/compat.ts",
+      "service/main.ts",
+      "service/spaces.ts"
+    ]
+  },
+  {
+    "id": "herdr.tab",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/backups.py:201",
+    "files": [
+      "mods/tasks/bin/herdr_task/backups.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/output.py",
+      "mods/tasks/bin/herdr_task/store.py",
+      "service/compat.ts"
+    ]
+  },
+  {
+    "id": "herdr.task",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/agents.py:33",
+    "files": [
+      "core/agents.js",
+      "core/notify.js",
+      "mods/tasks/bin/herdr_task/agents.py",
+      "mods/tasks/bin/herdr_task/archive.py",
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/feedback.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/launch_admission.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/store.py",
+      "mods/tasks/bin/herdr_task/templates.py",
+      "service/agents.ts",
+      "service/compat.ts",
+      "service/jobs.ts",
+      "service/model.ts",
+      "service/push.ts",
+      "service/watch.ts"
+    ]
+  },
+  {
+    "id": "herdr.task.space",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/commands.py:1282",
+    "files": [
+      "core/agents.js",
+      "core/notify.js",
+      "mods/tasks/bin/herdr_task/commands.py",
+      "mods/tasks/bin/herdr_task/launch.py",
+      "mods/tasks/bin/herdr_task/reactions.py",
+      "mods/tasks/bin/herdr_task/revive.py",
+      "mods/tasks/bin/herdr_task/takeover.py",
+      "service/actions.ts",
+      "service/compat.ts",
+      "service/main.ts"
+    ]
+  },
+  {
+    "id": "herdr.typing",
+    "kind": "terminal-label",
+    "source": "mods/tasks/bin/herdr_task/news.py:300",
+    "files": [
+      "mods/tasks/bin/herdr_task/news.py"
+    ]
+  }
+]
