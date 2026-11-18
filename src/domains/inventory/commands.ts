@@ -45,7 +45,7 @@ const counts = (listed: readonly Listed[]) =>
     .map(({ list, items }) => `${list.name} ${String(items.length)}`)
     .join(", ");
 
-function settle(step: Step<CommandResult>): Promise<CommandResult> {
+function resultOf(step: Step<CommandResult>): Promise<CommandResult> {
   const either = { onFailure: same, onSuccess: same };
   return Effect.runPromise(Effect.match(step, either));
 }
@@ -117,7 +117,7 @@ function shortened(ids: readonly string[]): string {
 }
 
 /** `--fork PATH` and nothing else names a fork. No words at all names none. Anything else is not understood. */
-function forkOption(
+function forkCheckoutOption(
   args: readonly string[],
 ): { readonly fork: string | undefined } | undefined {
   if (args.length === 0) return { fork: undefined };
@@ -260,7 +260,7 @@ export function extractInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
   const repository = process.cwd();
-  const fork = forkOption(args)?.fork;
+  const fork = forkCheckoutOption(args)?.fork;
   if (fork === undefined)
     return Promise.resolve(
       refused(
@@ -271,7 +271,7 @@ export function extractInventory(
         "Pass --fork with the old system's folder and retry.",
       ),
     );
-  return settle(
+  return resultOf(
     Effect.gen(function* () {
       const listed = yield* readFresh(EXTRACT, fork, repository);
       const changed = yield* Effect.promise(() =>
@@ -454,7 +454,7 @@ export function checkInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
   const repository = process.cwd();
-  const option = forkOption(args);
+  const option = forkCheckoutOption(args);
   if (option === undefined)
     return Promise.resolve(
       refused(
@@ -466,7 +466,7 @@ export function checkInventory(
       ),
     );
   const { fork } = option;
-  return settle(
+  return resultOf(
     Effect.gen(function* () {
       const kept = yield* keptLists(repository);
       if (fork !== undefined) yield* matchFork(fork, repository, kept);

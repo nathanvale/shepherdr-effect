@@ -34,7 +34,7 @@ export async function readSources(
   fork: string,
   repository: string,
 ): Promise<Sources> {
-  const [python, service, client, core, diagram] = await Promise.all([
+  const [python, service, client, coreFolder, diagram] = await Promise.all([
     sourcesIn(fork, "mods/tasks/bin/herdr_task", ".py"),
     sourcesIn(fork, "service", ".ts"),
     // The link to herdr-core is the one part of the service kept in a folder of its own.
@@ -45,7 +45,7 @@ export async function readSources(
   return {
     python,
     service: [...service, ...client],
-    core,
+    coreFolder,
     diagram: { path: DIAGRAM, text: diagram },
   };
 }

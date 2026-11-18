@@ -215,7 +215,7 @@ UpdateElementStyle(svc, $borderColor="#b45309")
 `;
 
 /** The fork's files, by path from its root. */
-export const forkFiles: Readonly<Record<string, string>> = {
+export const forkCheckoutFiles: Readonly<Record<string, string>> = {
   [CLI]: cli,
   [AGENTS]: agents,
   [MAIN]: main,
@@ -232,7 +232,7 @@ export const diagramText = diagram;
 
 /** One of the fork's files as an extractor takes it. */
 export function file(path: string) {
-  const text = forkFiles[path];
+  const text = forkCheckoutFiles[path];
   if (text === undefined) throw new Error(`The fixture has no ${path}`);
   return { path, text };
 }
@@ -248,6 +248,6 @@ export function at(path: string, piece: string, text = file(path).text) {
 export const sources: Sources = {
   python: [file(AGENTS), file(CLI)],
   service: [file(ACTIONS), file(HUB), file(MAIN), file(CLIENT)],
-  core: [file(SECRETS)],
+  coreFolder: [file(SECRETS)],
   diagram: { path: DIAGRAM, text: diagramText },
 };

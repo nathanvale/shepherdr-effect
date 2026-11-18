@@ -15,7 +15,7 @@ import {
   CLI,
   DIAGRAM,
   diagramText,
-  forkFiles,
+  forkCheckoutFiles,
   MAIN,
 } from "./inventory-fixtures.ts";
 
@@ -52,7 +52,9 @@ async function folderOf(files: Readonly<Record<string, string>>) {
 }
 
 /** A fork folder, and a repository folder that holds only the diagram. */
-async function folders(fork: Readonly<Record<string, string>> = forkFiles) {
+async function folders(
+  fork: Readonly<Record<string, string>> = forkCheckoutFiles,
+) {
   return {
     fork: await folderOf(fork),
     repository: await folderOf({ [DIAGRAM]: diagramText }),
@@ -139,7 +141,7 @@ test("extract keeps one file for each list, in id order, and writes nowhere else
     expect(text).toBe(`${JSON.stringify(items, null, 2)}\n`);
     expect(order).toEqual([...order].sort());
   }
-  expect(await filesUnder(fork)).toEqual(forkFiles);
+  expect(await filesUnder(fork)).toEqual(forkCheckoutFiles);
 });
 
 test("extract never reads a test file, and a second extract changes nothing", async () => {
@@ -163,7 +165,7 @@ test("extract never reads a test file, and a second extract changes nothing", as
 test("extract refuses a folder that is not the fork, and writes nothing", async () => {
   const { repository } = await folders();
   const withoutCli = Object.fromEntries(
-    Object.entries(forkFiles).filter(([path]) => path !== CLI),
+    Object.entries(forkCheckoutFiles).filter(([path]) => path !== CLI),
   );
   const cases = [
     await folderOf({ "README.md": "not a fork" }),
@@ -185,7 +187,7 @@ test("extract refuses a folder that is not the fork, and writes nothing", async 
 });
 
 test("extract that cannot write says its files are uncertain, not unchanged", async () => {
-  const fork = await folderOf(forkFiles);
+  const fork = await folderOf(forkCheckoutFiles);
   const repository = await folderOf({
     [DIAGRAM]: diagramText,
     inventory: "a file where the folder should be",
@@ -236,7 +238,7 @@ test("check with the fork names each stale list and the ids that differ", async 
   const { fork, repository } = await folders();
   inventory(repository, "extract", "--fork", fork);
   const before = await filesUnder(repository);
-  const main = (forkFiles[MAIN] ?? "")
+  const main = (forkCheckoutFiles[MAIN] ?? "")
     .replace(
       'if (path === "/api/health")',
       'if (path === "/api/added") return json({}); if (path === "/api/health" && req.method === "GET")',
@@ -326,7 +328,7 @@ test("a kept list that drifted in many items names the first few", async () => {
   inventory(repository, "extract", "--fork", fork);
   const kept = await ids(repository, "herdr-task-commands");
   // One more line at the top: every command now stands a line lower.
-  await writeFile(join(fork, CLI), `# moved\n${forkFiles[CLI] ?? ""}`);
+  await writeFile(join(fork, CLI), `# moved\n${forkCheckoutFiles[CLI] ?? ""}`);
 
   const observed = inventory(repository, "check", "--fork", fork);
 

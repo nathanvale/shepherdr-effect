@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { Schema } from "effect";
-import { coreRpcMethods } from "../src/domains/inventory/core-rpc-methods.ts";
+import { herdrCoreRpcMethods } from "../src/domains/inventory/core-rpc-methods.ts";
 import { diagramElements } from "../src/domains/inventory/diagram-elements.ts";
 import { hcCliSubcommands } from "../src/domains/inventory/hc-cli-subcommands.ts";
 import { herdrTaskCommands } from "../src/domains/inventory/herdr-task-commands.ts";
@@ -106,7 +106,7 @@ test("service actions: both handlers' compared and switched types, and no other 
   ]);
 });
 
-test("core RPC methods: the required list and every call by name, marked for each", () => {
+test("herdr-core RPC methods: the required list and every call by name, marked for each", () => {
   const method = (
     id: string,
     path: string,
@@ -121,15 +121,17 @@ test("core RPC methods: the required list and every call by name, marked for eac
     called,
   });
 
-  expect(coreRpcMethods([file(ACTIONS), file(HUB), file(CLIENT)])).toEqual([
-    method("doc.get", CLIENT, "'doc.get'", true, true),
-    // On the list's second line.
-    method("events.subscribe", CLIENT, "'events.subscribe'", true, true),
-    method("hello", CLIENT, "'hello'", false, true),
-    // The client refuses a core without it, and nothing calls it.
-    method("terminal.run", CLIENT, "'terminal.run'", true, false),
-    method("terminal.send", CLIENT, "'terminal.send'", true, true),
-  ]);
+  expect(herdrCoreRpcMethods([file(ACTIONS), file(HUB), file(CLIENT)])).toEqual(
+    [
+      method("doc.get", CLIENT, "'doc.get'", true, true),
+      // On the list's second line.
+      method("events.subscribe", CLIENT, "'events.subscribe'", true, true),
+      method("hello", CLIENT, "'hello'", false, true),
+      // The client refuses a core without it, and nothing calls it.
+      method("terminal.run", CLIENT, "'terminal.run'", true, false),
+      method("terminal.send", CLIENT, "'terminal.send'", true, true),
+    ],
+  );
 });
 
 test("hc subcommands: every way a command line is built, with who runs each", () => {

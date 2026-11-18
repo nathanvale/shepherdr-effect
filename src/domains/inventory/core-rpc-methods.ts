@@ -9,14 +9,14 @@ import {
   type SourceFile,
 } from "./source.ts";
 
-export const CoreRpcMethod = Schema.Struct({
+export const HerdrCoreRpcMethod = Schema.Struct({
   ...itemFields("core-rpc-method"),
   /** In the list the client refuses to start without. */
   required: Schema.Boolean,
   /** Passed by name to a `call(...)` somewhere in the service. */
   called: Schema.Boolean,
 });
-export type CoreRpcMethod = (typeof CoreRpcMethod)["Type"];
+export type HerdrCoreRpcMethod = (typeof HerdrCoreRpcMethod)["Type"];
 
 const CLIENT = "service/hc/client.ts";
 const REQUIRED = /\bREQUIRED\s*=\s*\[([^\]]*)\]/;
@@ -42,7 +42,9 @@ function requiredMethods(client: SourceFile): Map<string, number> {
  * service calls by name. A method can be required and never called: the
  * client checks that the core has it and nothing uses it.
  */
-export function coreRpcMethods(files: readonly SourceFile[]): CoreRpcMethod[] {
+export function herdrCoreRpcMethods(
+  files: readonly SourceFile[],
+): HerdrCoreRpcMethod[] {
   const client = fileAt(files, CLIENT);
   const required = requiredMethods(client);
   const called = new Map<string, string>();

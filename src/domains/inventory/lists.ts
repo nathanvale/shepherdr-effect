@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { CoreRpcMethod, coreRpcMethods } from "./core-rpc-methods.ts";
+import { HerdrCoreRpcMethod, herdrCoreRpcMethods } from "./core-rpc-methods.ts";
 import { DiagramElement, diagramElements } from "./diagram-elements.ts";
 import { HcCliSubcommand, hcCliSubcommands } from "./hc-cli-subcommands.ts";
 import { HerdrTaskCommand, herdrTaskCommands } from "./herdr-task-commands.ts";
@@ -15,7 +15,7 @@ export interface Sources {
   /** `service/*.ts` and `service/hc/*.ts`, tests left out */
   readonly service: readonly SourceFile[];
   /** `core/*.js`, tests left out */
-  readonly core: readonly SourceFile[];
+  readonly coreFolder: readonly SourceFile[];
   readonly diagram: SourceFile;
 }
 
@@ -67,8 +67,8 @@ export const lists: readonly List[] = [
   },
   {
     name: "core-rpc-methods",
-    schema: listOf(CoreRpcMethod),
-    extract: ({ service }) => coreRpcMethods(service),
+    schema: listOf(HerdrCoreRpcMethod),
+    extract: ({ service }) => herdrCoreRpcMethods(service),
   },
   {
     name: "hc-cli-subcommands",
@@ -78,8 +78,8 @@ export const lists: readonly List[] = [
   {
     name: "terminal-labels",
     schema: listOf(TerminalLabel),
-    extract: ({ python, service, core }) =>
-      terminalLabels([...python, ...service, ...core]),
+    extract: ({ python, service, coreFolder }) =>
+      terminalLabels([...python, ...service, ...coreFolder]),
   },
   {
     name: "diagram-elements",
