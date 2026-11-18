@@ -8,11 +8,13 @@ export const DIAGRAM = "docs/design/current-architecture.mmd";
 
 /** A folder's own source files with one ending, tests left out, in name order. Folders inside it are not entered. */
 async function sourcesIn(
-  fork: string,
+  forkCheckout: string,
   folder: string,
   suffix: string,
 ): Promise<SourceFile[]> {
-  const entries = await readdir(join(fork, folder), { withFileTypes: true });
+  const entries = await readdir(join(forkCheckout, folder), {
+    withFileTypes: true,
+  });
   const names = entries
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
@@ -21,7 +23,7 @@ async function sourcesIn(
   return Promise.all(
     names.map(async (name) => ({
       path: `${folder}/${name}`,
-      text: await readFile(join(fork, folder, name), "utf8"),
+      text: await readFile(join(forkCheckout, folder, name), "utf8"),
     })),
   );
 }
@@ -31,15 +33,15 @@ async function sourcesIn(
  * repository. Nothing in the fork is run or written.
  */
 export async function readSources(
-  fork: string,
+  forkCheckout: string,
   repository: string,
 ): Promise<Sources> {
   const [python, service, client, coreFolder, diagram] = await Promise.all([
-    sourcesIn(fork, "mods/tasks/bin/herdr_task", ".py"),
-    sourcesIn(fork, "service", ".ts"),
+    sourcesIn(forkCheckout, "mods/tasks/bin/herdr_task", ".py"),
+    sourcesIn(forkCheckout, "service", ".ts"),
     // The link to herdr-core is the one part of the service kept in a folder of its own.
-    sourcesIn(fork, "service/hc", ".ts"),
-    sourcesIn(fork, "core", ".js"),
+    sourcesIn(forkCheckout, "service/hc", ".ts"),
+    sourcesIn(forkCheckout, "core", ".js"),
     readFile(join(repository, DIAGRAM), "utf8"),
   ]);
   return {

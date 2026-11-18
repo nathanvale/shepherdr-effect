@@ -129,12 +129,12 @@ function forkCheckoutOption(
 /** Every list, read fresh from the fork. Nothing is written. */
 function readFresh(
   command: Command,
-  fork: string,
+  forkCheckout: string,
   repository: string,
 ): Step<Listed[]> {
   return Effect.tryPromise({
     try: async () => {
-      const sources = await readSources(fork, repository);
+      const sources = await readSources(forkCheckout, repository);
       return lists.map((list) => ({ list, items: list.extract(sources) }));
     },
     catch: (cause) =>
@@ -216,7 +216,7 @@ const WROTE_FILES = {
 } as const;
 
 function extractedResult(
-  fork: string,
+  forkCheckout: string,
   listed: readonly Listed[],
   written: string[],
 ): CommandResult {
@@ -229,7 +229,7 @@ function extractedResult(
     ...unchanged(EXTRACT),
     ...(wrote ? WROTE_FILES : WROTE_NOTHING),
     data: {
-      fork,
+      fork: forkCheckout,
       lists: listed.map(({ list, items }) => ({
         list: list.name,
         items: items.length,
@@ -260,8 +260,8 @@ export function extractInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
   const repository = process.cwd();
-  const fork = forkCheckoutOption(args)?.fork;
-  if (fork === undefined)
+  const forkCheckout = forkCheckoutOption(args)?.fork;
+  if (forkCheckout === undefined)
     return Promise.resolve(
       refused(
         EXTRACT,
@@ -273,7 +273,7 @@ export function extractInventory(
     );
   return resultOf(
     Effect.gen(function* () {
-      const listed = yield* readFresh(EXTRACT, fork, repository);
+      const listed = yield* readFresh(EXTRACT, forkCheckout, repository);
       const changed = yield* Effect.promise(() =>
         differing(repository, listed),
       );
@@ -282,7 +282,7 @@ export function extractInventory(
         try: () => write(repository, changed),
         catch: (cause) => writeFailed(files, cause),
       });
-      return extractedResult(fork, listed, files);
+      return extractedResult(forkCheckout, listed, files);
     }),
   );
 }
@@ -390,12 +390,12 @@ function staleness(kept: readonly Item[], fresh: readonly Item[]): string[] {
 
 /** Fails when a kept list no longer says what the fork says, naming each such list and the ids that differ. */
 function matchFork(
-  fork: string,
+  forkCheckout: string,
   repository: string,
   kept: readonly Listed[],
 ): Step<void> {
   return Effect.gen(function* () {
-    const fresh = yield* readFresh(CHECK, fork, repository);
+    const fresh = yield* readFresh(CHECK, forkCheckout, repository);
     const stale = kept.flatMap(({ list, items }, at) => {
       const differences = staleness(items, fresh[at]?.items ?? []);
       return differences.length > 0
@@ -417,16 +417,16 @@ function matchFork(
 
 function checkedResult(
   kept: readonly Listed[],
-  fork: string | undefined,
+  forkCheckout: string | undefined,
 ): CommandResult {
   const total = String(kept.length);
   const stateFiles = stateFileItems().length;
-  const matches = fork === undefined ? "" : " They match the fork.";
+  const matches = forkCheckout === undefined ? "" : " They match the fork.";
   return {
     ...unchanged(CHECK),
     causeCode: "SUCCESS_UNCHANGED",
     data: {
-      fork: fork ?? null,
+      fork: forkCheckout ?? null,
       lists: kept.map(({ list, items }) => ({
         list: list.name,
         items: items.length,
@@ -465,12 +465,13 @@ export function checkInventory(
         "Pass nothing, or --fork with the old system's folder, and retry.",
       ),
     );
-  const { fork } = option;
+  const { fork: forkCheckout } = option;
   return resultOf(
     Effect.gen(function* () {
       const kept = yield* keptLists(repository);
-      if (fork !== undefined) yield* matchFork(fork, repository, kept);
-      return checkedResult(kept, fork);
+      if (forkCheckout !== undefined)
+        yield* matchFork(forkCheckout, repository, kept);
+      return checkedResult(kept, forkCheckout);
     }),
   );
 }
