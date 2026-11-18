@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { Schema } from "effect";
-import { herdrCoreRpcMethods } from "../src/inventory/core-rpc-methods.ts";
+import { herdrCoreRpcMethods } from "../src/inventory/herdr-core-rpc-methods.ts";
 import { diagramElements } from "../src/inventory/diagram-elements.ts";
 import { hcCliSubcommands } from "../src/inventory/hc-cli-subcommands.ts";
 import { herdrTaskCommands } from "../src/inventory/herdr-task-commands.ts";

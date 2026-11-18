@@ -1,5 +1,8 @@
 import { Schema } from "effect";
-import { HerdrCoreRpcMethod, herdrCoreRpcMethods } from "./core-rpc-methods.ts";
+import {
+  HerdrCoreRpcMethod,
+  herdrCoreRpcMethods,
+} from "./herdr-core-rpc-methods.ts";
 import { DiagramElement, diagramElements } from "./diagram-elements.ts";
 import { HcCliSubcommand, hcCliSubcommands } from "./hc-cli-subcommands.ts";
 import { HerdrTaskCommand, herdrTaskCommands } from "./herdr-task-commands.ts";
