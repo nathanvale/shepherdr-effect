@@ -182,8 +182,11 @@ afterEach(async () => {
   for (const root of roots) expect(existsSync(root)).toBe(false);
 });
 
-test("JSON status emits one 2.0 envelope and no stderr", () => {
-  const result = invoke("status", "--json");
+// These tests are about the command line itself and need a real command to
+// run. `inventory check` runs with no arguments, changes nothing and reads
+// only committed files.
+test("JSON inventory check emits one 2.0 envelope and no stderr", () => {
+  const result = invoke("inventory", "check", "--json");
   expect(result.exitCode).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout.trim().split("\n")).toHaveLength(1);
@@ -191,7 +194,7 @@ test("JSON status emits one 2.0 envelope and no stderr", () => {
     contractVersion: "2.0.0",
     envelopeVersion: 2,
     result: {
-      commandIdentity: "shepherdr.status",
+      commandIdentity: "shepherdr.inventory.check",
       effectClass: "inspect",
       outcome: "success",
       transactionState: "unchanged",
@@ -199,10 +202,11 @@ test("JSON status emits one 2.0 envelope and no stderr", () => {
   });
 });
 
-test("JSON status emits a strict internal fallback after serialization fails", async () => {
+test("JSON inventory check emits a strict internal fallback after serialization fails", async () => {
   const result = invokeWithPreload(
     await serializerFailurePreload(),
-    "status",
+    "inventory",
+    "check",
     "--json",
   );
 
@@ -226,15 +230,13 @@ test("JSON status emits a strict internal fallback after serialization fails", a
       "shepherdr.inventory.check",
       "shepherdr.inventory.extract",
       "shepherdr.state.check",
-      "shepherdr.status",
-      "shepherdr.template.info",
     ],
     contractVersion: "2.0.0",
     envelopeVersion: 2,
     message: "The machine result could not be serialized.",
     result: {
       causeCode: "INTERNAL_RESULT_UNCHANGED",
-      commandIdentity: "shepherdr.status",
+      commandIdentity: "shepherdr.inventory.check",
       data: null,
       effectClass: "inspect",
       effects: {
@@ -279,10 +281,11 @@ test("JSON status emits a strict internal fallback after serialization fails", a
   );
 });
 
-test("JSON status emits a distinct internal fallback after stdout emission fails", async () => {
+test("JSON inventory check emits a distinct internal fallback after stdout emission fails", async () => {
   const result = invokeWithPreload(
     await outputFailurePreload(),
-    "status",
+    "inventory",
+    "check",
     "--json",
   );
 
@@ -307,10 +310,11 @@ test("JSON status emits a distinct internal fallback after stdout emission fails
   });
 });
 
-test("JSON status reports repair guidance after a real stdout reader closes", async () => {
+test("JSON inventory check reports repair guidance after a real stdout reader closes", async () => {
   const result = await invokeWithClosedStdoutReader(
     await closedStdoutPreload(),
-    "status",
+    "inventory",
+    "check",
     "--json",
   );
 
@@ -321,8 +325,12 @@ test("JSON status reports repair guidance after a real stdout reader closes", as
   expect(result.stderr).not.toContain("Bun v");
 });
 
-test("human status reports a repair action after stdout emission fails", async () => {
-  const result = invokeWithPreload(await outputFailurePreload(), "status");
+test("human inventory check reports a repair action after stdout emission fails", async () => {
+  const result = invokeWithPreload(
+    await outputFailurePreload(),
+    "inventory",
+    "check",
+  );
 
   expect(result.exitCode).toBe(1);
   expect(result.stdout).toBe("");
@@ -336,15 +344,21 @@ test("human help names the supported invocation", () => {
   expect(result.exitCode).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout).toBe(
-    "Usage: shepherdr COMMAND [--json]\nstatus\ntemplate info\nstate check --dir PATH\ninventory extract --fork PATH\ninventory check [--fork PATH]\n",
+    "Usage: shepherdr COMMAND [--json]\nstate check --dir PATH\ninventory extract --fork PATH\ninventory check [--fork PATH]\n",
   );
 });
 
-test("selected-command discovery describes the status stations", () => {
-  const result = invoke("--discover-command", "shepherdr.status", "--json");
+test("selected-command discovery describes the inventory check stations", () => {
+  const result = invoke(
+    "--discover-command",
+    "shepherdr.inventory.check",
+    "--json",
+  );
   expect(result.exitCode).toBe(0);
   const envelope = parseEnvelope(result.stdout);
-  expect(envelope.result.data.command.commandIdentity).toBe("shepherdr.status");
+  expect(envelope.result.data.command.commandIdentity).toBe(
+    "shepherdr.inventory.check",
+  );
   expect(
     envelope.result.data.stations
       .map((station: { causeCode: string; outcome: string }) =>
@@ -385,6 +399,27 @@ test("missing command is a focused usage refusal", () => {
   });
 });
 
+test("an unknown command such as status is a usage refusal", () => {
+  const human = invoke("status");
+  expect(human.exitCode).toBe(2);
+  expect(human.stdout).toBe("");
+  expect(human.stderr).toBe(
+    "Choose a supported command. Run shepherdr --help.\n",
+  );
+
+  const json = invoke("status", "--json");
+  expect(json.exitCode).toBe(2);
+  expect(json.stderr).toBe("");
+  expect(JSON.parse(json.stdout)).toMatchObject({
+    result: {
+      causeCode: "USAGE_INVALID_INVOCATION",
+      commandIdentity: "shepherdr.dispatch",
+      outcome: "refused",
+      transactionState: "unchanged",
+    },
+  });
+});
+
 async function resultPreload(
   guidance: Record<string, unknown> | string,
 ): Promise<string> {
@@ -394,8 +429,8 @@ async function resultPreload(
   await writeFile(
     preload,
     `import { commands } from ${JSON.stringify(join(ROOT, "src/commands.ts"))};
-commands[0].execute = async () => ({
-  commandIdentity: "shepherdr.status", data: null, message: "Inspection failed.",
+commands.find((command) => command.commandIdentity === "shepherdr.inventory.check").execute = async () => ({
+  commandIdentity: "shepherdr.inventory.check", data: null, message: "Inspection failed.",
   causeCode: "INTERNAL_RESULT_UNCHANGED", effectClass: "inspect",
   effects: { completed: [], remaining: [], uncertain: [], inventoryComplete: true },
   exitCode: 1, failureClass: "internal", outcome: "failed", repairAction: "Inspect implementation.",
@@ -414,7 +449,8 @@ test("domain handoff guidance excludes the success nextAction", async () => {
   };
   const observed = invokeWithPreload(
     await resultPreload({ handoff }),
-    "status",
+    "inventory",
+    "check",
     "--json",
   );
   expect(observed.exitCode).toBe(1);
@@ -422,7 +458,7 @@ test("domain handoff guidance excludes the success nextAction", async () => {
   expect(observed.stdout.trim().split("\n")).toHaveLength(1);
   const envelope = parseEnvelope(observed.stdout);
   expect(envelope.result).toMatchObject({
-    commandIdentity: "shepherdr.status",
+    commandIdentity: "shepherdr.inventory.check",
     outcome: "failed",
     handoff,
   });
@@ -438,7 +474,8 @@ test("domain handoff guidance preserves a valid optional resource", async () => 
   };
   const observed = invokeWithPreload(
     await resultPreload({ handoff }),
-    "status",
+    "inventory",
+    "check",
     "--json",
   );
   expect(observed.exitCode).toBe(1);
@@ -544,7 +581,8 @@ for (const [name, guidance] of invalidGuidance) {
   test(`invalid domain guidance uses bounded fallback: ${name}`, async () => {
     const observed = invokeWithPreload(
       await resultPreload(guidance),
-      "status",
+      "inventory",
+      "check",
       "--json",
     );
     expect(observed.exitCode).toBe(1);
@@ -553,7 +591,7 @@ for (const [name, guidance] of invalidGuidance) {
     expect(JSON.parse(observed.stdout)).toMatchObject({
       message: "The machine result could not be serialized.",
       result: {
-        commandIdentity: "shepherdr.status",
+        commandIdentity: "shepherdr.inventory.check",
         outcome: "failed",
         causeCode: "INTERNAL_RESULT_UNCHANGED",
         handoff: { owner: "operator" },
@@ -569,7 +607,7 @@ for (const [args, identity, exitCode] of [
   [["--help"], "shepherdr.help", 0],
   [["--discover"], "shepherdr.discovery", 0],
   [
-    ["--discover-command", "shepherdr.status"],
+    ["--discover-command", "shepherdr.inventory.check"],
     "shepherdr.command-discovery",
     0,
   ],

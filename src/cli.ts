@@ -95,7 +95,7 @@ type SerializationFailureStation = InternalFailureStationBase & {
 type OutputEmissionFailureStation = InternalFailureStationBase & {
   causeCode: "INTERNAL_RESULT_UNCHANGED";
   message: "The status output could not be emitted.";
-  nextAction: "Inspect the status output and retry shepherdr status.";
+  nextAction: "Inspect the status output and retry the command.";
   repairAction: "Inspect the status output stream before retrying.";
   trigger: "The status output cannot be emitted.";
 };
@@ -112,7 +112,7 @@ type UnexpectedCommandFailureStation = InternalFailureStationBase & {
   trigger: "The selected read-only domain cannot load or complete.";
 };
 const COMMAND_FAILURE_STATION: UnexpectedCommandFailureStation = {
-  commandIdentity: "shepherdr.status",
+  commandIdentity: "shepherdr.dispatch",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
@@ -128,13 +128,13 @@ const COMMAND_FAILURE_STATION: UnexpectedCommandFailureStation = {
 };
 
 const SERIALIZATION_FAILURE_STATION: SerializationFailureStation = {
-  commandIdentity: "shepherdr.status",
+  commandIdentity: "shepherdr.dispatch",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
   causeCode: "INTERNAL_RESULT_UNCHANGED",
   message: "The machine result could not be serialized.",
-  nextAction: "Inspect the runtime and retry shepherdr status.",
+  nextAction: "Inspect the runtime and retry the command.",
   outcome: "failed",
   repairAction: "Inspect the serialization failure before retrying.",
   retryable: false,
@@ -143,13 +143,13 @@ const SERIALIZATION_FAILURE_STATION: SerializationFailureStation = {
 };
 
 const OUTPUT_EMISSION_FAILURE_STATION: OutputEmissionFailureStation = {
-  commandIdentity: "shepherdr.status",
+  commandIdentity: "shepherdr.dispatch",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
   causeCode: "INTERNAL_RESULT_UNCHANGED",
   message: "The status output could not be emitted.",
-  nextAction: "Inspect the status output and retry shepherdr status.",
+  nextAction: "Inspect the status output and retry the command.",
   outcome: "failed",
   repairAction: "Inspect the status output stream before retrying.",
   retryable: false,
