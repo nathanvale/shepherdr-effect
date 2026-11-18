@@ -3,12 +3,12 @@
 
 const TASKS = ".local/share/shepherdr/tasks";
 const STATE = ".local/state/shepherdr";
-const CORE = ".local/state/herdr-core/default";
+const HERDR_CORE = ".local/state/herdr-core/default";
 
 const T0 = 1_800_000_000_000;
-const LAUNCH = "0f8fad5b-d9cb-469f-a165-70867728950e";
-const OPERATION = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
-const AZURE = {
+const LAUNCH_ID = "0f8fad5b-d9cb-469f-a165-70867728950e";
+const ATTEMPT_ID = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
+const AZURE_BINDING = {
   route: "azure-foundry",
   agent: "claude",
   target: "example-resource",
@@ -57,10 +57,10 @@ const runningTask = {
       agent: "claude",
       argv: ["claude", "--model", "example"],
       at: T0 + 1,
-      launch: LAUNCH,
+      launch: LAUNCH_ID,
       parent: "t1",
       config_dir: "/home/example/.claude",
-      provider: AZURE,
+      provider: AZURE_BINDING,
       session: "session-1",
       log: "/home/example/logs/session-1.jsonl",
       log_looked: T0 + 2,
@@ -334,8 +334,8 @@ export const validFiles: Readonly<Record<string, unknown>> = {
   [`${TASKS}/.launches.json`]: {
     version: 1,
     launches: {
-      [LAUNCH]: {
-        launch: LAUNCH,
+      [LAUNCH_ID]: {
+        launch: LAUNCH_ID,
         identity: "task:widgets#1",
         role: "task",
         state: "confirmed",
@@ -358,7 +358,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
             argv: ["claude"],
             at: T0,
             parent: "t1",
-            provider: AZURE,
+            provider: AZURE_BINDING,
           },
           made: {
             mode: "worktree",
@@ -398,7 +398,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
         revoked: true,
       },
     },
-    claims: { "task:widgets#1": LAUNCH },
+    claims: { "task:widgets#1": LAUNCH_ID },
   },
   [`${TASKS}/.publications.json`]: {
     version: 1,
@@ -427,11 +427,11 @@ export const validFiles: Readonly<Record<string, unknown>> = {
           head: "8888888",
           to: "git@bitbucket.org:example/widgets.git",
           at: T0,
-          id: OPERATION,
+          id: ATTEMPT_ID,
         },
         push: null,
         draft: {
-          id: OPERATION,
+          id: ATTEMPT_ID,
           state: "confirmed",
           head: "8888888",
           pr: {
@@ -446,7 +446,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
           confirmed: T0,
         },
         ready: null,
-        refused: { id: OPERATION, why: "write-refused", at: T0 },
+        refused: { id: ATTEMPT_ID, why: "write-refused", at: T0 },
         made: T0,
         at: T0,
       },
@@ -845,7 +845,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
     cleaned: T0,
   },
   ".local/share/shepherdr/LAYOUT": 2,
-  [`${CORE}/docs.json`]: {
+  [`${HERDR_CORE}/docs.json`]: {
     "shepherdr.node": {
       value: { serving: true, name: "example-host" },
       version: 4,
@@ -854,7 +854,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
     "herdr-app": { value: { spaces: [{ id: "sp1", name: "Widgets" }] } },
     "some.other.document": { value: 7, version: 1 },
   },
-  [`${CORE}/terminals.json`]: {
+  [`${HERDR_CORE}/terminals.json`]: {
     next_id: 9,
     terminals: {
       t1: {

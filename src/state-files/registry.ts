@@ -14,7 +14,7 @@ import {
   StopsLine,
 } from "./engine-state.ts";
 import { HerdrCoreDocsFile, HerdrCoreTerminalsFile } from "./herdr-core.ts";
-import { LaunchesFile, PublicationsFile } from "./journals.ts";
+import { LaunchesFile, PublicationsFile } from "./attempts.ts";
 import {
   CliCheckFile,
   CodexSandboxFile,
@@ -26,7 +26,7 @@ import { ModelPicksFile, SettingsFile } from "./settings.ts";
 import { TaskListFile } from "./task-list.ts";
 
 /** The program that writes a file today. */
-export type Owner =
+export type Writer =
   | "herdr-task"
   | "service"
   | "window"
@@ -55,14 +55,14 @@ export type Family =
   | "machine-state"
   | "herdr-core";
 
-export interface StateFile {
+export interface StateFileEntry {
   readonly family: Family;
   /** Path from the state root (a home folder on the default layout), or a pattern over it. */
   readonly file: string | RegExp;
   /** `json-lines`: every line is one document of `schema`. */
   readonly format: "json" | "json-lines";
   readonly schema: Schema.Codec<unknown, unknown>;
-  readonly owners: readonly Owner[];
+  readonly writers: readonly Writer[];
   readonly discipline: WriteDiscipline;
 }
 
@@ -71,7 +71,7 @@ const DATA = ".local/share/shepherdr";
 const TASKS = `${DATA}/tasks`;
 const STATE = ".local/state/shepherdr";
 const SERVICE = `${STATE}/service`;
-const CORE = ".local/state/herdr-core/default";
+const HERDR_CORE = ".local/state/herdr-core/default";
 
 const renamed = (lock: string | null = null): WriteDiscipline => ({
   write: "rename",
@@ -96,13 +96,13 @@ const inTick = renamed(".tick.lock");
  * The first entry that matches a path is its entry, so the named files come
  * before the task list pattern.
  */
-export const stateFiles: readonly StateFile[] = [
+export const stateFiles: readonly StateFileEntry[] = [
   {
     family: "journals",
     file: `${TASKS}/.launches.json`,
     format: "json",
     schema: LaunchesFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: synced(".launches.lock"),
   },
   {
@@ -110,7 +110,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.publications.json`,
     format: "json",
     schema: PublicationsFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: synced(".publications.json.lock"),
   },
   {
@@ -118,7 +118,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.machines.json`,
     format: "json",
     schema: MachinesFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".machines.json.lock"),
   },
   {
@@ -126,7 +126,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.reach.json`,
     format: "json",
     schema: ReachFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".reach.lock"),
   },
   {
@@ -134,7 +134,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.scheduler.json`,
     format: "json",
     schema: SchedulerFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inPlace(".scheduler.lock"),
   },
   {
@@ -142,7 +142,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.seen.json`,
     format: "json",
     schema: SeenFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -150,7 +150,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.retries.json`,
     format: "json",
     schema: RetriesFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -158,7 +158,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.news.json`,
     format: "json",
     schema: NewsFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -166,7 +166,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.newslog.json`,
     format: "json",
     schema: NewslogFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -174,7 +174,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.held.json`,
     format: "json",
     schema: HeldFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".held.json.lock"),
   },
   {
@@ -182,7 +182,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.autopilot.json`,
     format: "json",
     schema: AutopilotFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".autopilot.lock"),
   },
   {
@@ -190,7 +190,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.feedback.json`,
     format: "json",
     schema: FeedbackFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".feedback.json.lock"),
   },
   {
@@ -198,7 +198,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.reactions.json`,
     format: "json",
     schema: SettingsPassFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -206,7 +206,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.assistant-settings.json`,
     format: "json",
     schema: SettingsPassFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: inTick,
   },
   {
@@ -215,7 +215,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${TASKS}/.stops.jsonl`,
     format: "json-lines",
     schema: StopsLine,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(),
   },
   {
@@ -226,7 +226,7 @@ export const stateFiles: readonly StateFile[] = [
     file: /^\.local\/share\/shepherdr\/tasks\/[^/]+\.json$/,
     format: "json",
     schema: TaskListFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(".<slug>.json.lock"),
   },
   {
@@ -234,7 +234,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${CONFIG}/settings.json`,
     format: "json",
     schema: SettingsFile,
-    owners: ["window", "service", "herdr-task"],
+    writers: ["window", "service", "herdr-task"],
     discipline: renamed(),
   },
   {
@@ -242,7 +242,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${CONFIG}/model-picks.json`,
     format: "json",
     schema: ModelPicksFile,
-    owners: ["window", "service"],
+    writers: ["window", "service"],
     discipline: inPlace(),
   },
   {
@@ -250,7 +250,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${SERVICE}/service.json`,
     format: "json",
     schema: ServiceFile,
-    owners: ["service"],
+    writers: ["service"],
     discipline: inPlace(),
   },
   {
@@ -258,7 +258,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${SERVICE}/web.json`,
     format: "json",
     schema: WebFile,
-    owners: ["service"],
+    writers: ["service"],
     discipline: inPlace(),
   },
   {
@@ -266,7 +266,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${SERVICE}/sent.json`,
     format: "json",
     schema: SentFile,
-    owners: ["service"],
+    writers: ["service"],
     discipline: renamed(),
   },
   {
@@ -275,7 +275,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${SERVICE}/usage.jsonl`,
     format: "json-lines",
     schema: UsageLine,
-    owners: ["service", "window"],
+    writers: ["service", "window"],
     discipline: { write: "append", lock: null, fsync: false },
   },
   {
@@ -283,7 +283,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${STATE}/cli-check.json`,
     format: "json",
     schema: CliCheckFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(),
   },
   {
@@ -291,7 +291,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${STATE}/codex-sandbox.json`,
     format: "json",
     schema: CodexSandboxFile,
-    owners: ["herdr-task"],
+    writers: ["herdr-task"],
     discipline: renamed(),
   },
   {
@@ -299,7 +299,7 @@ export const stateFiles: readonly StateFile[] = [
     file: `${STATE}/migrate.json`,
     format: "json",
     schema: MigrateFile,
-    owners: ["herdr-task", "installer"],
+    writers: ["herdr-task", "installer"],
     discipline: synced("migrate.lock"),
   },
   {
@@ -307,29 +307,29 @@ export const stateFiles: readonly StateFile[] = [
     file: `${DATA}/LAYOUT`,
     format: "json",
     schema: LayoutFile,
-    owners: ["herdr-task", "installer"],
+    writers: ["herdr-task", "installer"],
     discipline: synced("../../state/shepherdr/migrate.lock"),
   },
   {
     family: "herdr-core",
-    file: `${CORE}/docs.json`,
+    file: `${HERDR_CORE}/docs.json`,
     format: "json",
     schema: HerdrCoreDocsFile,
-    owners: ["herdr-core"],
+    writers: ["herdr-core"],
     discipline: { write: "never" },
   },
   {
     family: "herdr-core",
-    file: `${CORE}/terminals.json`,
+    file: `${HERDR_CORE}/terminals.json`,
     format: "json",
     schema: HerdrCoreTerminalsFile,
-    owners: ["herdr-core"],
+    writers: ["herdr-core"],
     discipline: { write: "never" },
   },
 ];
 
 /** The entry for a path from the state root, with `/` between its parts. */
-export function findStateFile(path: string): StateFile | undefined {
+export function findStateFile(path: string): StateFileEntry | undefined {
   return stateFiles.find(({ file }) =>
     typeof file === "string" ? file === path : file.test(path),
   );

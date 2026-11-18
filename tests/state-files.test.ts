@@ -6,7 +6,7 @@ import { fileText, validFiles } from "./state-file-fixtures.ts";
 
 const TASKS = ".local/share/shepherdr/tasks";
 const STATE = ".local/state/shepherdr";
-const CORE = ".local/state/herdr-core/default";
+const HERDR_CORE = ".local/state/herdr-core/default";
 
 function verdictOf(path: string, content: unknown) {
   const file = findStateFile(path);
@@ -110,7 +110,7 @@ const wrongTypes: [
     { at: "/broken", problem: "Expected object | null" },
   ],
   [
-    `${CORE}/terminals.json`,
+    `${HERDR_CORE}/terminals.json`,
     (file) => (file.terminals = []),
     { at: "/terminals", problem: "Expected object" },
   ],
@@ -234,7 +234,7 @@ test("an empty object in a task list must stay empty", async () => {
 });
 
 test("a third-party file is only read: what the schema leaves out is not a failure", async () => {
-  const docs = `${CORE}/docs.json`;
+  const docs = `${HERDR_CORE}/docs.json`;
   expect(
     await changed(docs, (file) => (file["a.new.document"] = { value: [1] })),
   ).toEqual({ status: "ok" });

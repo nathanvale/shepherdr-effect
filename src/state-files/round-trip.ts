@@ -6,7 +6,7 @@ import {
   SchemaAST,
   SchemaIssue,
 } from "effect";
-import type { StateFile } from "./registry.ts";
+import type { StateFileEntry } from "./registry.ts";
 
 /** Where a document broke its schema, and what the schema wanted there. Never the value. */
 export interface Finding {
@@ -135,7 +135,7 @@ function differs(pointers: readonly string[]): Verdict {
  * could never come back whole.
  */
 function verifyDocument(
-  file: StateFile,
+  file: StateFileEntry,
   original: unknown,
 ): Effect.Effect<Verdict> {
   const { ast } = file.schema;
@@ -174,7 +174,7 @@ function parse(text: string): { readonly document: unknown } | undefined {
 
 /** One document's verdict, with each place prefixed by where the document sits in its file. */
 function verifyText(
-  file: StateFile,
+  file: StateFileEntry,
   text: string,
   where: string,
 ): Effect.Effect<Verdict> {
@@ -220,7 +220,7 @@ function combine(verdicts: readonly Verdict[]): Verdict {
  * what would be written back must equal what was read.
  */
 export function roundTrip(
-  file: StateFile,
+  file: StateFileEntry,
   text: string,
 ): Effect.Effect<Verdict> {
   if (file.format === "json") return verifyText(file, text, "");
