@@ -115,7 +115,7 @@ test("herdr-core RPC methods: the required list and every call by name, marked f
     called: boolean,
   ) => ({
     id,
-    kind: "core-rpc-method" as const,
+    kind: "herdr-core-rpc-method" as const,
     source: at(path, piece),
     required,
     called,
@@ -220,7 +220,7 @@ test("the lists are the seven named ones, and each reads through its own schema 
     "herdr-task-commands",
     "service-routes",
     "service-actions",
-    "core-rpc-methods",
+    "herdr-core-rpc-methods",
     "hc-cli-subcommands",
     "terminal-labels",
     "diagram-elements",

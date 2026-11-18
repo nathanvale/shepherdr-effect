@@ -69,7 +69,7 @@ export const lists: readonly List[] = [
     extract: ({ service }) => serviceActions(service),
   },
   {
-    name: "core-rpc-methods",
+    name: "herdr-core-rpc-methods",
     schema: listOf(HerdrCoreRpcMethod),
     extract: ({ service }) => herdrCoreRpcMethods(service),
   },

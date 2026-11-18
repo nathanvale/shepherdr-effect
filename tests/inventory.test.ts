@@ -27,7 +27,7 @@ const COUNTS = {
   "herdr-task-commands": 12,
   "service-routes": 10,
   "service-actions": 10,
-  "core-rpc-methods": 5,
+  "herdr-core-rpc-methods": 5,
   "hc-cli-subcommands": 9,
   "terminal-labels": 6,
   "diagram-elements": 10,
@@ -288,7 +288,7 @@ test("check fails on a kept file that breaks its schema, and says where for each
     { ...first, kind: "label", source: "nowhere" },
     ...rest,
   ]);
-  await writeFile(kept("core-rpc-methods"), "not JSON");
+  await writeFile(kept("herdr-core-rpc-methods"), "not JSON");
   await rm(kept("diagram-elements"));
   await writeFile(kept("state-files"), "[]\n");
 
@@ -315,7 +315,9 @@ test("check fails on a kept file that breaks its schema, and says where for each
   expect(lines[1]).toBe(
     "inventory/service-actions.json: / Expected items in id order, each id once",
   );
-  expect(lines[2]).toBe("inventory/core-rpc-methods.json: not a JSON document");
+  expect(lines[2]).toBe(
+    "inventory/herdr-core-rpc-methods.json: not a JSON document",
+  );
   expect(lines[3]).toStartWith("inventory/terminal-labels.json: ");
   expect(lines[3]).toContain("/0/kind ");
   expect(lines[3]).toContain("/0/source ");

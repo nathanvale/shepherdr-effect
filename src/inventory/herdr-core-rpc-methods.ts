@@ -10,7 +10,7 @@ import {
 } from "./source.ts";
 
 export const HerdrCoreRpcMethod = Schema.Struct({
-  ...itemFields("core-rpc-method"),
+  ...itemFields("herdr-core-rpc-method"),
   /** In the list the client refuses to start without. */
   required: Schema.Boolean,
   /** Passed by name to a `call(...)` somewhere in the service. */
@@ -59,7 +59,7 @@ export function herdrCoreRpcMethods(
       const listed = required.get(id);
       return {
         id,
-        kind: "core-rpc-method" as const,
+        kind: "herdr-core-rpc-method" as const,
         // A required method is cited where the list names it, any other at its first call.
         source:
           listed === undefined
