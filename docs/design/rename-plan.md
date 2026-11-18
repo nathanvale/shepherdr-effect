@@ -164,7 +164,7 @@ Gone: `rg -n -w 'ProviderBinding|TaskJob|LaunchJournal|PublicationJournal|Machin
 
 ### Batch 2: state file registry words
 
-Done in 3dbacc7 (row 2.6 left undone: needs care).
+Done in 3dbacc7. Row 2.6 done in cb9cc9b.
 
 Ready: now, after batch 1 (both change the imports at the top of
 `src/state-files/registry.ts`). Files: `src/state-files/registry.ts`,
@@ -228,7 +228,7 @@ Gone: `rg -n 'OperationResult|operationPreload|"operation.ts"' src tests`.
 
 ### Batch 5: leave the domain core
 
-Done in a56851d, except row 5.1 (needs care).
+Done in a56851d. Row 5.1 done in 2088af3.
 
 Ready: wait until the inventory work is committed (row 5.1 changes
 `src/commands.ts`), and after batch 4. Files: `src/domains/state-check.ts`,
@@ -249,7 +249,7 @@ Gone: `test ! -e src/domains/state-check.ts && test ! -e src/domains/result.ts`,
 
 ### Batch 6: the interface inventory
 
-Done in 5c60c7c, except rows 6.1, 6.7 and 6.11 (need care), and rows 6.2, 6.3 and 6.4 (they move files into `src/inventory/`, which row 6.1 creates).
+Done in 5c60c7c. Row 6.1 done in c039068, row 6.2 in c61d583, row 6.3 in aef3a34, row 6.4 in 33f9f4e, row 6.11 in 74e7fda and row 6.7 in 26bae2f.
 
 Ready: wait until the inventory work is committed. Find each name again with
 `rg -n -w '<name>' src tests` before you change it.
@@ -278,6 +278,8 @@ Gone: `test ! -e src/domains/inventory` and
 | 6.13 | test name         | `"core RPC methods: the required list and every call by name, marked for each"` `tests/inventory-extractors.test.ts:109`            | `"herdr-core RPC methods: the required list and every call by name, marked for each"` | herdr-core link               | Safe                                                                                                                                                                                                                                                                                                           |
 
 ### Batch 7: command identity prefix and program name
+
+Done in a71f114.
 
 Ready: wait until the inventory work is committed, and after batches 4 to 6.
 This batch changes output, so it goes last. Files: `src/commands.ts`,
