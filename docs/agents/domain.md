@@ -7,9 +7,8 @@ root.
 
 ## Before exploring, read these
 
-- **`GLOSSARY-MAP.md`** at the root. It says which glossary owns each word:
-  this repository, the CLI kernel, the old Shepherdr glossary, the Agent
-  ecosystem glossary, or the design words.
+- **`GLOSSARY-MAP.md`** at the root. It says which glossary owns each word,
+  and lists the owners.
 - **`GLOSSARY.md`** at the root. It defines this repository's own words, and
   gives each word's name in code: its folder, file, type, and function or
   variable prefix.
