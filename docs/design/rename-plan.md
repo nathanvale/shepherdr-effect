@@ -112,6 +112,8 @@ variable (a local or a parameter), property, test name.
 
 ### Batch 1: import schema names
 
+Done in 7b7da18.
+
 Ready: now. Files: `src/state-files/*.ts` except `round-trip.ts`. Each name is
 used only inside `src/state-files/`, so every row is a safe mechanical
 rename. Rule: T2, except rows 1.1 to 1.4, 1.6, 1.32 and 1.33
@@ -162,6 +164,8 @@ Gone: `rg -n -w 'ProviderBinding|TaskJob|LaunchJournal|PublicationJournal|Machin
 
 ### Batch 2: state file registry words
 
+Done in 3dbacc7 (row 2.6 left undone: needs care).
+
 Ready: now, after batch 1 (both change the imports at the top of
 `src/state-files/registry.ts`). Files: `src/state-files/registry.ts`,
 `src/state-files/round-trip.ts`, `src/state-files/journals.ts`,
@@ -186,6 +190,8 @@ Gone: `rg -n -w 'Owner|owners|StateFile|CORE|LAUNCH|OPERATION|AZURE|journals' sr
 | 2.11 | constant | `AZURE` `tests/state-file-fixtures.ts:11`, used at `:63`, `:361`                                                                   | `AZURE_BINDING`               | Recorded binding  | Safe                                                                                                                                                                                          |
 
 ### Batch 3: command entry words
+
+Done in a4a8f5d.
 
 Ready: now. Files: `src/cli.ts`, `src/commands-contract.ts` (neither is in
 the inventory worker's change).
