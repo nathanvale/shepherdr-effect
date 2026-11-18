@@ -18,15 +18,15 @@ flowchart TB
       daemon["Daemon entry<br/>src/daemon.ts<br/>scheduler role and service role"]
     end
 
-    ops["Operations (Effect services)<br/>src/operations<br/>launch admission, tasks, tick, publish, machines, live view"]
-    core["Domain core (pure)<br/>src/domains<br/>attempt state machine, tasks, providers,<br/>publication, forge, request admission"]
+    ops["Procedures (Effect services)<br/>src/procedures<br/>launch admission, tasks, tick, publish, machines, live view"]
+    core["Domain core (pure)<br/>src/domains<br/>attempt state machine, tasks, provider routes,<br/>publication, forge, request admission"]
 
     subgraph adapters["Adapters: one per outside dependency"]
-      transport["Transport<br/>src/adapters/http<br/>Bun.serve HTTP and WebSockets"]
-      store["Store<br/>src/adapters/store<br/>one transaction per change"]
+      transport["Transport<br/>src/adapters/transport<br/>Bun.serve HTTP and WebSockets"]
+      store["Store<br/>src/adapters/store<br/>one store transaction per change"]
       coreadapter["herdr-core link<br/>src/adapters/herdr-core<br/>a start needs a send permit"]
       forge["Forges<br/>src/adapters/forge"]
-      remote["Remote machines<br/>src/adapters/machines<br/>an operation id on every command"]
+      remote["Remote machines<br/>src/adapters/machines<br/>an attempt id on every command"]
       importer["Importer, run once<br/>src/state-files"]
     end
 
@@ -54,7 +54,7 @@ flowchart TB
   person -- "runs commands" --> cli
   agents -- "ready, status, show" --> cli
   cli -- "calls in process" --> ops
-  daemon -- "calls the same operations" --> ops
+  daemon -- "calls the same procedures" --> ops
   daemon -- "hosts" --> transport
   transport -- "admitted requests" --> ops
   ops -- "pure decisions" --> core
@@ -70,7 +70,7 @@ flowchart TB
   forge -- "REST, never a merge" --> bitbucket
   ops --> remote
   remote -- "through herdr-core" --> peers
-  agents -- "chosen route" --> models
+  agents -- "chosen provider route" --> models
   importer -- "reads once" --> old
-  importer -- "tasks and open claims" --> store
+  importer -- "tasks and unresolved attempts" --> store
   window -.-> cli

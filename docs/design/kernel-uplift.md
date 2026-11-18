@@ -11,7 +11,7 @@ means it comes from the fit analysis and was not re-read.
 
 ## Tier 1: the kernel at the command-line edge
 
-The daemon keeps starting the command-line tool for each action, as the fork's
+The daemon keeps starting the command-line tool for each action, as the old
 service does today.
 
 | #   | Change                                                        | Size            | Why Shepherdr needs it                                                                                                                                                                                             | Source                                                                                                  |
@@ -28,11 +28,11 @@ service does today.
 Needed for the chosen design, where nothing starts the command-line tool to
 talk to itself.
 
-| #   | Change                                              | Size            | Why Shepherdr needs it                                                                                                                                                             | Source                                                                               |
-| --- | --------------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 7   | More than one transaction per process               | Large           | The kernel allows one transaction per run and ends the process itself. The scheduler and the service are long-lived and start many agents. This reopens the frozen state design.   | Checked: `kernel/src/kernel/state-seam.ts:355`, `kernel/src/kernel/lifecycle.ts:790` |
-| 8   | Programs add-on takes stdin and long-lived children | Medium          | The herdr-core link is a long-lived child with piped input, and secrets travel by stdin. The add-on ignores stdin, and the kernel's lint bans spawning a process anywhere else.    | Checked: `kernel/src/addons/programs/index.ts:185`. Report: the lint rule.           |
-| 9   | Effect fits                                         | Small to medium | Handlers do not receive the abort signal, so Effect finalizers would not run on a deadline or a stop signal. Effect's logger needs a sanctioned route into the diagnostics add-on. | Report                                                                               |
+| #   | Change                                              | Size            | Why Shepherdr needs it                                                                                                                                                                | Source                                                                               |
+| --- | --------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 7   | More than one transaction per process               | Large           | The kernel allows one transaction per run and ends the process itself. The scheduler and the service role are long-lived and start many agents. This reopens the frozen state design. | Checked: `kernel/src/kernel/state-seam.ts:355`, `kernel/src/kernel/lifecycle.ts:790` |
+| 8   | Programs add-on takes stdin and long-lived children | Medium          | The herdr-core link is a long-lived child with piped input, and secrets travel by stdin. The add-on ignores stdin, and the kernel's lint bans spawning a process anywhere else.       | Checked: `kernel/src/addons/programs/index.ts:185`. Report: the lint rule.           |
+| 9   | Effect fits                                         | Small to medium | Handlers do not receive the abort signal, so Effect finalizers would not run on a deadline or a stop signal. Effect's logger needs a sanctioned route into the diagnostics add-on.    | Report                                                                               |
 
 ## Shepherdr's side, not kernel work
 
@@ -44,7 +44,7 @@ talk to itself.
   a later run writing for an earlier one (report).
 - Supply the observer that finds one labelled terminal as evidence.
 - Accept two stores. Launches would live in the kernel's journal and tasks in
-  SQLite, so a confirmed start could not release its claim and reach its task
+  SQLite, so a confirmed start could not release its intent and reach its task
   in one transaction. The repair path the design deletes would come back.
 
 ## Hard either way
