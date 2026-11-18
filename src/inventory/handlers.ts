@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Effect, Result, Schema, SchemaIssue } from "effect";
 import type { CommandResult } from "../commands-contract.ts";
-import { DIAGRAM, readSources } from "./fork.ts";
+import { DIAGRAM, readSources } from "./fork-checkout.ts";
 import { type List, lists } from "./lists.ts";
 import type { Item } from "./source.ts";
 import { stateFileItems } from "./state-files.ts";
