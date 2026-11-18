@@ -25,6 +25,8 @@ export interface OperationResult {
 }
 
 export interface CommandDefinition {
+  /** What follows the route, as help shows it. A command without it takes no arguments. */
+  argumentUsage?: string;
   commandIdentity: string;
   effectClass: EffectClass;
   route: readonly string[];
@@ -34,12 +36,15 @@ export interface CommandDefinition {
 }
 
 export function commandSummaries(commands: readonly CommandDefinition[]) {
-  return commands.map(({ commandIdentity, effectClass, route, summary }) => ({
-    commandIdentity,
-    effectClass,
-    route,
-    summary,
-  }));
+  return commands.map(
+    ({ argumentUsage, commandIdentity, effectClass, route, summary }) => ({
+      ...(argumentUsage === undefined ? {} : { argumentUsage }),
+      commandIdentity,
+      effectClass,
+      route,
+      summary,
+    }),
+  );
 }
 
 export function builtInCommandSummaries() {

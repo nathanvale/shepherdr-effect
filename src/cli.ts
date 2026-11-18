@@ -331,6 +331,10 @@ function reportAsynchronousStdoutFailure(
   );
 }
 
+function invocation(command: CommandDefinition): string {
+  return [...command.route, command.argumentUsage ?? ""].join(" ").trim();
+}
+
 function showHelp(json: boolean): number {
   activeCommandIdentity = "example.help";
   render(
@@ -351,7 +355,7 @@ function showHelp(json: boolean): number {
       "Show help.",
     ),
     json,
-    `Usage: example COMMAND [--json]\n${commands.map((command) => command.route.join(" ")).join("\n")}`,
+    `Usage: example COMMAND [--json]\n${commands.map(invocation).join("\n")}`,
   );
   return 0;
 }
@@ -490,12 +494,13 @@ function formatOperation(
 
 async function runSelectedCommand(
   selected: CommandDefinition,
+  args: string[],
   json: boolean,
 ): Promise<number> {
   activeCommandIdentity = selected.commandIdentity;
   let operation;
   try {
-    operation = await selected.execute([]);
+    operation = await selected.execute(args);
   } catch {
     return reportInternalFailure(
       { ...COMMAND_FAILURE_STATION, commandIdentity: selected.commandIdentity },
@@ -556,10 +561,16 @@ async function main(argv: string[]): Promise<number> {
   if (inspection !== undefined) return inspection;
   const selected = commands.find(
     (command) =>
-      command.route.length === args.length &&
-      command.route.every((token, index) => token === args[index]),
+      command.route.every((token, index) => token === args[index]) &&
+      (command.route.length === args.length ||
+        command.argumentUsage !== undefined),
   );
-  if (selected !== undefined) return await runSelectedCommand(selected, json);
+  if (selected !== undefined)
+    return await runSelectedCommand(
+      selected,
+      args.slice(selected.route.length),
+      json,
+    );
   return reportUsage(json);
 }
 

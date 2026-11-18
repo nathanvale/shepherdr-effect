@@ -18,4 +18,15 @@ export const commands: CommandDefinition[] = [
       (await import("./domains/template.ts")).inspectTemplate(),
     stations: () => [],
   },
+  {
+    argumentUsage: "--dir PATH",
+    commandIdentity: "example.state.check",
+    effectClass: "inspect",
+    route: ["state", "check"],
+    summary:
+      "Check that the state file schemas read a folder of state files and write them back unchanged.",
+    execute: async (args) =>
+      (await import("./domains/state-check.ts")).checkStateFiles(args),
+    stations: () => [],
+  },
 ];

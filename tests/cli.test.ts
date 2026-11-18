@@ -223,6 +223,7 @@ test("machine status emits a strict internal fallback after serialization fails"
       "example.discovery",
       "example.dispatch",
       "example.help",
+      "example.state.check",
       "example.status",
       "example.template.info",
     ],
@@ -333,7 +334,7 @@ test("human help names the supported invocation", () => {
   expect(result.exitCode).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout).toBe(
-    "Usage: example COMMAND [--json]\nstatus\ntemplate info\n",
+    "Usage: example COMMAND [--json]\nstatus\ntemplate info\nstate check --dir PATH\n",
   );
 });
 
