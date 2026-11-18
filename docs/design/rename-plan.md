@@ -336,6 +336,8 @@ they disagree.
 
 ## Not renames: the owner's decision
 
+Removed in dfb424c.
+
 These names disagree with the glossary, but the fix is to remove them, not to
 rename them. They are the template starter's examples.
 
