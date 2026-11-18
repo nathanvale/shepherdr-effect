@@ -21,8 +21,17 @@ are relative to the fork root unless they start with `~` or `src/`.
   by hand.
 - Window mods (28 plain JavaScript mods inside herdr-app) are out of scope for
   now. Record them as a later adapter.
-- First version reads and writes today's on-disk files in place.
+- Clean cutover. The old install is stopped before the new system first runs,
+  and no Python process touches the state after that. Today's files are read
+  once, to import existing tasks and open claims. The new system is free to
+  change its storage.
 - herdr-core and herdr-app are third party. Their interfaces cannot change.
+
+Correction, 2026-11-19: this brief first said "the first version reads and
+writes today's on-disk files in place". That was the orchestrator's
+assumption, not Nathan's decision. The three design candidates were written
+and first scored under it, then scored again under the clean cutover. See
+[synthesis.md](synthesis.md).
 
 ## What exists today
 
