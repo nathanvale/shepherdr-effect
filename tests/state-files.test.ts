@@ -5,6 +5,8 @@ import { roundTrip } from "../src/state-files/round-trip.ts";
 import { fileText, validFiles } from "./state-file-fixtures.ts";
 
 const TASKS = ".local/share/shepherdr/tasks";
+const STATE = ".local/state/shepherdr";
+const CORE = ".local/state/herdr-core/default";
 
 function verdictOf(path: string, content: unknown) {
   const file = findStateFile(path);
@@ -45,6 +47,7 @@ test("a named file in the tasks folder is not taken for a task list", () => {
 test("a path outside the registry has no entry", () => {
   expect(findStateFile(`${TASKS}/.launches.lock`)).toBeUndefined();
   expect(findStateFile(`${TASKS}/nested/widgets.json`)).toBeUndefined();
+  expect(findStateFile(`${STATE}/service/token`)).toBeUndefined();
 });
 
 // One unknown key and one wrong type for each family.
@@ -53,6 +56,13 @@ const unknownKeys: [string, (file: Record<string, unknown>) => void, string][] =
     [`${TASKS}/widgets.json`, (file) => (file.colour = "red"), "/colour"],
     [`${TASKS}/.launches.json`, (file) => (file.epoch = 3), "/epoch"],
     [`${TASKS}/.scheduler.json`, (file) => (file.host = "example"), "/host"],
+    [
+      ".config/shepherdr/settings.json",
+      (file) => (file.theme = "dark"),
+      "/theme",
+    ],
+    [`${STATE}/service/service.json`, (file) => (file.token = "x"), "/token"],
+    [`${STATE}/cli-check.json`, (file) => (file.note = "x"), "/note"],
   ];
 
 for (const [path, change, pointer] of unknownKeys) {
@@ -83,6 +93,26 @@ const wrongTypes: [
     `${TASKS}/.reactions.json`,
     (file) => (file.at = 1.5),
     { at: "/at", problem: "Expected an integer" },
+  ],
+  [
+    ".config/shepherdr/model-picks.json",
+    (file) => (file.pinned = "claude:example-model"),
+    { at: "/pinned", problem: "Expected array" },
+  ],
+  [
+    `${STATE}/service/web.json`,
+    (file) => delete file.on,
+    { at: "/on", problem: "Missing key" },
+  ],
+  [
+    `${STATE}/codex-sandbox.json`,
+    (file) => (file.broken = false),
+    { at: "/broken", problem: "Expected object | null" },
+  ],
+  [
+    `${CORE}/terminals.json`,
+    (file) => (file.terminals = []),
+    { at: "/terminals", problem: "Expected object" },
   ],
 ];
 
@@ -145,6 +175,14 @@ test("a key of an open record is never printed", async () => {
       { at: "/claims/*", problem: "Expected string" },
     ]) as unknown,
   });
+
+  const dropped = await verdictOf(`${STATE}/service/sent.json`, {
+    "private-send-id": { at: 1, result: { ok: true, at: 1, how: "typed" } },
+  });
+  expect(dropped).toEqual({
+    status: "round-trip-differs",
+    pointers: ["/*/result/how"],
+  });
 });
 
 test("a value is never printed", async () => {
@@ -192,5 +230,33 @@ test("an empty object in a task list must stay empty", async () => {
   expect(verdict).toEqual({
     status: "decode-failed",
     findings: [{ at: "/config", problem: "Expected an object with no keys" }],
+  });
+});
+
+test("a third-party file is only read: what the schema leaves out is not a failure", async () => {
+  const docs = `${CORE}/docs.json`;
+  expect(
+    await changed(docs, (file) => (file["a.new.document"] = { value: [1] })),
+  ).toEqual({ status: "ok" });
+  expect(
+    await changed(docs, (file) => (file["shepherdr.node"] = { value: {} })),
+  ).toEqual({
+    status: "decode-failed",
+    findings: [{ at: "/shepherdr.node/value/serving", problem: "Missing key" }],
+  });
+});
+
+test("a file that is not JSON does not decode, and its text is not repeated", async () => {
+  const file = findStateFile(".local/share/shepherdr/LAYOUT");
+  if (file === undefined) throw new Error("No registry entry for LAYOUT");
+  expect(await Effect.runPromise(roundTrip(file, "private words\n"))).toEqual({
+    status: "decode-failed",
+    findings: [{ at: "", problem: "Expected a JSON document" }],
+  });
+  expect(await Effect.runPromise(roundTrip(file, "-1\n"))).toEqual({
+    status: "decode-failed",
+    findings: [
+      { at: "", problem: "Expected a value greater than or equal to 0" },
+    ],
   });
 });

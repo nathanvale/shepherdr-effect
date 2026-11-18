@@ -13,7 +13,21 @@ import {
   SettingsPassStamp,
   StopLogLine,
 } from "./engine-state.ts";
+import { CoreDocs, CoreTerminals } from "./herdr-core.ts";
 import { LaunchJournal, PublicationJournal } from "./journals.ts";
+import {
+  CliCheck,
+  CodexSandbox,
+  LayoutNumber,
+  MigrateJournal,
+} from "./machine-state.ts";
+import {
+  SentMessages,
+  ServiceRecord,
+  UsageEvent,
+  WebState,
+} from "./service-state.ts";
+import { ModelPicks, Settings } from "./settings.ts";
 import { TaskList } from "./task-list.ts";
 
 /** The program that writes a file today. */
@@ -37,7 +51,14 @@ export type WriteDiscipline =
       readonly fsync: boolean;
     };
 
-export type Family = "task-lists" | "journals" | "engine-state";
+export type Family =
+  | "task-lists"
+  | "journals"
+  | "engine-state"
+  | "settings"
+  | "service-state"
+  | "machine-state"
+  | "herdr-core";
 
 export interface StateFile {
   readonly family: Family;
@@ -50,8 +71,12 @@ export interface StateFile {
   readonly discipline: WriteDiscipline;
 }
 
+const CONFIG = ".config/shepherdr";
 const DATA = ".local/share/shepherdr";
 const TASKS = `${DATA}/tasks`;
+const STATE = ".local/state/shepherdr";
+const SERVICE = `${STATE}/service`;
+const CORE = ".local/state/herdr-core/default";
 
 const renamed = (lock: string | null = null): WriteDiscipline => ({
   write: "rename",
@@ -208,6 +233,103 @@ export const stateFiles: readonly StateFile[] = [
     schema: TaskList,
     owners: ["herdr-task"],
     discipline: renamed(".<slug>.json.lock"),
+  },
+  {
+    family: "settings",
+    file: `${CONFIG}/settings.json`,
+    format: "json",
+    schema: Settings,
+    owners: ["window", "service", "herdr-task"],
+    discipline: renamed(),
+  },
+  {
+    family: "settings",
+    file: `${CONFIG}/model-picks.json`,
+    format: "json",
+    schema: ModelPicks,
+    owners: ["window", "service"],
+    discipline: inPlace(),
+  },
+  {
+    family: "service-state",
+    file: `${SERVICE}/service.json`,
+    format: "json",
+    schema: ServiceRecord,
+    owners: ["service"],
+    discipline: inPlace(),
+  },
+  {
+    family: "service-state",
+    file: `${SERVICE}/web.json`,
+    format: "json",
+    schema: WebState,
+    owners: ["service"],
+    discipline: inPlace(),
+  },
+  {
+    family: "service-state",
+    file: `${SERVICE}/sent.json`,
+    format: "json",
+    schema: SentMessages,
+    owners: ["service"],
+    discipline: renamed(),
+  },
+  {
+    // Past 2 MB the log is renamed to usage.1.jsonl and a new one begins.
+    family: "service-state",
+    file: `${SERVICE}/usage.jsonl`,
+    format: "json-lines",
+    schema: UsageEvent,
+    owners: ["service", "window"],
+    discipline: { write: "append", lock: null, fsync: false },
+  },
+  {
+    family: "machine-state",
+    file: `${STATE}/cli-check.json`,
+    format: "json",
+    schema: CliCheck,
+    owners: ["herdr-task"],
+    discipline: renamed(),
+  },
+  {
+    family: "machine-state",
+    file: `${STATE}/codex-sandbox.json`,
+    format: "json",
+    schema: CodexSandbox,
+    owners: ["herdr-task"],
+    discipline: renamed(),
+  },
+  {
+    family: "machine-state",
+    file: `${STATE}/migrate.json`,
+    format: "json",
+    schema: MigrateJournal,
+    owners: ["herdr-task", "installer"],
+    discipline: synced("migrate.lock"),
+  },
+  {
+    family: "machine-state",
+    file: `${DATA}/LAYOUT`,
+    format: "json",
+    schema: LayoutNumber,
+    owners: ["herdr-task", "installer"],
+    discipline: synced("../../state/shepherdr/migrate.lock"),
+  },
+  {
+    family: "herdr-core",
+    file: `${CORE}/docs.json`,
+    format: "json",
+    schema: CoreDocs,
+    owners: ["herdr-core"],
+    discipline: { write: "never" },
+  },
+  {
+    family: "herdr-core",
+    file: `${CORE}/terminals.json`,
+    format: "json",
+    schema: CoreTerminals,
+    owners: ["herdr-core"],
+    discipline: { write: "never" },
   },
 ];
 
