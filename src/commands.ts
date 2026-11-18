@@ -26,7 +26,7 @@ export const commands: CommandDefinition[] = [
     summary:
       "Check that the state file schemas read a folder of state files and write them back unchanged.",
     execute: async (args) =>
-      (await import("./domains/state-check.ts")).checkStateFiles(args),
+      (await import("./state-files/handlers.ts")).checkStateFiles(args),
     stations: () => [],
   },
   {

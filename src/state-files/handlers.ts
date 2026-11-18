@@ -2,8 +2,8 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { Effect } from "effect";
 import type { CommandResult } from "../commands-contract.ts";
-import { type Family, findStateFile } from "../state-files/registry.ts";
-import { roundTrip, type Verdict } from "../state-files/round-trip.ts";
+import { type Family, findStateFile } from "./registry.ts";
+import { roundTrip, type Verdict } from "./round-trip.ts";
 
 const COMMAND_IDENTITY = "example.state.check";
 // A file can break its schema in every record it holds: a few places say enough.
