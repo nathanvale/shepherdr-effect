@@ -1,0 +1,76 @@
+%% Shepherdr on Effect v4: PROPOSED architecture, context and container level.
+%% This is a design. Nothing in it is built except the import schemas (src/state-files).
+%% Source of the design: docs/design/synthesis.md in shepherdr-effect, branch feat/effect-v4-design, commit a544ae5 (2026-11-19).
+%% Base: design candidate 1 (one program, a pure core, adapters) with grafts from candidates 2 and 3.
+%% Decided by Nathan: Bun 1.4.4, no Python, Effect v4, FoldKit web app, clean cutover, Bun WebSockets.
+%% Open: whether the command entry runs on agent-cli-kernel now or later (docs/design/kernel-uplift.md).
+%% Paths are proposed module paths in this repository.
+flowchart TB
+  subgraph people["People and agents"]
+    person["Person<br/>browser on the tailnet, or a terminal"]
+    agents["Agent CLIs<br/>worker, reviewer, Assistant"]
+  end
+
+  subgraph shep["Shepherdr on Effect v4 (proposed): one Bun program, one Layer graph"]
+    subgraph entries["Entries"]
+      web["Web app<br/>FoldKit, in the browser"]
+      cli["Command entry<br/>src/cli.ts<br/>herdr-task and shepherdr, one result envelope"]
+      daemon["Daemon entry<br/>src/daemon.ts<br/>scheduler role and service role"]
+    end
+
+    ops["Operations (Effect services)<br/>src/operations<br/>launch admission, tasks, tick, publish, machines, live view"]
+    core["Domain core (pure)<br/>src/domains<br/>attempt state machine, tasks, providers,<br/>publication, forge, request admission"]
+
+    subgraph adapters["Adapters: one per outside dependency"]
+      transport["Transport<br/>src/adapters/http<br/>Bun.serve HTTP and WebSockets"]
+      store["Store<br/>src/adapters/store<br/>one transaction per change"]
+      coreadapter["herdr-core link<br/>src/adapters/herdr-core<br/>a start needs a send permit"]
+      forge["Forges<br/>src/adapters/forge"]
+      remote["Remote machines<br/>src/adapters/machines<br/>an operation id on every command"]
+      importer["Importer, run once<br/>src/state-files"]
+    end
+
+    subgraph state["State"]
+      db[("SQLite database<br/>bun:sqlite, write-ahead mode<br/>tasks, attempts, engine state")]
+      settings[("Settings file<br/>settings.json")]
+    end
+  end
+
+  subgraph outside["Outside"]
+    net["Tailscale<br/>serve on /shepherdr, never funnel"]
+    hcore["herdr-core<br/>third party: terminals, labels, documents"]
+    github["GitHub"]
+    bitbucket["Bitbucket Cloud"]
+    models["Model providers<br/>Personal, Azure AI Foundry"]
+    peers["Other machines<br/>Bun plus one bundled file"]
+    old["Old install's files<br/>read once at the clean cutover"]
+    window["herdr-app window mods<br/>a later adapter, not designed"]
+  end
+
+  person -- "HTTPS, tailnet only" --> net
+  net -- "proxies /shepherdr" --> transport
+  person --> web
+  web -- "typed requests, live WebSocket" --> transport
+  person -- "runs commands" --> cli
+  agents -- "ready, status, show" --> cli
+  cli -- "calls in process" --> ops
+  daemon -- "calls the same operations" --> ops
+  daemon -- "hosts" --> transport
+  transport -- "admitted requests" --> ops
+  ops -- "pure decisions" --> core
+  ops --> store
+  store --> db
+  ops -- "strict read" --> settings
+  ops -- "terminal calls" --> coreadapter
+  coreadapter -- "hc connect JSON-RPC" --> hcore
+  hcore -- "runs terminals" --> agents
+  hcore -- "keeps the scheduler" --> daemon
+  ops --> forge
+  forge -- "gh" --> github
+  forge -- "REST, never a merge" --> bitbucket
+  ops --> remote
+  remote -- "through herdr-core" --> peers
+  agents -- "chosen route" --> models
+  importer -- "reads once" --> old
+  importer -- "tasks and open claims" --> store
+  window -.-> cli

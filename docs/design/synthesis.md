@@ -22,6 +22,14 @@ a file lock. The move from the old install is a clean cutover: the old install
 is stopped, today's files are imported once, and no Python process touches the
 state after that.
 
+Nathan confirmed SQLite on 2026-11-19.
+
+The proposed architecture is drawn in
+[proposed-architecture.mmd](proposed-architecture.mmd), and published at
+`https://mermaid.ai/app/projects/940d39a4-c08b-4b93-8c20-857afb8eff8c/diagrams/7acb52c8-1a01-4b8b-acb9-0fd198837222/edit`.
+The current system's diagram is in
+[current-architecture.mmd](current-architecture.mmd).
+
 ## How it was chosen
 
 Six criteria, scored 1 to 5 each, by the orchestrator and by an independent

@@ -23,8 +23,9 @@ are relative to the fork root unless they start with `~` or `src/`.
   now. Record them as a later adapter.
 - Clean cutover. The old install is stopped before the new system first runs,
   and no Python process touches the state after that. Today's files are read
-  once, to import existing tasks and open claims. The new system is free to
-  change its storage.
+  once, to import existing tasks and open claims.
+- Storage is SQLite, through Bun's built-in `bun:sqlite`.
+- The service transport is Bun's native WebSocket server (`Bun.serve`).
 - herdr-core and herdr-app are third party. Their interfaces cannot change.
 
 Correction, 2026-11-19: this brief first said "the first version reads and
