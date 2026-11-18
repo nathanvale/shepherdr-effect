@@ -1,7 +1,7 @@
 import { unchangedSuccess } from "../command-result.ts";
 export function inspectStatus() {
   return unchangedSuccess(
-    "example.status",
+    "shepherdr.status",
     { ready: true },
     "Starter is ready.",
   );

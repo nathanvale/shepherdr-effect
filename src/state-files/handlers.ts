@@ -5,7 +5,7 @@ import type { CommandResult } from "../commands-contract.ts";
 import { type Family, findStateFile } from "./registry.ts";
 import { roundTrip, type Verdict } from "./round-trip.ts";
 
-const COMMAND_IDENTITY = "example.state.check";
+const COMMAND_IDENTITY = "shepherdr.state.check";
 // A file can break its schema in every record it holds: a few places say enough.
 const SHOWN = 8;
 

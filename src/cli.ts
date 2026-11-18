@@ -58,13 +58,13 @@ function refusal(message: string) {
     message,
     result: {
       causeCode: "USAGE_INVALID_INVOCATION",
-      commandIdentity: "example.dispatch",
+      commandIdentity: "shepherdr.dispatch",
       data: null,
       effectClass: "inspect",
       effects: effects(),
       exitCode: 2,
       failureClass: "usage",
-      nextAction: "Run example --help and choose a listed command.",
+      nextAction: "Run shepherdr --help and choose a listed command.",
       outcome: "refused",
       repairAction: "Choose one supported command and retry.",
       retryable: false,
@@ -95,7 +95,7 @@ type SerializationFailureStation = InternalFailureStationBase & {
 type OutputEmissionFailureStation = InternalFailureStationBase & {
   causeCode: "INTERNAL_RESULT_UNCHANGED";
   message: "The status output could not be emitted.";
-  nextAction: "Inspect the status output and retry example status.";
+  nextAction: "Inspect the status output and retry shepherdr status.";
   repairAction: "Inspect the status output stream before retrying.";
   trigger: "The status output cannot be emitted.";
 };
@@ -112,7 +112,7 @@ type UnexpectedCommandFailureStation = InternalFailureStationBase & {
   trigger: "The selected read-only domain cannot load or complete.";
 };
 const COMMAND_FAILURE_STATION: UnexpectedCommandFailureStation = {
-  commandIdentity: "example.status",
+  commandIdentity: "shepherdr.status",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
@@ -128,13 +128,13 @@ const COMMAND_FAILURE_STATION: UnexpectedCommandFailureStation = {
 };
 
 const SERIALIZATION_FAILURE_STATION: SerializationFailureStation = {
-  commandIdentity: "example.status",
+  commandIdentity: "shepherdr.status",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
   causeCode: "INTERNAL_RESULT_UNCHANGED",
   message: "The machine result could not be serialized.",
-  nextAction: "Inspect the runtime and retry example status.",
+  nextAction: "Inspect the runtime and retry shepherdr status.",
   outcome: "failed",
   repairAction: "Inspect the serialization failure before retrying.",
   retryable: false,
@@ -143,13 +143,13 @@ const SERIALIZATION_FAILURE_STATION: SerializationFailureStation = {
 };
 
 const OUTPUT_EMISSION_FAILURE_STATION: OutputEmissionFailureStation = {
-  commandIdentity: "example.status",
+  commandIdentity: "shepherdr.status",
   effectClass: "inspect",
   exitCode: 1,
   failureClass: "internal",
   causeCode: "INTERNAL_RESULT_UNCHANGED",
   message: "The status output could not be emitted.",
-  nextAction: "Inspect the status output and retry example status.",
+  nextAction: "Inspect the status output and retry shepherdr status.",
   outcome: "failed",
   repairAction: "Inspect the status output stream before retrying.",
   retryable: false,
@@ -318,7 +318,7 @@ function reportInternalFailure(
 }
 
 let asynchronousStdoutFailure = false;
-let activeCommandIdentity = "example.dispatch";
+let activeCommandIdentity = "shepherdr.dispatch";
 
 function reportAsynchronousStdoutFailure(
   error: Error & { code?: string },
@@ -339,10 +339,10 @@ function invocation(command: CommandDefinition): string {
 }
 
 function showHelp(json: boolean): number {
-  activeCommandIdentity = "example.help";
+  activeCommandIdentity = "shepherdr.help";
   render(
     success(
-      "example.help",
+      "shepherdr.help",
       {
         commands: COMMAND_SUMMARIES,
         options: [
@@ -352,21 +352,21 @@ function showHelp(json: boolean): number {
             valueName: null,
           },
         ],
-        summary: "Read-only example CLI.",
-        usage: "example COMMAND [--json]",
+        summary: "Read-only shepherdr CLI.",
+        usage: "shepherdr COMMAND [--json]",
       },
       "Show help.",
     ),
     json,
-    `Usage: example COMMAND [--json]\n${commands.map(invocation).join("\n")}`,
+    `Usage: shepherdr COMMAND [--json]\n${commands.map(invocation).join("\n")}`,
   );
   return 0;
 }
 
 function showDiscovery(json: boolean): number {
-  activeCommandIdentity = "example.discovery";
+  activeCommandIdentity = "shepherdr.discovery";
   render(
-    success("example.discovery", discoveryData(), "Describe commands."),
+    success("shepherdr.discovery", discoveryData(), "Describe commands."),
     json,
     `Commands: ${COMMAND_SUMMARIES.map((command) => command.route.join(" ")).join(", ")}`,
   );
@@ -396,10 +396,10 @@ function showCommand(
     (candidate) => candidate.commandIdentity === identity,
   );
   if (command === undefined) return undefined;
-  activeCommandIdentity = "example.command-discovery";
+  activeCommandIdentity = "shepherdr.command-discovery";
   render(
     success(
-      "example.command-discovery",
+      "shepherdr.command-discovery",
       commandDiscovery(command),
       `Describe ${command.commandIdentity}.`,
     ),
@@ -548,7 +548,7 @@ function reportUsage(json: boolean): number {
   const failure = refusal("Choose a supported command.");
   if (json) process.stdout.write(`${JSON.stringify(failure)}\n`);
   else
-    process.stderr.write("Choose a supported command. Run example --help.\n");
+    process.stderr.write("Choose a supported command. Run shepherdr --help.\n");
   return 2;
 }
 

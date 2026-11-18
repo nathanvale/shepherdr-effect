@@ -56,7 +56,7 @@ test("a root where every file reads and writes back unchanged succeeds", async (
   expect(message).toStartWith(`${total} of ${total} state files ok (`);
   expect(result).toMatchObject({
     causeCode: "SUCCESS_UNCHANGED",
-    commandIdentity: "example.state.check",
+    commandIdentity: "shepherdr.state.check",
     effectClass: "inspect",
     exitCode: 0,
     failureClass: null,
@@ -101,7 +101,7 @@ test("a root with failing files fails and says why for each, without their conte
   );
   expect(result).toMatchObject({
     causeCode: "SCHEMA_STATE_FILE_MISMATCH",
-    commandIdentity: "example.state.check",
+    commandIdentity: "shepherdr.state.check",
     data: null,
     effectClass: "inspect",
     exitCode: 4,
@@ -155,7 +155,7 @@ for (const [name, args] of [
     expect(observed.exitCode).toBe(2);
     expect(envelope(observed.stdout).result).toMatchObject({
       causeCode: "USAGE_INVALID_INVOCATION",
-      commandIdentity: "example.state.check",
+      commandIdentity: "shepherdr.state.check",
       data: null,
       failureClass: "usage",
       outcome: "refused",

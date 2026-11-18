@@ -191,7 +191,7 @@ test("JSON status emits one 2.0 envelope and no stderr", () => {
     contractVersion: "2.0.0",
     envelopeVersion: 2,
     result: {
-      commandIdentity: "example.status",
+      commandIdentity: "shepherdr.status",
       effectClass: "inspect",
       outcome: "success",
       transactionState: "unchanged",
@@ -219,22 +219,22 @@ test("JSON status emits a strict internal fallback after serialization fails", a
   ]);
   expect(envelope).toMatchObject({
     availablePaths: [
-      "example.command-discovery",
-      "example.discovery",
-      "example.dispatch",
-      "example.help",
-      "example.inventory.check",
-      "example.inventory.extract",
-      "example.state.check",
-      "example.status",
-      "example.template.info",
+      "shepherdr.command-discovery",
+      "shepherdr.discovery",
+      "shepherdr.dispatch",
+      "shepherdr.help",
+      "shepherdr.inventory.check",
+      "shepherdr.inventory.extract",
+      "shepherdr.state.check",
+      "shepherdr.status",
+      "shepherdr.template.info",
     ],
     contractVersion: "2.0.0",
     envelopeVersion: 2,
     message: "The machine result could not be serialized.",
     result: {
       causeCode: "INTERNAL_RESULT_UNCHANGED",
-      commandIdentity: "example.status",
+      commandIdentity: "shepherdr.status",
       data: null,
       effectClass: "inspect",
       effects: {
@@ -336,15 +336,15 @@ test("human help names the supported invocation", () => {
   expect(result.exitCode).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout).toBe(
-    "Usage: example COMMAND [--json]\nstatus\ntemplate info\nstate check --dir PATH\ninventory extract --fork PATH\ninventory check [--fork PATH]\n",
+    "Usage: shepherdr COMMAND [--json]\nstatus\ntemplate info\nstate check --dir PATH\ninventory extract --fork PATH\ninventory check [--fork PATH]\n",
   );
 });
 
 test("selected-command discovery describes the status stations", () => {
-  const result = invoke("--discover-command", "example.status", "--json");
+  const result = invoke("--discover-command", "shepherdr.status", "--json");
   expect(result.exitCode).toBe(0);
   const envelope = parseEnvelope(result.stdout);
-  expect(envelope.result.data.command.commandIdentity).toBe("example.status");
+  expect(envelope.result.data.command.commandIdentity).toBe("shepherdr.status");
   expect(
     envelope.result.data.stations
       .map((station: { causeCode: string; outcome: string }) =>
@@ -395,7 +395,7 @@ async function resultPreload(
     preload,
     `import { commands } from ${JSON.stringify(join(ROOT, "src/commands.ts"))};
 commands[0].execute = async () => ({
-  commandIdentity: "example.status", data: null, message: "Inspection failed.",
+  commandIdentity: "shepherdr.status", data: null, message: "Inspection failed.",
   causeCode: "INTERNAL_RESULT_UNCHANGED", effectClass: "inspect",
   effects: { completed: [], remaining: [], uncertain: [], inventoryComplete: true },
   exitCode: 1, failureClass: "internal", outcome: "failed", repairAction: "Inspect implementation.",
@@ -422,7 +422,7 @@ test("domain handoff guidance excludes the success nextAction", async () => {
   expect(observed.stdout.trim().split("\n")).toHaveLength(1);
   const envelope = parseEnvelope(observed.stdout);
   expect(envelope.result).toMatchObject({
-    commandIdentity: "example.status",
+    commandIdentity: "shepherdr.status",
     outcome: "failed",
     handoff,
   });
@@ -553,7 +553,7 @@ for (const [name, guidance] of invalidGuidance) {
     expect(JSON.parse(observed.stdout)).toMatchObject({
       message: "The machine result could not be serialized.",
       result: {
-        commandIdentity: "example.status",
+        commandIdentity: "shepherdr.status",
         outcome: "failed",
         causeCode: "INTERNAL_RESULT_UNCHANGED",
         handoff: { owner: "operator" },
@@ -566,10 +566,14 @@ for (const [name, guidance] of invalidGuidance) {
 }
 
 for (const [args, identity, exitCode] of [
-  [["--help"], "example.help", 0],
-  [["--discover"], "example.discovery", 0],
-  [["--discover-command", "example.status"], "example.command-discovery", 0],
-  [[], "example.dispatch", 2],
+  [["--help"], "shepherdr.help", 0],
+  [["--discover"], "shepherdr.discovery", 0],
+  [
+    ["--discover-command", "shepherdr.status"],
+    "shepherdr.command-discovery",
+    0,
+  ],
+  [[], "shepherdr.dispatch", 2],
 ] as const) {
   test(`a builtin's stdout error ends the run with exit 1 and no output: ${identity}`, async () => {
     const normal = invoke(...args, "--json");

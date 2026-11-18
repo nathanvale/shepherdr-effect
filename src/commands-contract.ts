@@ -50,25 +50,25 @@ export function commandSummaries(commands: readonly CommandDefinition[]) {
 export function builtInCommandSummaries() {
   return [
     {
-      commandIdentity: "example.dispatch",
+      commandIdentity: "shepherdr.dispatch",
       effectClass: "inspect" as const,
       route: [],
       summary: "Validate the invocation.",
     },
     {
-      commandIdentity: "example.help",
+      commandIdentity: "shepherdr.help",
       effectClass: "inspect" as const,
       route: ["--help"],
       summary: "Show help.",
     },
     {
-      commandIdentity: "example.discovery",
+      commandIdentity: "shepherdr.discovery",
       effectClass: "inspect" as const,
       route: ["--discover"],
       summary: "Describe commands.",
     },
     {
-      commandIdentity: "example.command-discovery",
+      commandIdentity: "shepherdr.command-discovery",
       effectClass: "inspect" as const,
       route: ["--discover-command"],
       summary: "Describe one command's possible outcomes.",
@@ -84,14 +84,14 @@ export function builtInStations(commandIdentity: string) {
   )
     return [];
   const stationFields =
-    commandIdentity === "example.dispatch"
+    commandIdentity === "shepherdr.dispatch"
       ? {
           causeCode: "USAGE_INVALID_INVOCATION",
           outcome: "refused",
           failureClass: "usage",
           exitCode: 2,
           guidance: {
-            nextAction: "Run example --help and choose a listed command.",
+            nextAction: "Run shepherdr --help and choose a listed command.",
           },
           repairAction: "Choose one supported command and retry.",
           trigger: "The invocation does not select a supported command.",

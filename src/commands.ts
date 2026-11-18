@@ -2,7 +2,7 @@ import type { CommandDefinition } from "./commands-contract.ts";
 
 export const commands: CommandDefinition[] = [
   {
-    commandIdentity: "example.status",
+    commandIdentity: "shepherdr.status",
     effectClass: "inspect",
     route: ["status"],
     summary: "Inspect the starter without changing data.",
@@ -10,7 +10,7 @@ export const commands: CommandDefinition[] = [
     stations: () => [],
   },
   {
-    commandIdentity: "example.template.info",
+    commandIdentity: "shepherdr.template.info",
     effectClass: "inspect",
     route: ["template", "info"],
     summary: "Inspect the template convention.",
@@ -20,7 +20,7 @@ export const commands: CommandDefinition[] = [
   },
   {
     argumentUsage: "--dir PATH",
-    commandIdentity: "example.state.check",
+    commandIdentity: "shepherdr.state.check",
     effectClass: "inspect",
     route: ["state", "check"],
     summary:
@@ -31,7 +31,7 @@ export const commands: CommandDefinition[] = [
   },
   {
     argumentUsage: "--fork PATH",
-    commandIdentity: "example.inventory.extract",
+    commandIdentity: "shepherdr.inventory.extract",
     effectClass: "repository-local",
     route: ["inventory", "extract"],
     summary:
@@ -42,7 +42,7 @@ export const commands: CommandDefinition[] = [
   },
   {
     argumentUsage: "[--fork PATH]",
-    commandIdentity: "example.inventory.check",
+    commandIdentity: "shepherdr.inventory.check",
     effectClass: "inspect",
     route: ["inventory", "check"],
     summary:

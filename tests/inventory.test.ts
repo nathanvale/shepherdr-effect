@@ -117,7 +117,7 @@ test("extract keeps one file for each list, in id order, and writes nowhere else
   );
   expect(observed.result).toMatchObject({
     causeCode: "SUCCESS_COMPLETED",
-    commandIdentity: "example.inventory.extract",
+    commandIdentity: "shepherdr.inventory.extract",
     effectClass: "repository-local",
     effects: { completed: FILES, remaining: [], uncertain: [] },
     outcome: "success",
@@ -221,7 +221,7 @@ test("check passes on what extract kept, with and without the fork", async () =>
   expect(alone.message).not.toContain("match the fork");
   expect(alone.result).toMatchObject({
     causeCode: "SUCCESS_UNCHANGED",
-    commandIdentity: "example.inventory.check",
+    commandIdentity: "shepherdr.inventory.check",
     effectClass: "inspect",
     transactionState: "unchanged",
     data: { fork: null, lists, stateFiles: registry },
@@ -358,7 +358,7 @@ for (const [name, command, args] of [
     expect(observed.exitCode).toBe(2);
     expect(observed.result).toMatchObject({
       causeCode: "USAGE_INVALID_INVOCATION",
-      commandIdentity: `example.inventory.${command}`,
+      commandIdentity: `shepherdr.inventory.${command}`,
       data: null,
       failureClass: "usage",
       outcome: "refused",
@@ -379,7 +379,7 @@ test("check with a fork that cannot be read is refused, after the kept files pas
   expect(observed.message).toContain(`${ACTIONS} is missing from the fork.`);
   expect(observed.result).toMatchObject({
     causeCode: "DOMAIN_FORK_UNREADABLE",
-    commandIdentity: "example.inventory.check",
+    commandIdentity: "shepherdr.inventory.check",
     outcome: "refused",
   });
 });

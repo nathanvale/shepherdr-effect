@@ -16,12 +16,12 @@ type Command = Pick<CommandResult, "commandIdentity" | "effectClass"> & {
 };
 
 const EXTRACT: Command = {
-  commandIdentity: "example.inventory.extract",
+  commandIdentity: "shepherdr.inventory.extract",
   effectClass: "repository-local",
   usage: "inventory extract --fork PATH",
 };
 const CHECK: Command = {
-  commandIdentity: "example.inventory.check",
+  commandIdentity: "shepherdr.inventory.check",
   effectClass: "inspect",
   usage: "inventory check [--fork PATH]",
 };
