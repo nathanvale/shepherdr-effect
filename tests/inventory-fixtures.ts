@@ -215,7 +215,7 @@ UpdateElementStyle(svc, $borderColor="#b45309")
 `;
 
 /** The fork's files, by path from its root. */
-const forkFiles: Readonly<Record<string, string>> = {
+export const forkFiles: Readonly<Record<string, string>> = {
   [CLI]: cli,
   [AGENTS]: agents,
   [MAIN]: main,

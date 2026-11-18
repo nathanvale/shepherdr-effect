@@ -29,4 +29,26 @@ export const commands: CommandDefinition[] = [
       (await import("./domains/state-check.ts")).checkStateFiles(args),
     stations: () => [],
   },
+  {
+    argumentUsage: "--fork PATH",
+    commandIdentity: "example.inventory.extract",
+    effectClass: "repository-local",
+    route: ["inventory", "extract"],
+    summary:
+      "Read the old system's interface lists from its source and keep each as a file under inventory/ in the current folder.",
+    execute: async (args) =>
+      (await import("./domains/inventory/commands.ts")).extractInventory(args),
+    stations: () => [],
+  },
+  {
+    argumentUsage: "[--fork PATH]",
+    commandIdentity: "example.inventory.check",
+    effectClass: "inspect",
+    route: ["inventory", "check"],
+    summary:
+      "Check that every file under inventory/ reads through its list's schema and, with --fork, still matches the old system's source.",
+    execute: async (args) =>
+      (await import("./domains/inventory/commands.ts")).checkInventory(args),
+    stations: () => [],
+  },
 ];
