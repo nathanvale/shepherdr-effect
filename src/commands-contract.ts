@@ -83,7 +83,7 @@ export function builtInStations(commandIdentity: string) {
     )
   )
     return [];
-  const outcome =
+  const stationFields =
     commandIdentity === "example.dispatch"
       ? {
           causeCode: "USAGE_INVALID_INVOCATION",
@@ -108,7 +108,7 @@ export function builtInStations(commandIdentity: string) {
   return [
     {
       commandIdentity,
-      ...outcome,
+      ...stationFields,
       effectClass: "inspect",
       transactionState: "unchanged",
       retryable: false,

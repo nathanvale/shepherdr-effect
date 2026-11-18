@@ -9,9 +9,12 @@ import {
 } from "./commands-contract.ts";
 
 const CONTRACT_VERSION = "2.0.0";
-const COMMANDS = [...builtInCommandSummaries(), ...commandSummaries(commands)];
+const COMMAND_SUMMARIES = [
+  ...builtInCommandSummaries(),
+  ...commandSummaries(commands),
+];
 const AVAILABLE_PATHS = [
-  ...COMMANDS.map((command) => command.commandIdentity),
+  ...COMMAND_SUMMARIES.map((command) => command.commandIdentity),
 ].sort();
 
 function effects() {
@@ -187,7 +190,7 @@ function internalFailure(station: InternalFailureStation) {
 
 function discoveryData() {
   return {
-    commands: COMMANDS,
+    commands: COMMAND_SUMMARIES,
     contractVersion: CONTRACT_VERSION,
     effectExclusions: [
       "The simple starter never changes user data or configuration.",
@@ -341,7 +344,7 @@ function showHelp(json: boolean): number {
     success(
       "example.help",
       {
-        commands: COMMANDS,
+        commands: COMMAND_SUMMARIES,
         options: [
           {
             name: "--json",
@@ -365,7 +368,7 @@ function showDiscovery(json: boolean): number {
   render(
     success("example.discovery", discoveryData(), "Describe commands."),
     json,
-    `Commands: ${COMMANDS.map((command) => command.route.join(" ")).join(", ")}`,
+    `Commands: ${COMMAND_SUMMARIES.map((command) => command.route.join(" ")).join(", ")}`,
   );
   return 0;
 }
@@ -389,7 +392,7 @@ function showCommand(
   identity: string | undefined,
   json: boolean,
 ): number | undefined {
-  const command = COMMANDS.find(
+  const command = COMMAND_SUMMARIES.find(
     (candidate) => candidate.commandIdentity === identity,
   );
   if (command === undefined) return undefined;
@@ -483,7 +486,7 @@ function validateGuidance(
     );
 }
 
-function formatOperation(
+function formatResult(
   result: { result: Omit<OperationResult, "message"> & { runId: string } },
   message: string,
   json: boolean,
@@ -498,17 +501,17 @@ async function runSelectedCommand(
   json: boolean,
 ): Promise<number> {
   activeCommandIdentity = selected.commandIdentity;
-  let operation;
+  let result;
   try {
-    operation = await selected.execute(args);
+    result = await selected.execute(args);
   } catch {
     return reportInternalFailure(
       { ...COMMAND_FAILURE_STATION, commandIdentity: selected.commandIdentity },
       json,
     );
   }
-  const { message, ...facts } = operation;
-  const result = {
+  const { message, ...facts } = result;
+  const envelope = {
     availablePaths: AVAILABLE_PATHS,
     contractVersion: CONTRACT_VERSION,
     envelopeVersion: 2,
@@ -517,7 +520,7 @@ async function runSelectedCommand(
   };
   let output: string;
   try {
-    output = formatOperation(result, message, json);
+    output = formatResult(envelope, message, json);
   } catch {
     return reportInternalFailure(
       {
@@ -538,7 +541,7 @@ async function runSelectedCommand(
       json,
     );
   }
-  return operation.exitCode;
+  return result.exitCode;
 }
 
 function reportUsage(json: boolean): number {
