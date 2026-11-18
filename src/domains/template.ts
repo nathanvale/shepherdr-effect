@@ -1,6 +1,6 @@
-import { status } from "./result.ts";
+import { unchangedSuccess } from "../command-result.ts";
 export function inspectTemplate() {
-  return status(
+  return unchangedSuccess(
     "example.template.info",
     { contractVersion: "2.0.0" },
     "Contract Core 2.0.0.",

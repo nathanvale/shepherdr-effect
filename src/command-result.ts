@@ -1,6 +1,6 @@
-import type { CommandResult } from "../commands-contract.ts";
+import type { CommandResult } from "./commands-contract.ts";
 
-export function status(
+export function unchangedSuccess(
   commandIdentity: string,
   data: unknown,
   message: string,

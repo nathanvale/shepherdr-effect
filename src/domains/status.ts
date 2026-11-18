@@ -1,4 +1,8 @@
-import { status } from "./result.ts";
+import { unchangedSuccess } from "../command-result.ts";
 export function inspectStatus() {
-  return status("example.status", { ready: true }, "Starter is ready.");
+  return unchangedSuccess(
+    "example.status",
+    { ready: true },
+    "Starter is ready.",
+  );
 }

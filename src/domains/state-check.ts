@@ -5,7 +5,7 @@ import type { CommandResult } from "../commands-contract.ts";
 import { type Family, findStateFile } from "../state-files/registry.ts";
 import { roundTrip, type Verdict } from "../state-files/round-trip.ts";
 
-const IDENTITY = "example.state.check";
+const COMMAND_IDENTITY = "example.state.check";
 // A file can break its schema in every record it holds: a few places say enough.
 const SHOWN = 8;
 
@@ -19,7 +19,7 @@ interface CheckedFile {
 
 function unchanged() {
   return {
-    commandIdentity: IDENTITY,
+    commandIdentity: COMMAND_IDENTITY,
     effectClass: "inspect",
     effects: {
       completed: [],
