@@ -182,7 +182,7 @@ afterEach(async () => {
   for (const root of roots) expect(existsSync(root)).toBe(false);
 });
 
-test("machine status emits one 2.0 envelope and no stderr", () => {
+test("JSON status emits one 2.0 envelope and no stderr", () => {
   const result = invoke("status", "--json");
   expect(result.exitCode).toBe(0);
   expect(result.stderr).toBe("");
@@ -199,7 +199,7 @@ test("machine status emits one 2.0 envelope and no stderr", () => {
   });
 });
 
-test("machine status emits a strict internal fallback after serialization fails", async () => {
+test("JSON status emits a strict internal fallback after serialization fails", async () => {
   const result = invokeWithPreload(
     await serializerFailurePreload(),
     "status",
@@ -279,7 +279,7 @@ test("machine status emits a strict internal fallback after serialization fails"
   );
 });
 
-test("machine status emits a distinct internal fallback after stdout emission fails", async () => {
+test("JSON status emits a distinct internal fallback after stdout emission fails", async () => {
   const result = invokeWithPreload(
     await outputFailurePreload(),
     "status",
@@ -307,7 +307,7 @@ test("machine status emits a distinct internal fallback after stdout emission fa
   });
 });
 
-test("machine status reports repair guidance after a real stdout reader closes", async () => {
+test("JSON status reports repair guidance after a real stdout reader closes", async () => {
   const result = await invokeWithClosedStdoutReader(
     await closedStdoutPreload(),
     "status",
@@ -571,7 +571,7 @@ for (const [args, identity, exitCode] of [
   [["--discover-command", "example.status"], "example.command-discovery", 0],
   [[], "example.dispatch", 2],
 ] as const) {
-  test(`builtin stdout errors are handled before dispatch: ${identity}`, async () => {
+  test(`a builtin's stdout error ends the run with exit 1 and no output: ${identity}`, async () => {
     const normal = invoke(...args, "--json");
     expect(normal.exitCode).toBe(exitCode);
     expect(normal.stderr).toBe("");
