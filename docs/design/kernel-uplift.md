@@ -43,9 +43,11 @@ talk to itself.
 - Make each Bitbucket publication stage its own operation. The kernel forbids
   a later run writing for an earlier one (report).
 - Supply the observer that finds one labelled terminal as evidence.
-- Accept two stores. Launches would live in the kernel's journal and tasks in
-  SQLite, so a confirmed start could not release its intent and reach its task
-  in one transaction. The repair path the design deletes would come back.
+- Accept two stores. An attempt's journal would live in the kernel and tasks
+  in SQLite, so confirming an attempt and recording its task assignment could
+  not happen in one store transaction. The repair path the design deletes
+  would come back, in a smaller form: re-run the task assignment from the
+  journal's record, keyed by the attempt id, then close.
 
 ## Hard either way
 

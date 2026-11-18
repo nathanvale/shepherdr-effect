@@ -80,9 +80,10 @@ Taken from the other design candidates and folded into the base by hand.
   another machine carries one, with a status lookup that also fences a late
   copy. A lost reply is looked up, never resent blind.
 - **One store transaction for a confirmed start** (candidate 3, made possible
-  by SQLite). Confirming the start, releasing its intent and the task
-  assignment happen together. Today's "confirmed but not on its task" repair
-  path is deleted.
+  by SQLite). Confirming the attempt and recording the task assignment happen
+  together. Today's "confirmed but not on its task" repair path is deleted
+  for as long as both live in one store; it returns in a smaller form if the
+  kernel's journal holds the attempt (see [kernel-uplift.md](kernel-uplift.md)).
 - **One result envelope** (candidate 2). `Reply`, `Failure` (the CLI kernel's
   result) and rendered text with a fixed exit code table, for every command.
   It also keeps a later CLI kernel a swap.
