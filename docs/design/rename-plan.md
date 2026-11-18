@@ -210,6 +210,8 @@ Gone: `rg -n -w 'COMMANDS|formatOperation|operation' src/cli.ts` and
 
 ### Batch 4: the command result type
 
+Done in 2a8f327.
+
 Ready: wait until the inventory work is committed
 (`src/domains/inventory/commands.ts` and `tests/cli.test.ts` use these names).
 Files: `src/commands-contract.ts`, `src/cli.ts`, `src/domains/state-check.ts`,
@@ -225,6 +227,8 @@ Gone: `rg -n 'OperationResult|operationPreload|"operation.ts"' src tests`.
 | 4.2 | function | `operationPreload` `tests/cli.test.ts:388`, and its preload file name value `"operation.ts"` at `:393`                                                               | `resultPreload`, value `"result.ts"` | Result (CLI kernel) | Safe                                                   |
 
 ### Batch 5: leave the domain core
+
+Done in a56851d, except row 5.1 (needs care).
 
 Ready: wait until the inventory work is committed (row 5.1 changes
 `src/commands.ts`), and after batch 4. Files: `src/domains/state-check.ts`,
@@ -244,6 +248,8 @@ Gone: `test ! -e src/domains/state-check.ts && test ! -e src/domains/result.ts`,
 | 5.4 | exported function | `status` `src/domains/result.ts:3`, called at `src/domains/status.ts:3`, `src/domains/template.ts:3` | `unchangedSuccess`            | Outcome (CLI kernel)          | Safe                                                                                                                                                                                                                                                                                                                       |
 
 ### Batch 6: the interface inventory
+
+Done in 5c60c7c, except rows 6.1, 6.7 and 6.11 (need care), and rows 6.2, 6.3 and 6.4 (they move files into `src/inventory/`, which row 6.1 creates).
 
 Ready: wait until the inventory work is committed. Find each name again with
 `rg -n -w '<name>' src tests` before you change it.
@@ -289,6 +295,8 @@ Gone: `rg -n 'example\.(status|template|state|inventory|dispatch|help|discovery|
 | 7.2 | constant | value: the program name `example` in human text, `src/cli.ts:64`, `:95`, `:134`, `:149`, `:352`, `:353`, `:358`, `:548` and `src/commands-contract.ts:94`, and the tests that assert that text                                                                                                                                                                                                                | `shepherdr`         | Program                       | Needs care: `src/cli.ts:95` is a string literal type, which must change together with the value it types; the help test asserts the usage line                             |
 
 ### Batch 8: command line test titles
+
+Done in 8cab896.
 
 Ready: wait until the inventory work is committed (`tests/cli.test.ts` is in
 that change). File: `tests/cli.test.ts`. Rule: S2.
