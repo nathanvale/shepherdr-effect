@@ -4,7 +4,7 @@ import { Millis } from "./shared.ts";
 const optional = Schema.optionalKey;
 
 /** `service/service.json`: this start of the service (service/main.ts). */
-export const ServiceRecord = Schema.Struct({
+export const ServiceFile = Schema.Struct({
   port: Schema.Int,
   id: Schema.String,
   pid: Schema.Int,
@@ -12,7 +12,7 @@ export const ServiceRecord = Schema.Struct({
 });
 
 /** `service/web.json`: what the service last said about the web app (service/main.ts `tailnet`, `serveNow`). */
-export const WebState = Schema.Struct({
+export const WebFile = Schema.Struct({
   on: Schema.Boolean,
   link: Schema.NullOr(Schema.String),
   qr: Schema.NullOr(Schema.String),
@@ -45,7 +45,7 @@ export const WebState = Schema.Struct({
  * page's own send id. Only a send that went in is kept, so its answer is
  * always this one shape (service/actions.ts `sendNow`).
  */
-export const SentMessages = Schema.Record(
+export const SentFile = Schema.Record(
   Schema.String,
   Schema.Struct({
     at: Millis,
@@ -59,7 +59,7 @@ const count = (maximum: number) =>
   Schema.Int.check(Schema.isBetween({ minimum: 0, maximum }));
 
 /** One line of `service/usage.jsonl`: an event as core/usage.js `clean` keeps it. */
-export const UsageEvent = Schema.Struct({
+export const UsageLine = Schema.Struct({
   at: Millis,
   kind: Schema.Literals(["view", "act", "send", "feature", "error", "ask"]),
   from: optional(

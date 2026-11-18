@@ -11,7 +11,7 @@ const optional = Schema.optionalKey;
 const Flag = Schema.Literal(true);
 
 /** An agent started for a task (launch.py `launch`, sessions.py). */
-const TaskAgent = Schema.Struct({
+const AgentRow = Schema.Struct({
   ...agentStartFields,
   address: Schema.String,
   // Absent on an agent taken over from the old Tasks panel (store.py `migrate`).
@@ -278,8 +278,8 @@ const Task = Schema.Struct({
     "done",
   ]),
   created: Millis,
-  agents: Schema.Array(TaskAgent),
-  reviewers: optional(Schema.Array(TaskAgent)),
+  agents: Schema.Array(AgentRow),
+  reviewers: optional(Schema.Array(AgentRow)),
   ...takenOver,
   ...placement,
   ...ownChoices,
@@ -349,7 +349,7 @@ const Automation = Schema.Struct({
 });
 
 /** A base branch watched on GitHub after a merge (github.py `watch_main`, ghnews.py). */
-const MainWatch = Schema.Struct({
+const DestinationWatch = Schema.Struct({
   repo: Schema.String,
   until: Millis,
   space: Schema.NullOr(Schema.String),
@@ -377,7 +377,7 @@ const MainWatch = Schema.Struct({
 });
 
 /** One folder's tasks: `tasks/<slug>.json` (store.py `Store`). */
-export const TaskList = Schema.Struct({
+export const TaskListFile = Schema.Struct({
   version: Schema.Literal(1),
   folder: Schema.String,
   kind: Schema.Literals(["repo", "folder"]),
@@ -405,7 +405,7 @@ export const TaskList = Schema.Struct({
     }),
   ),
   // Open by branch name: one record per base branch being watched.
-  main_watch: optional(Schema.Record(Schema.String, MainWatch)),
+  main_watch: optional(Schema.Record(Schema.String, DestinationWatch)),
   automations: optional(Schema.Array(Automation)),
   auto_next: optional(Schema.Int),
 });

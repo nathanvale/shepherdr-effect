@@ -10,7 +10,7 @@ const optional = Schema.optionalKey;
 const Flag = Schema.Literal(true);
 
 /** `tasks/.machines.json`: what was last synced to each linked machine (machines.py). */
-export const MachinesState = Schema.Struct({
+export const MachinesFile = Schema.Struct({
   seen: optional(Schema.String),
   seen_at: optional(Millis),
   // Open by machine name: one record per machine herdr-core links.
@@ -120,10 +120,10 @@ const ReachNode: Schema.Codec<ReachNodeEncoded> = Schema.Struct({
 });
 
 /** `tasks/.reach.json`: the machines reachable from here, hop by hop (machines.py `probe`). */
-export const ReachMap = Schema.Struct({ at: Millis, graph: ReachNode });
+export const ReachFile = Schema.Struct({ at: Millis, graph: ReachNode });
 
 /** `tasks/.scheduler.json`: the one scheduler running here (automations.py `cmd_scheduler`). */
-export const SchedulerRecord = Schema.Struct({
+export const SchedulerFile = Schema.Struct({
   pid: Schema.Int,
   hash: Schema.String,
   at: Millis,
@@ -135,14 +135,14 @@ export const SchedulerRecord = Schema.Struct({
  * round (automations.py `one_pass`). The file itself is the map: open by task
  * list slug, one record per folder with tasks at work or automations.
  */
-export const SchedulerSeen = Schema.Record(Schema.String, TaskEventsSeen);
+export const SeenFile = Schema.Record(Schema.String, TaskEventsSeen);
 
 /**
  * `tasks/.retries.json`: provider retries under way (tick.py `retry_pass`).
  * The file itself is the map: open by terminal address, one row per live
  * Assistant or task worker whose log is being followed.
  */
-export const Retries = Schema.Record(
+export const RetriesFile = Schema.Record(
   Schema.String,
   Schema.Struct({
     address: Schema.String,
@@ -163,7 +163,7 @@ export const Retries = Schema.Record(
 );
 
 /** `tasks/.news.json`: each task's last told status, and lines not sent yet (news.py `news_pass`). */
-export const NewsState = Schema.Struct({
+export const NewsFile = Schema.Struct({
   // Open by task list slug, then by task number beside the `_init` marker.
   seen: Schema.Record(
     Schema.String,
@@ -207,7 +207,7 @@ export const NewsState = Schema.Struct({
 });
 
 /** `tasks/.newslog.json`: the last 300 news batches sent, for the home overview (home.py `log_news`). */
-export const NewsLog = Schema.Array(
+export const NewslogFile = Schema.Array(
   Schema.Struct({
     at: Millis,
     space: Schema.String,
@@ -221,7 +221,7 @@ export const NewsLog = Schema.Array(
  * `tasks/.held.json`: messages waiting while the person writes to an agent
  * (news.py `hold`). The file itself is the map: open by terminal address.
  */
-export const HeldMessages = Schema.Record(
+export const HeldFile = Schema.Record(
   Schema.String,
   Schema.Array(
     Schema.Struct({
@@ -240,7 +240,7 @@ const Wake = Schema.Struct({
 const Note = Schema.Struct({ text: Schema.String, at: Millis });
 
 /** `tasks/.autopilot.json`: each space's switch and how its wakes go (autopilot.py). */
-export const AutopilotState = Schema.Struct({
+export const AutopilotFile = Schema.Struct({
   version: Schema.Literal(2),
   // From before Settings kept the schedule and events.
   everywhere: Schema.Struct({
@@ -284,7 +284,7 @@ export const AutopilotState = Schema.Struct({
 });
 
 /** `tasks/.feedback.json`: problems in Shepherdr itself that agents reported (feedback.py). */
-export const FeedbackState = Schema.Struct({
+export const FeedbackFile = Schema.Struct({
   // Open by problem key: ten hex digits of a hash of the problem's one line.
   problems: Schema.Record(
     Schema.String.check(Schema.isPattern(/^[0-9a-f]{10}$/)),
@@ -313,7 +313,7 @@ export const FeedbackState = Schema.Struct({
  * last looked at the settings file, and that file's modification time then
  * (reactions.py `reactions_pass`, assistant_settings.py `settings_pass`).
  */
-export const SettingsPassStamp = Schema.Struct({
+export const SettingsPassFile = Schema.Struct({
   mtime: Schema.Number,
   at: Millis,
 });
@@ -330,7 +330,7 @@ const StoppedTerminal = Schema.Struct({
  * One line of `tasks/.stops.jsonl`: an agent that was ended or went missing
  * (base.py `stop_note`). Each kind carries its own fields.
  */
-export const StopLogLine = Schema.Union([
+export const StopsLine = Schema.Union([
   Schema.Struct({
     at: Millis,
     kind: Schema.Literal("resume-retire"),

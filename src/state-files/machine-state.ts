@@ -8,7 +8,7 @@ const CliState = Schema.NullOr(
 );
 
 /** `cli-check.json`: which agent CLIs each machine can run (takeover.py `cli_check_pass`). */
-export const CliCheck = Schema.Struct({
+export const CliCheckFile = Schema.Struct({
   at: Millis,
   // Open by machine name ("" is this machine).
   machines: Schema.Record(
@@ -23,7 +23,7 @@ export const CliCheck = Schema.Struct({
 });
 
 /** `codex-sandbox.json`: whether Codex's sandbox starts here, and what that answer depends on (sandbox.py). */
-export const CodexSandbox = Schema.Struct({
+export const CodexSandboxFile = Schema.Struct({
   key: Schema.Struct({
     codex: Schema.String,
     codex_at: Schema.NullOr(Schema.String),
@@ -63,7 +63,7 @@ const MovedKind = Schema.Literals([
 ]);
 
 /** `migrate.json`: the journal of the move from `~/.herdr` (layout.py `_move_kind`, `migrate`, `cleanup`). */
-export const MigrateJournal = Schema.Struct({
+export const MigrateFile = Schema.Struct({
   started: optional(Millis),
   kinds: optional(
     Schema.Record(
@@ -91,4 +91,4 @@ export const MigrateJournal = Schema.Struct({
  * and a new line (layout.py `migrate`). That is also a JSON document, so it
  * is read as one.
  */
-export const LayoutNumber = Schema.Int.check(Schema.isGreaterThanOrEqualTo(0));
+export const LayoutFile = Schema.Int.check(Schema.isGreaterThanOrEqualTo(0));

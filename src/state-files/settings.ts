@@ -89,7 +89,7 @@ const MachineRows = Schema.Struct({
  * winning. Written whole by the window, the service and herdr-task
  * (service/settings.ts `writeSettings`, settings.py `write_autopilot`).
  */
-export const Settings = Schema.Struct({
+export const SettingsFile = Schema.Struct({
   version: Schema.Literal(1),
   // Both set only on a copy the window pushed to another machine (`pushBody`).
   pushed_from: optional(Schema.String),
@@ -127,7 +127,7 @@ export const Settings = Schema.Struct({
 });
 
 /** `model-picks.json`: pinned and recently used models, each "<agent>:<model>" (core/agents.js `parsePicks`). */
-export const ModelPicks = Schema.Struct({
+export const ModelPicksFile = Schema.Struct({
   pinned: Schema.Array(Schema.String),
   recent: Schema.Array(Schema.String),
 });

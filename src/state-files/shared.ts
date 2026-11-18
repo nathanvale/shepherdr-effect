@@ -14,7 +14,7 @@ export const EmptyObject = Schema.Struct({}).check(
 );
 
 /** What a start records about its provider route (providers.py `recorded`). */
-export const ProviderBinding = Schema.Union([
+export const RecordedBinding = Schema.Union([
   Schema.Struct({ route: Schema.Literal("personal") }),
   Schema.Struct({
     route: Schema.Literal("azure-foundry"),
@@ -32,7 +32,7 @@ export const agentStartFields = {
   at: Millis,
   parent: Schema.optionalKey(Schema.String),
   config_dir: Schema.optionalKey(Schema.String),
-  provider: Schema.optionalKey(ProviderBinding),
+  provider: Schema.optionalKey(RecordedBinding),
 };
 
 /** A time rule as `parse_every` returns it (automations.py). */

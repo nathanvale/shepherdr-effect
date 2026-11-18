@@ -7,7 +7,7 @@ const optional = Schema.optionalKey;
  * old code opens the file for are modelled; every other document and field is
  * herdr-core's to change.
  */
-export const CoreDocs = Schema.Struct({
+export const HerdrCoreDocsFile = Schema.Struct({
   // providers.py `settings_source`: does this machine serve the web app?
   "shepherdr.node": optional(
     Schema.Struct({ value: Schema.Struct({ serving: Schema.Boolean }) }),
@@ -40,7 +40,7 @@ export const CoreDocs = Schema.Struct({
  * same records through `hc ls` and `hc get`. These are the fields it uses
  * from those answers, as the file holds them.
  */
-export const CoreTerminals = Schema.Struct({
+export const HerdrCoreTerminalsFile = Schema.Struct({
   // Open by terminal address.
   terminals: Schema.Record(
     Schema.String,
