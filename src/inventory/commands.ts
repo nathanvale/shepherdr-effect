@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Effect, Result, Schema, SchemaIssue } from "effect";
-import type { CommandResult } from "../../commands-contract.ts";
+import type { CommandResult } from "../commands-contract.ts";
 import { DIAGRAM, readSources } from "./fork.ts";
 import { type List, lists } from "./lists.ts";
 import type { Item } from "./source.ts";
@@ -353,7 +353,7 @@ function keptLists(repository: string): Step<Listed[]> {
           "SCHEMA_INVENTORY_MISMATCH",
           `${String(problems.length)} inventory files did not pass.`,
           problems,
-          "Run inventory extract --fork PATH to write the lists again, or correct the schema in src/domains/inventory/lists.ts.",
+          "Run inventory extract --fork PATH to write the lists again, or correct the schema in src/inventory/lists.ts.",
         ),
       );
     return files.flatMap((file) =>

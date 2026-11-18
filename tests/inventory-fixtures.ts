@@ -1,4 +1,4 @@
-import type { Sources } from "../src/domains/inventory/lists.ts";
+import type { Sources } from "../src/inventory/lists.ts";
 
 /**
  * A small made-up fork: each file holds the shapes one extractor must read,

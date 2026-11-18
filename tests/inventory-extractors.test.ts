@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test";
 import { Schema } from "effect";
-import { herdrCoreRpcMethods } from "../src/domains/inventory/core-rpc-methods.ts";
-import { diagramElements } from "../src/domains/inventory/diagram-elements.ts";
-import { hcCliSubcommands } from "../src/domains/inventory/hc-cli-subcommands.ts";
-import { herdrTaskCommands } from "../src/domains/inventory/herdr-task-commands.ts";
-import { lists } from "../src/domains/inventory/lists.ts";
-import { serviceActions } from "../src/domains/inventory/service-actions.ts";
-import { serviceRoutes } from "../src/domains/inventory/service-routes.ts";
-import { stateFileItems } from "../src/domains/inventory/state-files.ts";
-import { terminalLabels } from "../src/domains/inventory/terminal-labels.ts";
+import { herdrCoreRpcMethods } from "../src/inventory/core-rpc-methods.ts";
+import { diagramElements } from "../src/inventory/diagram-elements.ts";
+import { hcCliSubcommands } from "../src/inventory/hc-cli-subcommands.ts";
+import { herdrTaskCommands } from "../src/inventory/herdr-task-commands.ts";
+import { lists } from "../src/inventory/lists.ts";
+import { serviceActions } from "../src/inventory/service-actions.ts";
+import { serviceRoutes } from "../src/inventory/service-routes.ts";
+import { stateFileItems } from "../src/inventory/state-files.ts";
+import { terminalLabels } from "../src/inventory/terminal-labels.ts";
 import { stateFiles } from "../src/state-files/registry.ts";
 import {
   ACTIONS,

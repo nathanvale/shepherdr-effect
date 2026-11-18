@@ -36,7 +36,7 @@ export default tseslint.config(
   },
 
   {
-    files: ["src/domains/**/*.ts"],
+    files: ["src/domains/**/*.ts", "src/inventory/**/*.ts"],
     plugins: { repository: localRules },
     rules: { "repository/no-domain-output": "error" },
   },

@@ -37,7 +37,7 @@ export const commands: CommandDefinition[] = [
     summary:
       "Read the old system's interface lists from its source and keep each as a file under inventory/ in the current folder.",
     execute: async (args) =>
-      (await import("./domains/inventory/commands.ts")).extractInventory(args),
+      (await import("./inventory/commands.ts")).extractInventory(args),
     stations: () => [],
   },
   {
@@ -48,7 +48,7 @@ export const commands: CommandDefinition[] = [
     summary:
       "Check that every file under inventory/ reads through its list's schema and, with --fork, still matches the old system's source.",
     execute: async (args) =>
-      (await import("./domains/inventory/commands.ts")).checkInventory(args),
+      (await import("./inventory/commands.ts")).checkInventory(args),
     stations: () => [],
   },
 ];
