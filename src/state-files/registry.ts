@@ -48,7 +48,7 @@ export type WriteDiscipline =
 
 export type Family =
   | "task-lists"
-  | "journals"
+  | "attempts"
   | "engine-state"
   | "settings"
   | "service-state"
@@ -98,7 +98,7 @@ const inTick = renamed(".tick.lock");
  */
 export const stateFiles: readonly StateFileEntry[] = [
   {
-    family: "journals",
+    family: "attempts",
     file: `${TASKS}/.launches.json`,
     format: "json",
     schema: LaunchesFile,
@@ -106,7 +106,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     discipline: synced(".launches.lock"),
   },
   {
-    family: "journals",
+    family: "attempts",
     file: `${TASKS}/.publications.json`,
     format: "json",
     schema: PublicationsFile,

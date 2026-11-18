@@ -38,7 +38,7 @@ test("every registry entry has a fixture that round-trips", () => {
 });
 
 test("a named file in the tasks folder is not taken for a task list", () => {
-  expect(findStateFile(`${TASKS}/.launches.json`)?.family).toBe("journals");
+  expect(findStateFile(`${TASKS}/.launches.json`)?.family).toBe("attempts");
   expect(findStateFile(`${TASKS}/.config-example.json`)?.family).toBe(
     "task-lists",
   );

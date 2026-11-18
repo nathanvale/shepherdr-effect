@@ -66,7 +66,7 @@ test("a root where every file reads and writes back unchanged succeeds", async (
       root,
       families: expect.arrayContaining([
         { family: "task-lists", files: 2 },
-        { family: "journals", files: 2 },
+        { family: "attempts", files: 2 },
         { family: "herdr-core", files: 2 },
       ]) as unknown,
     },
