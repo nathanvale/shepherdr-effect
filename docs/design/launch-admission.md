@@ -123,6 +123,38 @@ the person's to close, as [synthesis.md](synthesis.md) leaves it.
 Running unattended, an Uncertain launch stops its task until the person
 returns. The morning report lists it.
 
+## An Uncertain launch that no command can close
+
+A model of one task launch, checked over every order of its steps, is in
+[launch-model/README.md](launch-model/README.md). The design keeps three
+rules in it: a launch is Confirmed or closed as completed only on a terminal
+that carries its attempt id, nothing closes as not applied while a herdr-core
+request may still be pending, and the task assignment happens at most once.
+
+A fourth rule breaks: a launch never blocks its task for good.
+
+- The run records that it is about to send, and then stops before herdr-core
+  has the request. Either the run crashes before it writes the request, or
+  the request never arrives and the run does not live to record that.
+- The launch is then Uncertain, and no terminal will ever carry its attempt
+  id. `launch recover` closes only an Intended launch, and
+  `launch reconcile` needs a terminal. So its launch identity is refused for
+  good, and the task can never start again.
+- The old system has the same dead end. Its `launch_admission.py` says "this
+  version has no command that releases it".
+
+Agreed by Nathan on 19 November 2026:
+
+- The person may close such a launch as not applied, and only on proof that
+  herdr-core can no longer apply its request.
+- Seeing no labelled terminal is not that proof. In the model, herdr-core
+  starts the terminal after a launch was closed that way.
+- The observer answers `excluded` only on that proof, and `unobservable`
+  until then.
+
+Whether herdr-core can show that a request can no longer apply is not known.
+Until it can, the dead end stays, and the morning report lists the launch.
+
 ## What moves in the module map
 
 | Planned module                    | Change                                                                                                          |
