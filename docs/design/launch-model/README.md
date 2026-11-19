@@ -1,12 +1,26 @@
 # Launch model
 
-One task launch, written in TLA+ (a language that describes how a system moves
-between states) and checked by TLC (its model checker) over every order of
-its steps. It models the design in
+One task launch, written in TLA+ (the Temporal Logic of Actions, a language
+that describes how a system moves between states) and checked by TLC (the
+TLA+ model checker) over every order of its steps. It models the design in
 [../module-map-crashes.md](../module-map-crashes.md) and
 [../launch-admission.md](../launch-admission.md). Nothing is built, so no step
 is tied to code, and a TLC trace is the only evidence for each result. Words
 follow [GLOSSARY.md](../../../GLOSSARY.md).
+
+## The files
+
+| File                         | What it is                                                                                    |
+| ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `Launch.tla`                 | The design as written                                                                         |
+| `LaunchCloseOnAbsence.tla`   | A whole copy with one more step: the person closes the launch when no labelled terminal shows |
+| `LaunchRefuteOnEvidence.tla` | A whole copy with one more step: the person refutes the launch on evidence, as Nathan decided |
+| `*.cfg`                      | The rules TLC checks. The three are the same                                                  |
+
+The tool that draws the charts needs each changed model as a whole copy. So a
+change to `Launch.tla` must be made in the other two as well. TLA+ requires a
+file to carry its module's name, which cannot hold a hyphen, so these names
+are not kebab-case.
 
 ## What it models
 
@@ -26,31 +40,38 @@ TLC finds 26 states and 32 steps.
 | --------------------------------------------------------------------------------------------- | ------------- |
 | A launch is Confirmed, or closed as completed, only on a terminal that carries its attempt id | Holds         |
 | Nothing closes as not applied while a herdr-core request may still be pending                 | Holds         |
-| The task assignment happens at most once                                                      | Holds         |
 | A launch never blocks its task for good                                                       | Breaks        |
 
-The first three rules are Nathan's. The fourth is the architecture review's.
+The first two rules are Nathan's. The third is the architecture review's.
 
-The fourth rule breaks two ways. Each path ends with the run stopped, the
-launch Uncertain, and no step left for anyone:
+Nathan's third rule, that the task assignment happens at most once, is not a
+result. The model writes the agent row as one store transaction keyed by the
+attempt id, so no order of steps can break it. The rule is in the `.cfg`
+files to catch a later edit that drops that key.
+
+The rule that breaks does so two ways. Each path ends with the run stopped,
+the launch Uncertain, and no step left for anyone:
 
 1. The run records its intent. It records that it is about to send. It
    crashes before it writes the request.
 2. The run records its intent. It records that it is about to send. The
    herdr-core link refuses the request. The run crashes before it records
-   that. The same end is reached when herdr-core drops a request in flight
+   that. The same end is reached when herdr-core drops a pending request
    after the run has stopped.
 
 ## Two changes, checked the same way
 
-| Change                                                                                                | The dead ends | The other rules                                      |
-| ----------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------- |
-| `LaunchNaive.tla`: the person closes the launch as not applied when no labelled terminal shows        | Both gone     | Breaks "nothing closes as not applied while pending" |
-| `LaunchSound.tla`: the person closes it only on proof that herdr-core can no longer apply the request | Both gone     | All hold                                             |
+| Change                                                                                             | The dead ends | The other rules                                      |
+| -------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------- |
+| `LaunchCloseOnAbsence.tla`: the person closes the launch when no labelled terminal shows           | Both gone     | Breaks "nothing closes as not applied while pending" |
+| `LaunchRefuteOnEvidence.tla`: the person refutes it only on evidence that the request cannot apply | Both gone     | All hold                                             |
 
 The path that the first change opens: the run sends the request and stops
 waiting for a reply, the person closes the launch as not applied because no
 terminal shows, and herdr-core can still start the terminal.
+
+The second change holds only in the model. Whether herdr-core can show that
+a request can no longer apply is not known.
 
 ## What it leaves out
 
@@ -61,23 +82,30 @@ terminal shows, and herdr-core can still start the terminal.
 - Whether herdr-core ever does start the terminal or drop the request. The
   model only says that either can happen.
 
-It assumes that a refuting reply is true, that the person may close a Refuted
-launch, and that the kernel can show that a run has stopped.
+It assumes three things:
 
-## Check it again
+- A refuting reply is true.
+- The person may close a Refuted launch. That is open question 7 in
+  [../module-map.md](../module-map.md).
+- The kernel can show that a run has stopped.
 
-The check needs the statechart tool from the pstack plugin, which installs
-TLC and Java on its first run. Copy the `.tla` and `.cfg` files to a folder
-outside the repository, and run each command there twice. The first run only
-writes a file of chart labels.
+## Check the model again
+
+You need Node, mise, and the statechart tool from the pstack plugin. On its
+first run the tool installs TLC and Java with mise.
+
+1. Copy the `.tla` and `.cfg` files to a folder outside the repository.
+2. Set `STATECHART` to the path of the plugin's `statechart.mjs`.
+3. Run the first command. It writes a file of chart labels, runs no check,
+   and exits 2.
+4. Run the first command again. It exits 0.
+5. Run the second command. It exits 1, because closing on absence breaks a
+   rule.
 
 ```sh
-node "$STATECHART" from-spec Launch.tla --fixed LaunchSound.tla --expect-broken NoDeadEnd
-node "$STATECHART" from-spec Launch.tla --fixed LaunchNaive.tla --expect-broken NoDeadEnd
+node "$STATECHART" from-spec Launch.tla --fixed LaunchRefuteOnEvidence.tla --expect-broken NoDeadEnd
+node "$STATECHART" from-spec Launch.tla --fixed LaunchCloseOnAbsence.tla --expect-broken NoDeadEnd
 ```
 
-`STATECHART` is the path of the plugin's `statechart.mjs`. The first command
-exits 0. The second exits 1, because closing on absence breaks a rule.
-
-The charts and their labels are not kept in the repository. The check refuses
-a label file here, because nothing imports it.
+The charts and their labels are not kept in the repository. `bun run check`
+refuses a label file here, because no other file imports it.

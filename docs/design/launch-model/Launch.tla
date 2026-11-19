@@ -5,151 +5,156 @@
 EXTENDS Naturals
 
 VARIABLES
-  owner,    \* the launch's own run: "running", "crashed" or "ended"
-  journal,  \* what the kernel journal holds for this launch
-  request,  \* herdr-core's side of the terminal start: "none", "inFlight", "applied", "dropped"
-  row,      \* TRUE once the agent row (the agent on its task) is in the store
-  assigns   \* how many times a task assignment changed the store
+  attemptOwner,   \* the launch's own run: "running", "crashed" or "ended"
+  kernelJournal,  \* the last record the kernel journal holds for this launch
+  request,        \* herdr-core's side of the terminal start: "none", "pending", "applied", "dropped"
+  agentRow,       \* TRUE once the agent row (the agent on its task) is in the store
+  assignments     \* how many times a task assignment changed the store
 
-vars == <<owner, journal, request, row, assigns>>
+vars == <<attemptOwner, kernelJournal, request, agentRow, assignments>>
 
 Init ==
-  /\ owner = "running"
-  /\ journal = "none"
+  /\ attemptOwner = "running"
+  /\ kernelJournal = "none"
   /\ request = "none"
-  /\ row = FALSE
-  /\ assigns = 0
+  /\ agentRow = FALSE
+  /\ assignments = 0
 
 \* The kernel closes a case only once the run that recorded it has stopped.
-Stopped == owner # "running"
+AttemptOwnerStopped == attemptOwner # "running"
 
-\* assignAgent is one store transaction keyed by the attempt id.
-Assign ==
-  /\ row' = TRUE
-  /\ assigns' = IF row THEN assigns ELSE assigns + 1
+\* assignAgent is one store transaction keyed by the attempt id, so a repeat
+\* finds the agent row there and changes nothing.
+AssignAgent ==
+  /\ agentRow' = TRUE
+  /\ assignments' = IF agentRow THEN assignments ELSE assignments + 1
 
 \* ---- the launch's own run (crash table steps 1 to 6) ----
 
 RunRecordsIntent ==
-  /\ owner = "running" /\ journal = "none"
-  /\ journal' = "intent"
-  /\ UNCHANGED <<owner, request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "none"
+  /\ kernelJournal' = "intent"
+  /\ UNCHANGED <<attemptOwner, request, agentRow, assignments>>
 
 RunRefusesBeforeSend ==
-  /\ owner = "running" /\ journal = "intent"
-  /\ journal' = "notApplied" /\ owner' = "ended"
-  /\ UNCHANGED <<request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "intent"
+  /\ kernelJournal' = "not-applied" /\ attemptOwner' = "ended"
+  /\ UNCHANGED <<request, agentRow, assignments>>
 
 RunRecordsEffectStarted ==
-  /\ owner = "running" /\ journal = "intent"
-  /\ journal' = "termStarted"
-  /\ UNCHANGED <<owner, request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "intent"
+  /\ kernelJournal' = "effect-started"
+  /\ UNCHANGED <<attemptOwner, request, agentRow, assignments>>
 
 RunWritesRequest ==
-  /\ owner = "running" /\ journal = "termStarted" /\ request = "none"
-  /\ request' = "inFlight"
-  /\ UNCHANGED <<owner, journal, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-started" /\ request = "none"
+  /\ request' = "pending"
+  /\ UNCHANGED <<attemptOwner, kernelJournal, agentRow, assignments>>
 
-LinkRefusesRequest ==
-  /\ owner = "running" /\ journal = "termStarted" /\ request = "none"
+HerdrCoreLinkRefusesRequest ==
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-started" /\ request = "none"
   /\ request' = "dropped"
-  /\ UNCHANGED <<owner, journal, row, assigns>>
+  /\ UNCHANGED <<attemptOwner, kernelJournal, agentRow, assignments>>
 
 RunSeesTerminal ==
-  /\ owner = "running" /\ journal = "termStarted" /\ request = "applied"
-  /\ journal' = "termConfirmed"
-  /\ UNCHANGED <<owner, request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-started" /\ request = "applied"
+  /\ kernelJournal' = "effect-confirmed"
+  /\ UNCHANGED <<attemptOwner, request, agentRow, assignments>>
 
 RunGetsRefutingReply ==
-  /\ owner = "running" /\ journal = "termStarted" /\ request = "dropped"
-  /\ journal' = "termUnconfirmed" /\ owner' = "ended"
-  /\ UNCHANGED <<request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-started" /\ request = "dropped"
+  /\ kernelJournal' = "effect-unconfirmed" /\ attemptOwner' = "ended"
+  /\ UNCHANGED <<request, agentRow, assignments>>
 
 RunGivesUpWaiting ==
-  /\ owner = "running" /\ journal = "termStarted" /\ request = "inFlight"
-  /\ owner' = "ended"
-  /\ UNCHANGED <<journal, request, row, assigns>>
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-started" /\ request = "pending"
+  /\ attemptOwner' = "ended"
+  /\ UNCHANGED <<kernelJournal, request, agentRow, assignments>>
 
-RunAssigns ==
-  /\ owner = "running" /\ journal = "termConfirmed" /\ ~row
-  /\ Assign
-  /\ UNCHANGED <<owner, journal, request>>
+RunAssignsAgent ==
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-confirmed" /\ ~agentRow
+  /\ AssignAgent
+  /\ UNCHANGED <<attemptOwner, kernelJournal, request>>
 
-RunCompletes ==
-  /\ owner = "running" /\ journal = "termConfirmed" /\ row
-  /\ journal' = "completed" /\ owner' = "ended"
-  /\ UNCHANGED <<request, row, assigns>>
+RunRecordsCompletion ==
+  /\ attemptOwner = "running" /\ kernelJournal = "effect-confirmed" /\ agentRow
+  /\ kernelJournal' = "completion" /\ attemptOwner' = "ended"
+  /\ UNCHANGED <<request, agentRow, assignments>>
 
-Crash ==
-  /\ owner = "running"
-  /\ owner' = "crashed"
-  /\ UNCHANGED <<journal, request, row, assigns>>
+RunCrashes ==
+  /\ attemptOwner = "running"
+  /\ attemptOwner' = "crashed"
+  /\ UNCHANGED <<kernelJournal, request, agentRow, assignments>>
 
 \* ---- herdr-core ----
 
-HcApplies ==
-  /\ request = "inFlight"
+HerdrCoreStartsTerminal ==
+  /\ request = "pending"
   /\ request' = "applied"
-  /\ UNCHANGED <<owner, journal, row, assigns>>
+  /\ UNCHANGED <<attemptOwner, kernelJournal, agentRow, assignments>>
 
-HcDrops ==
-  /\ request = "inFlight"
+HerdrCoreDropsRequest ==
+  /\ request = "pending"
   /\ request' = "dropped"
-  /\ UNCHANGED <<owner, journal, row, assigns>>
+  /\ UNCHANGED <<attemptOwner, kernelJournal, agentRow, assignments>>
 
 \* ---- the next tick (the default in launch-admission.md) ----
 
 TickFinishesConfirmed ==
-  /\ Stopped /\ journal = "termConfirmed" /\ request = "applied"
-  /\ Assign
-  /\ journal' = "closedCompleted"
-  /\ UNCHANGED <<owner, request>>
+  /\ AttemptOwnerStopped /\ kernelJournal = "effect-confirmed" /\ request = "applied"
+  /\ AssignAgent
+  /\ kernelJournal' = "closed-completed"
+  /\ UNCHANGED <<attemptOwner, request>>
 
 \* ---- the person's closure commands ----
 
-PersonRecovers ==
-  /\ Stopped /\ journal = "intent"
-  /\ journal' = "closedNotApplied"
-  /\ UNCHANGED <<owner, request, row, assigns>>
+\* launch recover
+PersonClosesIntended ==
+  /\ AttemptOwnerStopped /\ kernelJournal = "intent"
+  /\ kernelJournal' = "closed-not-applied"
+  /\ UNCHANGED <<attemptOwner, request, agentRow, assignments>>
 
 PersonClosesRefuted ==
-  /\ Stopped /\ journal = "termUnconfirmed"
-  /\ journal' = "closedNotApplied"
-  /\ UNCHANGED <<owner, request, row, assigns>>
+  /\ AttemptOwnerStopped /\ kernelJournal = "effect-unconfirmed"
+  /\ kernelJournal' = "closed-not-applied"
+  /\ UNCHANGED <<attemptOwner, request, agentRow, assignments>>
 
-PersonReconciles ==
-  /\ Stopped /\ journal \in {"termStarted", "termConfirmed"} /\ request = "applied"
-  /\ Assign
-  /\ journal' = "closedCompleted"
-  /\ UNCHANGED <<owner, request>>
+\* launch reconcile
+PersonClosesOnPositiveEvidence ==
+  /\ AttemptOwnerStopped /\ kernelJournal \in {"effect-started", "effect-confirmed"} /\ request = "applied"
+  /\ AssignAgent
+  /\ kernelJournal' = "closed-completed"
+  /\ UNCHANGED <<attemptOwner, request>>
 
 System ==
   \/ RunRecordsIntent \/ RunRefusesBeforeSend \/ RunRecordsEffectStarted
-  \/ RunWritesRequest \/ LinkRefusesRequest \/ RunSeesTerminal
-  \/ RunGetsRefutingReply \/ RunGivesUpWaiting \/ RunAssigns \/ RunCompletes
-  \/ Crash \/ HcApplies \/ HcDrops \/ TickFinishesConfirmed
+  \/ RunWritesRequest \/ HerdrCoreLinkRefusesRequest \/ RunSeesTerminal
+  \/ RunGetsRefutingReply \/ RunGivesUpWaiting \/ RunAssignsAgent \/ RunRecordsCompletion
+  \/ RunCrashes \/ HerdrCoreStartsTerminal \/ HerdrCoreDropsRequest \/ TickFinishesConfirmed
 
 Next ==
   \/ System
-  \/ PersonRecovers \/ PersonClosesRefuted \/ PersonReconciles
+  \/ PersonClosesIntended \/ PersonClosesRefuted \/ PersonClosesOnPositiveEvidence
 
 Spec == Init /\ [][Next]_vars
 
-Unresolved == journal \in {"intent", "termStarted", "termUnconfirmed", "termConfirmed"}
+\* The kernel's unresolved case: a launch with no completion and no closure.
+UnresolvedCase == kernelJournal \in {"intent", "effect-started", "effect-unconfirmed", "effect-confirmed"}
 
 \* A launch counts as Confirmed, or is closed as completed, only on positive
 \* evidence: a terminal that carries its attempt id.
 EvidenceBeforeConfirmed ==
-  journal \in {"termConfirmed", "completed", "closedCompleted"} => request = "applied"
+  kernelJournal \in {"effect-confirmed", "completion", "closed-completed"} => request = "applied"
 
 \* Nothing closes as not applied while a herdr-core request may still be pending.
 NoNotAppliedWhilePending ==
-  journal \in {"notApplied", "closedNotApplied"} => request # "inFlight"
+  kernelJournal \in {"not-applied", "closed-not-applied"} => request # "pending"
 
-\* The task assignment happens at most once.
-AssignedAtMostOnce == assigns <= 1
+\* The task assignment happens at most once. This holds by construction:
+\* AssignAgent is keyed by the attempt id, so no order of steps can break it.
+AssignedAtMostOnce == assignments <= 1
 
 \* The review's own rule, not one of Nathan's three: a launch never blocks its
 \* task for good. Someone can always still close an unresolved launch.
-NoDeadEnd == ~(Unresolved /\ ~ENABLED Next)
+NoDeadEnd == ~(UnresolvedCase /\ ~ENABLED Next)
 ====
