@@ -71,6 +71,13 @@ class AttemptNotFound extends Data.TaggedError("AttemptNotFound")<{
   readonly attemptId: AttemptId;
 }> {}
 
+class AttemptOwnerMayBeRunning extends Data.TaggedError(
+  "AttemptOwnerMayBeRunning",
+)<{
+  readonly attemptId: AttemptId;
+  readonly owner: AttemptOwner;
+}> {}
+
 class EffectNotDeclared extends Data.TaggedError("EffectNotDeclared")<{
   readonly attemptId: AttemptId;
   readonly effectId: string;
@@ -131,6 +138,7 @@ interface CliKernelJournalShape {
   ) => Effect.Effect<
     void,
     | AttemptNotFound
+    | AttemptOwnerMayBeRunning
     | AttemptRefused
     | CallerMayNotClose
     | EvidenceMissing
@@ -316,16 +324,24 @@ function closureEventsFor(
 function closing(
   attemptId: AttemptId,
   closure: Closure,
+  attemptOwnerStopped: (owner: AttemptOwner) => boolean,
 ): (
   cases: Cases,
 ) => Step<
   void,
-  AttemptNotFound | AttemptRefused | CallerMayNotClose | EvidenceMissing
+  | AttemptNotFound
+  | AttemptOwnerMayBeRunning
+  | AttemptRefused
+  | CallerMayNotClose
+  | EvidenceMissing
 > {
   return (cases) => {
     const unresolved = cases.get(attemptId);
     if (unresolved === undefined)
       return refused(cases, new AttemptNotFound({ attemptId }));
+    const { owner } = unresolved.intent;
+    if (closure.by !== "attempt-owner" && !attemptOwnerStopped(owner))
+      return refused(cases, new AttemptOwnerMayBeRunning({ attemptId, owner }));
     const keyed = keyedByAttemptId(unresolved.intent);
     for (const [effectId, attempt] of Object.entries(unresolved.effects)) {
       const events = closureEventsFor(
@@ -349,6 +365,7 @@ function closing(
 
 export interface CliKernelJournalTestScript {
   readonly unreadable?: string;
+  readonly attemptOwnerStopped?: (owner: AttemptOwner) => boolean;
 }
 
 const seam = "CliKernelJournal";
@@ -375,6 +392,7 @@ export class CliKernelJournal extends Context.Service<
           script.unreadable === undefined
             ? Effect.void
             : Effect.fail(new JournalUnreadable({ reason: script.unreadable }));
+        const attemptOwnerStopped = script.attemptOwnerStopped ?? (() => false);
         const step = <A, E>(change: (cases: Cases) => Step<A, E>) =>
           readable.pipe(
             Effect.andThen(Ref.modify(journal, change)),
@@ -406,7 +424,8 @@ export class CliKernelJournal extends Context.Service<
                 ),
               ),
             ),
-          close: (attemptId, closure) => step(closing(attemptId, closure)),
+          close: (attemptId, closure) =>
+            step(closing(attemptId, closure, attemptOwnerStopped)),
         };
       }),
     );

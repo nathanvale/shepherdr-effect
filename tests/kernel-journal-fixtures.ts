@@ -28,6 +28,10 @@ export function utilityLaunch(id: AttemptId, conflictKey: string): Intent {
   };
 }
 
+export const ownerStopped: CliKernelJournalTestScript = {
+  attemptOwnerStopped: () => true,
+};
+
 export function onTestJournal<A, E>(
   program: Effect.Effect<A, E, CliKernelJournal>,
   script?: CliKernelJournalTestScript,

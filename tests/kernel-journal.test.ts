@@ -16,6 +16,7 @@ import {
   effectStates,
   observed,
   onTestJournal,
+  ownerStopped,
   taskLaunch,
   utilityLaunch,
 } from "./kernel-journal-fixtures.ts";
@@ -318,6 +319,7 @@ test("closing as not applied frees an Intended attempt, and an Uncertain one onl
         startedAgain,
       };
     }),
+    ownerStopped,
   );
 
   const neverCancelled = {
@@ -354,6 +356,84 @@ test("closing as not applied frees an Intended attempt, and an Uncertain one onl
   });
 });
 
+test("a run other than the attempt owner closes an attempt only once its attempt owner has stopped", async () => {
+  const running = {
+    machine: "local",
+    processId: 5151,
+    processStartedAtMs: 2_000,
+  };
+  const recover = {
+    disposition: "not-applied",
+    by: "person",
+    reason: "launch recover",
+    evidence: {},
+  } as const;
+  const seen = await onTestJournal(
+    Effect.gen(function* () {
+      const service = yield* journal;
+      yield* service.begin(taskLaunch);
+      yield* service.begin({
+        ...utilityLaunch(anotherAttemptId, "scheduler:local"),
+        owner: running,
+      });
+      const person = yield* refusedWith(
+        service.close(anotherAttemptId, recover),
+      );
+      const scheduler = yield* refusedWith(
+        service.close(anotherAttemptId, {
+          disposition: "completed",
+          by: "scheduler",
+          evidence: {},
+        }),
+      );
+      const kept = yield* effectStates;
+      const itsOwnRun = yield* refusedWith(
+        service.close(anotherAttemptId, {
+          disposition: "not-applied",
+          by: "attempt-owner",
+          reason: "the launch revision changed",
+        }),
+      );
+      const afterItsOwnRun = yield* effectStates;
+      const ownerStopped = yield* refusedWith(
+        service.close(attemptId, recover),
+      );
+      return {
+        person,
+        scheduler,
+        kept,
+        itsOwnRun,
+        afterItsOwnRun,
+        ownerStopped,
+        after: yield* effectStates,
+      };
+    }),
+    { attemptOwnerStopped: (owner) => owner.processId === 4242 },
+  );
+
+  const mayBeRunning = {
+    _tag: "AttemptOwnerMayBeRunning",
+    attemptId: anotherAttemptId,
+    owner: { machine: "local", processId: 5151, processStartedAtMs: 2_000 },
+  };
+  const taskLaunchIntended = {
+    attemptId,
+    effects: { terminal: "Intended", "task-assignment": "Intended" },
+  } as const;
+  expect(seen).toEqual({
+    person: mayBeRunning,
+    scheduler: mayBeRunning,
+    kept: [
+      taskLaunchIntended,
+      { attemptId: anotherAttemptId, effects: { terminal: "Intended" } },
+    ],
+    itsOwnRun: "not refused",
+    afterItsOwnRun: [taskLaunchIntended],
+    ownerStopped: "not refused",
+    after: [],
+  });
+});
+
 test("closing as completed needs positive evidence for every effect not yet confirmed", async () => {
   const seen = await onTestJournal(
     Effect.gen(function* () {
@@ -378,6 +458,7 @@ test("closing as completed needs positive evidence for every effect not yet conf
       });
       return { missing: failureOf(missing), kept, after: yield* effectStates };
     }),
+    ownerStopped,
   );
 
   expect(seen).toEqual({
@@ -418,6 +499,7 @@ test("closing as completed confirms an effect that never started only when its i
         after: yield* effectStates,
       };
     }),
+    ownerStopped,
   );
 
   expect(seen).toEqual({
@@ -480,6 +562,7 @@ test("only the person closes an Uncertain launch as completed, and the scheduler
         afterScheduler: yield* effectStates,
       };
     }),
+    ownerStopped,
   );
 
   expect(seen).toEqual({
