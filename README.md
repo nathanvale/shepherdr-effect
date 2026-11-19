@@ -118,16 +118,18 @@ Adopted from the template root:
   `setup-bun` step names another Bun version than `package.json`. The root's
   `tests/test-timings.json` is not copied, so Bun splits the shards without
   recorded timings.
+- The Git hooks in `.githooks/` run the names, file size, format, lint, type
+  and Fallow checks on staged files before a commit, and Fallow and the fault
+  replay before a push. The `prepare` script points `core.hooksPath` at them,
+  and `bun install` runs it.
 
-The template root has these gates, and this repository does not have them yet:
+Not adopted from the template root:
 
-- The Git hooks run the names, file size, format, lint, type and Fallow checks
-  on staged files before a commit, and Fallow and the fault replay before a
-  push.
-
-The root's tests of its own gate tools stay in the template, apart from the
-two naming tests and the pins test above. So do its `CODING_STANDARDS.md`,
-`docs/standards/`, `.coderabbit.yaml` and pull request guide.
+- The kernel's lint module and its stricter bans.
+- The root's tests of its own gate tools, apart from the two naming tests and
+  the pins test above.
+- The root's `CODING_STANDARDS.md`, `docs/standards/`, `.coderabbit.yaml` and
+  pull request guide.
 
 ## Checks this profile includes
 

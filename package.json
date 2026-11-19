@@ -17,6 +17,7 @@
     "check:write": "bun run format",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "prepare": "git config core.hooksPath .githooks || true",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test",
     "test:area": "bun run scripts/test-area.ts",
