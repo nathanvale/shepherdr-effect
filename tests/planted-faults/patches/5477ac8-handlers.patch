@@ -1,0 +1,22 @@
+diff --git a/src/state-files/handlers.ts b/src/state-files/handlers.ts
+index 6f71ebe..fb71f5e 100644
+--- a/src/state-files/handlers.ts
++++ b/src/state-files/handlers.ts
+@@ -168,16 +168,7 @@ function report(root: string, files: readonly CheckedFile[]): CommandResult {
+ export function checkStateFiles(
+   args: readonly string[],
+ ): Promise<CommandResult> {
+-  const root = rootArgument(args);
+-  if (root === undefined)
+-    return Promise.resolve(
+-      refused(
+-        "usage",
+-        "USAGE_INVALID_INVOCATION",
+-        "state check takes --dir PATH and nothing else.",
+-        "Pass --dir with one folder path and retry.",
+-      ),
+-    );
++  const root = rootArgument(args) ?? "";
+   const checked = listRegularFiles(root).pipe(
+     Effect.flatMap((paths) =>
+       Effect.forEach(paths, (path) => checkFile(root, path), {

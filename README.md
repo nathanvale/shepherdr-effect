@@ -101,10 +101,13 @@ Adopted from the template root:
   is `d9b08e8`, the last commit before the first template gate arrived.
   `.fallowrc.json` records the exports of `scripts/process-runner.ts` that
   nothing here imports, because the tools' own tests stay in the template.
+- `fault-replay` applies each recorded fault in a temporary worktree and
+  confirms that its named test fails. The one fault record removes the state
+  check's usage refusal, and `tests/state-check.test.ts` must catch it.
+  `bun run planted-fault:add` writes a new record.
 
 The template root has these gates, and this repository does not have them yet:
 
-- `fault-replay` applies each recorded fault and confirms that a test fails.
 - The Git hooks run the names, file size, format, lint, type and Fallow checks
   on staged files before a commit, and Fallow and the fault replay before a
   push.

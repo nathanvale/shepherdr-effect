@@ -68,6 +68,25 @@
         "count": 3
       }
     },
+    "scripts/planted-fault-patch.ts": {
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 3
+      }
+    },
+    "scripts/planted-faults.ts": {
+      "crap_critical": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 5
+      }
+    },
     "scripts/repository.ts": {
       "crap_high": {
         "count": 1
@@ -388,6 +407,79 @@
         "count": 1
       }
     },
+    "scripts/planted-fault-patch.ts\u0000<arrow>": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000anchorRefusal": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000hunksOf": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000place": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000shaped": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000add": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000faultsTouchedSince": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000main": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000readRecords": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replay": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replayAll": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replayChangedSince": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000report": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000stepLimitMilliseconds": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
     "scripts/repository.ts\u0000fields": {
       "crap_high": {
         "count": 1
@@ -423,10 +515,11 @@
   "target_keys": [
     "src/commands.ts:hidden coupling",
     "config/template-rules.mjs:untested risk",
-    "src/cli.ts:hidden coupling",
     "config/payload-rules.mjs:untested risk",
+    "scripts/planted-fault-patch.ts:untested risk",
     "config/anti-slop-rules.mjs:untested risk",
     "config/anti-slop-type-rules.mjs:untested risk",
+    "src/cli.ts:hidden coupling",
     "tests/cli.test.ts:hidden coupling"
   ]
 }
