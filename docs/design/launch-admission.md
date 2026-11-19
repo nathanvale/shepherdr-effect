@@ -8,8 +8,9 @@ changes [module-map.md](module-map.md) and
 
 Nathan chose to explore this deepening on 19 November 2026 and then asked the
 review to keep going. Every decision below is the review's default, except
-the rules under "What Shepherdr owes the kernel", which Nathan decided. The
-defaults that are his to change are under "Defaults Nathan can change".
+the rules under "What Shepherdr owes the kernel" and "An Uncertain launch
+that no command can close", which Nathan decided. The defaults that are his
+to change are under "Defaults Nathan can change".
 
 ## Why deepen it
 
@@ -123,6 +124,44 @@ the person's to close, as [synthesis.md](synthesis.md) leaves it.
 Running unattended, an Uncertain launch stops its task until the person
 returns. The morning report lists it.
 
+## An Uncertain launch that no command can close
+
+A model of one task launch, checked over every order of its steps, is in
+[launch-model/README.md](launch-model/README.md), which lists its rules and
+results. One rule breaks: an unresolved launch is never left with no step
+that anyone can take.
+
+- The run records that it is about to send, and herdr-core never starts the
+  terminal. Either the run crashes before it writes the request, or the
+  request is refused or dropped and the run has stopped before it could
+  record that.
+- The launch is then Uncertain, and no terminal will ever carry its attempt
+  id. `launch recover` closes only an Intended launch, and
+  `launch reconcile` needs a terminal. So its launch identity is refused for
+  good, and the task can never start again.
+- The old system has the same dead end. Its `launch_admission.py` says "this
+  version has no command that releases it".
+
+Decided by Nathan on 19 November 2026:
+
+- The person may refute such a launch: close it as not applied, and only on
+  evidence that herdr-core can no longer apply its request. The launch is
+  then Refuted.
+- Seeing no labelled terminal is not that evidence. In the model, herdr-core
+  starts the terminal after a launch was closed that way.
+
+What follows for the kernel's observer is the review's reading, not Nathan's
+words: it answers `excluded` only on that evidence, and `unobservable` until
+then.
+
+This changes an invariant that [grounding.md](grounding.md) lists from the
+old system: an Uncertain launch is never released without positive evidence.
+The row in [module-map-invariants.md](module-map-invariants.md) now names
+both kinds of evidence.
+
+Whether herdr-core can show that a request can no longer apply is not known.
+Until it can, the dead end stays, and the morning report lists the launch.
+
 ## What moves in the module map
 
 | Planned module                    | Change                                                                                                          |
@@ -174,4 +213,11 @@ map to launch admission.
 - **Launch request** gains kinds for resume, switch, restart, backup and the
   reviewer, or says which existing kind each one is.
 - **Closure command** should say that a confirmed launch's task assignment
-  may be re-run by the tick.
+  may be re-run by the tick, and that the person may close an Uncertain
+  launch as not applied on evidence that herdr-core can no longer apply its
+  request.
+- **Uncertain** says that nothing cancels an uncertain attempt. It should
+  name that one way out, which ends in Refuted.
+- New words, not yet defined: the evidence that refutes an attempt (the
+  glossary names only positive evidence), and an unresolved launch that no
+  closure command can close (this note says "dead end").
