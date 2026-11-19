@@ -8,6 +8,47 @@
     "gate": "new-only",
     "healthBaseline": "fallow-health-recorded-hits.json"
   },
+  "boundaries": {
+    "zones": [
+      {
+        "name": "cli",
+        "patterns": ["src/**"]
+      },
+      {
+        "name": "scripts",
+        "patterns": ["scripts/**"]
+      },
+      {
+        "name": "tests",
+        "patterns": ["tests/**"]
+      },
+      {
+        "name": "lint-config",
+        "patterns": ["eslint.config.mjs", "eslint-rules.mjs", "config/**"]
+      }
+    ],
+    "rules": [
+      {
+        "from": "cli",
+        "allow": []
+      },
+      {
+        "from": "scripts",
+        "allow": ["cli"]
+      },
+      {
+        "from": "tests",
+        "allow": ["cli", "scripts", "lint-config"]
+      },
+      {
+        "from": "lint-config",
+        "allow": []
+      }
+    ],
+    "coverage": {
+      "requireAllFiles": true
+    }
+  },
   "rules": {
     "boundary-violation": "error",
     "css-broken-reference": "error",
