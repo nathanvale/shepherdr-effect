@@ -161,6 +161,15 @@ test.each([
   },
 );
 
+test("a refusal names its cause, the attempt state and the event", () => {
+  const result = transitionAttempt(uncertain, eventOf.Cancel);
+  expect(Result.isFailure(result) ? result.failure : "no refusal").toEqual({
+    _tag: "UncertainNeverCancelled",
+    state: "Uncertain",
+    event: "Cancel",
+  });
+});
+
 test("a cancelled attempt records who cancelled it and why", () => {
   expect(
     stateAfter(intended, {
