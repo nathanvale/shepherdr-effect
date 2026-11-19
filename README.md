@@ -135,17 +135,44 @@ Not adopted from the template root:
 
 `bun run check` runs, in order:
 
-1. `lint`: typed ESLint on source and tests, including repository-local rules.
-2. `format:check`: Biome formatting without writes; lint and assist are disabled.
-3. `typecheck`: native TypeScript, inheriting the strict base configuration.
-4. `test`: Bun tests, including the repository CLI process tests.
-5. `quality:fallow`: complete native semantic evidence and all findings gated.
+1. `check:file-size`: refuses a tracked text file over 5,000 tokens.
+2. `lint`: typed ESLint on source, scripts and tests, with the repository's
+   own rules. A comment passes only with a `Platform:` or `Interface:` marker.
+3. `format:check`: Biome formatting without writes; lint and assist are
+   disabled.
+4. `typecheck`: native TypeScript, inheriting the strict base configuration.
+5. `test`: Bun tests, including the repository CLI process tests. The doctor
+   runs first and stops the tests when Bun, TypeScript or Fallow is not ready.
+6. `quality:fallow`: complete native semantic evidence, folder zones, and all
+   findings gated.
+
+Three more checks run on their own:
+
+- `bun run check:names <path>` refuses a file or folder name that uses a word
+  `GLOSSARY.md` lists under Avoid. `--staged` checks the staged names.
+- `bun run check:commits <base>` installs, type checks and lints each commit
+  since the base.
+- `bun run fault-replay` applies each recorded fault and confirms that a test
+  fails.
+
+The Git hooks in `.githooks` run them for you. Before a commit: the names
+check, the file size check, Biome, ESLint, the type check and Fallow, on the
+staged files. Before a push: Fallow and the fault replay. `bun run prepare`
+turns the hooks on.
 
 ## CI
 
-This profile ships no CI workflow. CI is optional: adopt it deliberately when
-the repository needs one, not automatically because it is durable or has been
-promoted from scratch.
+Two workflows ship in `.github/workflows`. Both run the pinned Bun.
+
+- `ci.yml` runs on every pull request and on every push to `main`, on Linux.
+  Its `check` job runs the file size check, lint, the format check, the type
+  check and Fallow against the base. Its `test` job runs the tests in three
+  shards. On a pull request it also runs `commits` (the commit check) and
+  `fault-replay`.
+- `macos-nightly.yml` runs `bun run check` on macOS once a night, and on
+  demand.
+
+A push to a branch with no pull request starts no workflow.
 
 ## Bootstrap
 
