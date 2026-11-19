@@ -90,7 +90,7 @@ export function herdrCoreTestLink(
       entry: string,
     ): Effect.Effect<Core, HerdrCoreUnavailable> =>
       script.linkLost === true
-        ? Effect.fail(new HerdrCoreUnavailable({ entry }))
+        ? Effect.fail(new HerdrCoreUnavailable({ entry, request: "not-sent" }))
         : Ref.get(core);
     const onMachine = (
       entry: string,
@@ -118,7 +118,10 @@ export function herdrCoreTestLink(
         ),
       );
     const unanswered = Effect.fail(
-      new HerdrCoreUnavailable({ entry: "startTerminal" }),
+      new HerdrCoreUnavailable({
+        entry: "startTerminal",
+        request: "unanswered",
+      }),
     );
 
     return {
@@ -129,10 +132,9 @@ export function herdrCoreTestLink(
             return yield* new SendPermitRefused({
               reason: "not made by the send permit maker, or already spent",
             });
+          const { terminals } = yield* linked("startTerminal");
           const reply = script.startReply ?? "address";
-          if (script.linkLost === true || reply === "lost-before-start")
-            return yield* unanswered;
-          const { terminals } = yield* Ref.get(core);
+          if (reply === "lost-before-start") return yield* unanswered;
           const address = TerminalAddress.make(`t${terminals.size + 1}`);
           yield* changed({
             ...start,

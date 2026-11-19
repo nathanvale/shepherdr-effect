@@ -1,5 +1,6 @@
 export { HerdrCore } from "./herdr-core.ts";
 export {
+  observeStartReply,
   type Terminal,
   TerminalAddress,
   type TerminalStart,

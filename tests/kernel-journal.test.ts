@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { Deferred, Effect, Fiber, Result } from "effect";
+import { Deferred, Effect, Fiber } from "effect";
 import { CliKernelJournal } from "../src/adapters/cli-kernel/index.ts";
 import type {
   Attempt,
@@ -236,20 +236,16 @@ test("an effect interrupted at the deadline stays Uncertain", async () => {
   ]);
 });
 
-test("a refuting reply leaves the effect Refuted, and the attempt closes as not applied", async () => {
+test("a refuting observation leaves the effect Refuted, and the attempt closes as not applied", async () => {
   const seen = await onTestJournal(
     Effect.gen(function* () {
       const service = yield* journal;
       yield* service.begin(utilityLaunch(attemptId, "scheduler:local"));
-      const refuted = yield* service.record({
+      const refuted = yield* observed(
         attemptId,
-        effectId: "terminal",
-        perform: () => Effect.fail("link lost before the call"),
-        observe: (reply) =>
-          Effect.succeed(
-            Result.isFailure(reply) ? nothingReachedFor(attemptId) : noEvidence,
-          ),
-      });
+        "terminal",
+        nothingReachedFor(attemptId),
+      );
       const before = yield* effectStates;
       yield* service.close(attemptId, {
         disposition: "not-applied",

@@ -2,6 +2,7 @@ import { Effect, Layer, Stream } from "effect";
 import {
   HerdrCore,
   type HerdrCoreTestScript,
+  SendPermit,
   SendPermitMaker,
   type Terminal,
   TerminalAddress,
@@ -40,6 +41,13 @@ export function onTestLink<A, E>(
   return Effect.runPromise(
     program.pipe(Effect.provide(Layer.merge(link, SendPermitMaker.layer))),
   );
+}
+
+export function lookalikePermit(id: AttemptId): SendPermit {
+  return Object.setPrototypeOf(
+    { attemptId: id },
+    SendPermit.prototype,
+  ) as SendPermit;
 }
 
 export function permitFor(id: AttemptId) {

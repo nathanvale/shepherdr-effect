@@ -2,7 +2,6 @@ import { expect, test } from "bun:test";
 import { Effect, Fiber, Stream } from "effect";
 import {
   HerdrCore,
-  SendPermit,
   SendPermitMaker,
 } from "../src/adapters/herdr-core/index.ts";
 import { AttemptId } from "../src/domains/attempt/index.ts";
@@ -12,6 +11,7 @@ import {
   entries,
   everyEntryRefusal,
   labelledFor,
+  lookalikePermit,
   onTestLink,
   permitFor,
   started,
@@ -59,12 +59,8 @@ test("a spent send permit, and a value that only looks like one, start nothing",
       const permit = yield* permitFor(attemptId);
       yield* link.startTerminal(permit, workerStart);
       const spent = yield* Effect.flip(link.startTerminal(permit, workerStart));
-      const lookalike = Object.setPrototypeOf(
-        { attemptId },
-        SendPermit.prototype,
-      ) as SendPermit;
       const forged = yield* Effect.flip(
-        link.startTerminal(lookalike, workerStart),
+        link.startTerminal(lookalikePermit(attemptId), workerStart),
       );
       const terminals = yield* link.listTerminals();
       return {
@@ -114,7 +110,7 @@ for (const [startReply, terminals, observed] of [
   ],
   ["lost-before-start", [], { _tag: "Unobservable" }],
 ] as const)
-  test(`a start whose reply is ${startReply} answers link lost, and observeLaunch answers ${observed._tag}`, async () => {
+  test(`a start whose reply is ${startReply} answers that its request was sent and not answered, and observeLaunch answers ${observed._tag}`, async () => {
     const seen = await onTestLink(
       Effect.gen(function* () {
         const link = yield* HerdrCore;
@@ -130,7 +126,11 @@ for (const [startReply, terminals, observed] of [
     );
 
     expect(seen).toEqual({
-      lost: { _tag: "HerdrCoreUnavailable", entry: "startTerminal" },
+      lost: {
+        _tag: "HerdrCoreUnavailable",
+        entry: "startTerminal",
+        request: "unanswered",
+      },
       observed,
       terminals: [...terminals],
     });
@@ -306,11 +306,15 @@ test("a command nobody scripted is not found", async () => {
   });
 });
 
-test("with the link lost every entry answers link lost, naming itself", async () => {
+test("with the link lost every entry answers link lost, naming itself and saying that its request was not sent", async () => {
   const lost = await onTestLink(everyEntryRefusal, { linkLost: true });
 
   expect(lost.map(failureOf)).toEqual(
-    entries.map((entry) => ({ _tag: "HerdrCoreUnavailable", entry })),
+    entries.map((entry) => ({
+      _tag: "HerdrCoreUnavailable",
+      entry,
+      request: "not-sent",
+    })),
   );
 });
 
