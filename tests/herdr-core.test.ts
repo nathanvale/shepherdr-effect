@@ -80,7 +80,7 @@ test("a spent send permit, and a value that only looks like one, start nothing",
   });
 });
 
-test("observeLaunch is positive evidence only for exactly one terminal labelled with the attempt id", async () => {
+test("a link that sent nothing finds exactly one terminal labelled with the attempt id, and cannot rule a start out otherwise", async () => {
   const seen = await onTestLink(
     Effect.gen(function* () {
       const link = yield* HerdrCore;
@@ -101,16 +101,20 @@ test("observeLaunch is positive evidence only for exactly one terminal labelled 
 
   expect(seen).toEqual({
     one: { _tag: "PositiveEvidence", attemptId, result: "t7" },
-    two: { _tag: "NoEvidence" },
-    none: { _tag: "NoEvidence" },
+    two: { _tag: "Unobservable" },
+    none: { _tag: "Unobservable" },
   });
 });
 
-for (const [startReply, terminals] of [
-  ["lost-after-start", [t1]],
-  ["lost-before-start", []],
+for (const [startReply, terminals, observed] of [
+  [
+    "lost-after-start",
+    [t1],
+    { _tag: "PositiveEvidence", attemptId, result: "t1" },
+  ],
+  ["lost-before-start", [], { _tag: "Unobservable" }],
 ] as const)
-  test(`a start whose reply is ${startReply} answers link lost and is unobservable on this link`, async () => {
+  test(`a start whose reply is ${startReply} answers link lost, and observeLaunch answers ${observed._tag}`, async () => {
     const seen = await onTestLink(
       Effect.gen(function* () {
         const link = yield* HerdrCore;
@@ -127,7 +131,7 @@ for (const [startReply, terminals] of [
 
     expect(seen).toEqual({
       lost: { _tag: "HerdrCoreUnavailable", entry: "startTerminal" },
-      observed: { _tag: "Unobservable" },
+      observed,
       terminals: [...terminals],
     });
   });

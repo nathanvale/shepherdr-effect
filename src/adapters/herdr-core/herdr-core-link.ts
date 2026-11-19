@@ -57,7 +57,6 @@ export interface MachineReply {
 
 export type LaunchObservation =
   | PositiveEvidence
-  | { readonly _tag: "NoEvidence" }
   | { readonly _tag: "Unobservable" };
 
 export class HerdrCoreUnavailable extends Data.TaggedError(
@@ -147,6 +146,9 @@ export interface HerdrCoreShape {
     ReadonlyArray<string>,
     HerdrCoreUnavailable | NotBuilt
   >;
+  // Interface: positive evidence is exactly one terminal labelled with the
+  // attempt id. Anything else is `Unobservable`, because a link cannot tell
+  // that no request for that attempt is still pending in herdr-core.
   readonly observeLaunch: (
     attemptId: AttemptId,
   ) => Effect.Effect<LaunchObservation, HerdrCoreUnavailable | NotBuilt>;

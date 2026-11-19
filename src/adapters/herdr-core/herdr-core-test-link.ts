@@ -1,5 +1,4 @@
 import { Effect, PubSub, Ref, Stream } from "effect";
-import type { AttemptId } from "../../domains/attempt/index.ts";
 import {
   HerdrCoreUnavailable,
   type HerdrCoreShape,
@@ -33,7 +32,6 @@ interface Core {
   readonly screens: ReadonlyMap<TerminalAddress, string>;
   readonly documents: ReadonlyMap<string, SharedDocument>;
   readonly files: ReadonlyMap<string, Uint8Array>;
-  readonly unanswered: ReadonlySet<AttemptId>;
 }
 
 interface Output {
@@ -83,7 +81,6 @@ export function herdrCoreTestLink(
       screens: new Map(),
       documents: new Map(),
       files: new Map(),
-      unanswered: new Set(),
     });
     const told = yield* PubSub.unbounded<TerminalEvent>();
     const output = yield* PubSub.unbounded<Output>();
@@ -120,15 +117,9 @@ export function herdrCoreTestLink(
           PubSub.publish(told, { _tag: "TerminalChanged", terminal }),
         ),
       );
-    const unanswered = (attemptId: AttemptId) =>
-      Ref.update(core, (before) => ({
-        ...before,
-        unanswered: new Set(before.unanswered).add(attemptId),
-      })).pipe(
-        Effect.andThen(
-          Effect.fail(new HerdrCoreUnavailable({ entry: "startTerminal" })),
-        ),
-      );
+    const unanswered = Effect.fail(
+      new HerdrCoreUnavailable({ entry: "startTerminal" }),
+    );
 
     return {
       startTerminal: (permit, start) =>
@@ -140,7 +131,7 @@ export function herdrCoreTestLink(
             });
           const reply = script.startReply ?? "address";
           if (script.linkLost === true || reply === "lost-before-start")
-            return yield* unanswered(attemptId);
+            return yield* unanswered;
           const { terminals } = yield* Ref.get(core);
           const address = TerminalAddress.make(`t${terminals.size + 1}`);
           yield* changed({
@@ -148,7 +139,7 @@ export function herdrCoreTestLink(
             address,
             labels: { ...start.labels, "herdr.launch": attemptId },
           });
-          if (reply === "lost-after-start") return yield* unanswered(attemptId);
+          if (reply === "lost-after-start") return yield* unanswered;
           return address;
         }),
       listTerminals: (labels = {}) =>
@@ -278,15 +269,13 @@ export function herdrCoreTestLink(
       listMachines: linked("listMachines").pipe(Effect.as(machines)),
       observeLaunch: (attemptId) =>
         linked("observeLaunch").pipe(
-          Effect.map((before) => {
-            if (before.unanswered.has(attemptId))
-              return { _tag: "Unobservable" };
-            const labelled = [...before.terminals.values()].filter((each) =>
+          Effect.map(({ terminals }) => {
+            const labelled = [...terminals.values()].filter((each) =>
               carries(each, { "herdr.launch": attemptId }),
             );
             const [only, ...others] = labelled;
             return only === undefined || others.length > 0
-              ? { _tag: "NoEvidence" }
+              ? { _tag: "Unobservable" }
               : { _tag: "PositiveEvidence", attemptId, result: only.address };
           }),
         ),
