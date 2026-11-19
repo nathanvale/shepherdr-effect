@@ -1,7 +1,10 @@
 import { expect, test } from "bun:test";
 import { Deferred, Effect, Fiber, Result } from "effect";
 import { CliKernelJournal } from "../src/adapters/cli-kernel/index.ts";
-import type { Attempt } from "../src/domains/attempt/index.ts";
+import type {
+  Attempt,
+  RefutingEvidence,
+} from "../src/domains/attempt/index.ts";
 import { failureOf, refusedWith, unbuiltEntryOf } from "./adapter-fixtures.ts";
 import {
   anotherAttemptId,
@@ -263,34 +266,80 @@ test("a refuting reply leaves the effect Refuted, and the attempt closes as not 
   });
 });
 
-test("closing as not applied frees an Intended attempt and is refused for an Uncertain one", async () => {
-  const notApplied = {
+test("closing as not applied frees an Intended attempt, and an Uncertain one only on the person's refuting evidence for it", async () => {
+  const recover = {
     disposition: "not-applied",
     by: "person",
     reason: "launch recover",
+    evidence: {},
   } as const;
+  const refuting = (evidence: RefutingEvidence) =>
+    ({
+      disposition: "not-applied",
+      by: "person",
+      reason: "herdr-core can no longer apply the request",
+      evidence: { terminal: evidence },
+    }) as const;
   const seen = await onTestJournal(
     Effect.gen(function* () {
       const service = yield* journal;
       yield* service.begin(taskLaunch);
-      yield* service.close(attemptId, notApplied);
+      yield* service.close(attemptId, recover);
       const freed = yield* effectStates;
       yield* service.begin(taskLaunch);
       yield* observed(attemptId, "terminal", noEvidence);
-      const refusal = yield* Effect.flip(service.close(attemptId, notApplied));
-      return { freed, refusal: failureOf(refusal), kept: yield* effectStates };
+      const onNoEvidence = yield* refusedWith(
+        service.close(attemptId, recover),
+      );
+      const byItsOwnRun = yield* refusedWith(
+        service.close(attemptId, {
+          disposition: "not-applied",
+          by: "attempt-owner",
+          reason: "no labelled terminal shows",
+        }),
+      );
+      const forAnotherAttempt = yield* refusedWith(
+        service.close(attemptId, refuting(nothingReachedFor(anotherAttemptId))),
+      );
+      const kept = yield* effectStates;
+      const onRefutingEvidence = yield* refusedWith(
+        service.close(attemptId, refuting(nothingReachedFor(attemptId))),
+      );
+      const after = yield* effectStates;
+      const startedAgain = yield* refusedWith(service.begin(taskLaunch));
+      return {
+        freed,
+        onNoEvidence,
+        byItsOwnRun,
+        forAnotherAttempt,
+        kept,
+        onRefutingEvidence,
+        after,
+        startedAgain,
+      };
     }),
   );
 
+  const neverCancelled = {
+    _tag: "AttemptRefused",
+    effectId: "terminal",
+    refusal: {
+      _tag: "UncertainNeverCancelled",
+      state: "Uncertain",
+      event: "Cancel",
+    },
+  };
   expect(seen).toEqual({
     freed: [],
-    refusal: {
+    onNoEvidence: neverCancelled,
+    byItsOwnRun: neverCancelled,
+    forAnotherAttempt: {
       _tag: "AttemptRefused",
       effectId: "terminal",
       refusal: {
-        _tag: "UncertainNeverCancelled",
+        _tag: "EvidenceForAnotherAttempt",
         state: "Uncertain",
-        event: "Cancel",
+        event: "Refute",
       },
     },
     kept: [
@@ -299,6 +348,9 @@ test("closing as not applied frees an Intended attempt and is refused for an Unc
         effects: { terminal: "Uncertain", "task-assignment": "Intended" },
       },
     ],
+    onRefutingEvidence: "not refused",
+    after: [],
+    startedAgain: "not refused",
   });
 });
 

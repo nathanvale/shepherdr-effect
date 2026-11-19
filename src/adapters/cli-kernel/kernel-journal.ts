@@ -42,17 +42,26 @@ interface UnresolvedAttempt {
   readonly effects: Readonly<Record<string, Attempt>>;
 }
 
-type Closure =
+interface Completed {
+  readonly disposition: "completed";
+  readonly by: "person" | "scheduler";
+  readonly evidence: Readonly<Record<string, PositiveEvidence>>;
+}
+
+type NotApplied =
   | {
-      readonly disposition: "completed";
-      readonly by: "person" | "scheduler";
-      readonly evidence: Readonly<Record<string, PositiveEvidence>>;
+      readonly disposition: "not-applied";
+      readonly by: "attempt-owner";
+      readonly reason: string;
     }
   | {
       readonly disposition: "not-applied";
-      readonly by: "attempt-owner" | "person";
+      readonly by: "person";
       readonly reason: string;
+      readonly evidence: Readonly<Record<string, RefutingEvidence>>;
     };
+
+type Closure = Completed | NotApplied;
 
 class ConflictingAttempt extends Data.TaggedError("ConflictingAttempt")<{
   readonly unresolved: AttemptId;
@@ -250,20 +259,27 @@ function keyedByAttemptId({ effects }: Intent): ReadonlySet<string> {
   );
 }
 
-function closureEventsFor(
+function notAppliedEvents(
+  effectId: string,
+  attempt: Attempt,
+  closure: NotApplied,
+): ReadonlyArray<AttemptEvent> {
+  if (attempt._tag === "Refuted") return [];
+  const evidence =
+    closure.by === "person" ? closure.evidence[effectId] : undefined;
+  return attempt._tag === "Uncertain" && evidence !== undefined
+    ? [{ _tag: "Refute", evidence }]
+    : [{ _tag: "Cancel", by: closure.by, reason: closure.reason }];
+}
+
+function completedEvents(
   { effectId, keyedByAttemptId }: DeclaredEffect,
   attempt: Attempt,
-  closure: Closure,
+  closure: Completed,
 ): Result.Result<
   ReadonlyArray<AttemptEvent>,
   CallerMayNotClose | EvidenceMissing
 > {
-  if (closure.disposition === "not-applied")
-    return Result.succeed(
-      attempt._tag === "Refuted"
-        ? []
-        : [{ _tag: "Cancel", by: closure.by, reason: closure.reason }],
-    );
   if (attempt._tag === "Confirmed") return Result.succeed([]);
   if (closure.by === "scheduler" && !keyedByAttemptId)
     return Result.fail(
@@ -282,6 +298,19 @@ function closureEventsFor(
       ? [{ _tag: "EffectStarted" }, confirm]
       : [confirm],
   );
+}
+
+function closureEventsFor(
+  declared: DeclaredEffect,
+  attempt: Attempt,
+  closure: Closure,
+): Result.Result<
+  ReadonlyArray<AttemptEvent>,
+  CallerMayNotClose | EvidenceMissing
+> {
+  return closure.disposition === "completed"
+    ? completedEvents(declared, attempt, closure)
+    : Result.succeed(notAppliedEvents(declared.effectId, attempt, closure));
 }
 
 function closing(
