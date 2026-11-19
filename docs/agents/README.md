@@ -10,3 +10,4 @@ Read the file whose trigger matches the task.
 | Understanding why the design is shaped as it is, or what is still open   | [../design/synthesis.md](../design/synthesis.md)         |
 | Checking a fact about the old system, the pilot or Effect v4             | [../design/grounding.md](../design/grounding.md)         |
 | Anything about running on the CLI kernel, or what the kernel still lacks | [../design/kernel-uplift.md](../design/kernel-uplift.md) |
+| Placing new code, or deciding which module owns a behaviour              | [../design/module-map.md](../design/module-map.md)       |
