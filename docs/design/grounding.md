@@ -167,3 +167,19 @@ Service:
 - One application CLI at `src/cli.ts`; commands are added in
   `src/commands.ts`; domain code lives under `src/domains/` and never writes
   to stdout or stderr.
+
+## Where the state-file field groups come from
+
+Field groups in `src/state-files` that carry no annotation take their meaning
+from their names. Their origin in the old code:
+
+- `agentRowFieldsBeforeTerminal`: launch.py `launch`. The agent row's part that
+  exists before its terminal does.
+- `oldPanelMigrationFields`: store.py `migrate`. Set once on a task taken over
+  from the old Tasks panel.
+- `ownChoicesInsteadOfSettings`: what runs the task and how, where the task
+  says so itself instead of Settings.
+- `fieldsWrittenAtIntent`: launch_admission.py `Admission.claimed`.
+- `fieldsWrittenBeforeHcRunOrSend`: `_mark_sent`.
+- `fieldsWrittenWhenLaunchCloses`: `_close`, `launch recover` and
+  `launch reconcile`.

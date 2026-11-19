@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 import {
-  agentStartFields,
+  agentRowFieldsBeforeTerminal,
   EmptyObject,
   Millis,
   ScheduleRule,
@@ -10,17 +10,20 @@ import {
 const optional = Schema.optionalKey;
 const Flag = Schema.Literal(true);
 
-/** An agent started for a task (launch.py `launch`, sessions.py). */
 const AgentRow = Schema.Struct({
-  ...agentStartFields,
+  ...agentRowFieldsBeforeTerminal,
   address: Schema.String,
-  // Absent on an agent taken over from the old Tasks panel (store.py `migrate`).
-  argv: optional(Schema.Array(Schema.String)),
+  argv: optional(Schema.Array(Schema.String)).annotateKey({
+    description:
+      "Absent on an agent taken over from the old Tasks panel (store.py migrate).",
+  }),
   launch: optional(Schema.String),
   session: optional(Schema.String),
   log: optional(Schema.String),
   log_looked: optional(Millis),
   ended: optional(Millis),
+}).annotate({
+  description: "An agent started for a task (launch.py launch, sessions.py).",
 });
 
 const Progress = Schema.Struct({
@@ -42,22 +45,25 @@ const Review = Schema.Struct({
   by: Schema.NullOr(Schema.String),
 });
 
-/** What a queued or scheduled start will run (commands.py `cmd_start`, `cmd_add`). */
 const QueuedStart = Schema.Struct({
   argv: optional(Schema.Array(Schema.String)),
   space: optional(Schema.NullOr(Schema.String)),
   parent: optional(Schema.NullOr(Schema.String)),
   config_dir: optional(Schema.NullOr(Schema.String)),
   custom: optional(Flag),
+}).annotate({
+  description:
+    "What a queued or scheduled start will run (commands.py cmd_start, cmd_add).",
 });
 
-/** A task's own overrides of Settings (settings.py `set_task`). */
 const TaskSettings = Schema.Struct({
   review: optional(Schema.Literals(["on", "off"])),
   proof: optional(Schema.Literals(["on", "off"])),
   review_rounds: optional(Schema.Int),
   must_fix: optional(Schema.Literals(["blocker", "major", "minor"])),
   merge: optional(Schema.Literals(["ask", "checks", "auto"])),
+}).annotate({
+  description: "A task's own overrides of Settings (settings.py set_task).",
 });
 
 const PullRequest = Schema.Struct({
@@ -78,7 +84,6 @@ const PullRequest = Schema.Struct({
   ),
   head_at: optional(Millis),
   head_sha: optional(Schema.String),
-  // ghnews.py `pr_news`: what was already told, and news waiting for its agent.
   watch: optional(
     Schema.Struct({
       since: Millis,
@@ -87,13 +92,16 @@ const PullRequest = Schema.Struct({
       failed: Schema.NullOr(Schema.String),
       conflict: Schema.NullOr(Schema.String),
     }),
-  ),
+  ).annotateKey({
+    description: "What was already told (ghnews.py pr_news).",
+  }),
   news: optional(
     Schema.Struct({ text: Schema.String, at: Millis, since: Millis }),
-  ),
+  ).annotateKey({
+    description: "News waiting for its agent (ghnews.py pr_news).",
+  }),
 });
 
-/** Another folder's or machine's task this one waits for (queues.py `set_after`). */
 const ExternalDependency = Schema.Struct({
   ref: Schema.String,
   machine: Schema.NullOr(Schema.String),
@@ -102,9 +110,11 @@ const ExternalDependency = Schema.Struct({
   state: Schema.String,
   checked: Millis,
   error: optional(Schema.String),
+}).annotate({
+  description:
+    "Another folder's or machine's task this one waits for (queues.py set_after).",
 });
 
-/** The one takeover by the other CLI (takeover.py). */
 const Backup = Schema.Struct({
   from: Schema.String,
   to: Schema.String,
@@ -116,10 +126,11 @@ const Backup = Schema.Struct({
   error: optional(Schema.String),
   address: optional(Schema.String),
   told: optional(Flag),
+}).annotate({
+  description: "The one takeover by the other CLI (takeover.py).",
 });
 
-/** Set once on a task taken over from the old Tasks panel (store.py `migrate`). */
-const takenOver = {
+const oldPanelMigrationFields = {
   legacy_id: optional(
     Schema.NullOr(Schema.Union([Schema.String, Schema.Number])),
   ),
@@ -138,8 +149,7 @@ const placement = {
   own: optional(Schema.String),
 };
 
-/** What runs the task and how, where the task says so itself instead of Settings. */
-const ownChoices = {
+const ownChoicesInsteadOfSettings = {
   agent: optional(Schema.String),
   model: optional(Schema.String),
   effort: optional(Schema.String),
@@ -213,8 +223,10 @@ const review = {
 
 const ready = {
   ready_at: optional(Millis),
-  // Open by terminal address: every agent live at ready, with its turn then.
-  ready_turns: optional(Schema.Record(Schema.String, Schema.Int)),
+  ready_turns: optional(Schema.Record(Schema.String, Schema.Int)).annotateKey({
+    description:
+      "Open by terminal address: every agent live at ready, with its turn then.",
+  }),
   head: optional(Schema.String),
   summary: optional(Schema.String),
   details: optional(Schema.String),
@@ -260,10 +272,6 @@ const afterDone = {
   unarchived: optional(Millis),
 };
 
-/**
- * One task. Only the first seven keys are always there (store.py `new`). Each
- * group after them is set and removed by the commands that own that step.
- */
 const Task = Schema.Struct({
   id: Schema.Int,
   title: Schema.String,
@@ -280,18 +288,20 @@ const Task = Schema.Struct({
   created: Millis,
   agents: Schema.Array(AgentRow),
   reviewers: optional(Schema.Array(AgentRow)),
-  ...takenOver,
+  ...oldPanelMigrationFields,
   ...placement,
-  ...ownChoices,
+  ...ownChoicesInsteadOfSettings,
   ...waitingToStart,
   ...whileRunning,
   ...review,
   ...ready,
   ...merge,
   ...afterDone,
+}).annotate({
+  description:
+    "One task. Only the first seven keys are always there (store.py new). Each group after them is set and removed by the commands that own that step.",
 });
 
-/** `--set` pairs an automation gives each task it adds (automations.py `set_auto_fields`). */
 const AutomationSettings = Schema.Struct({
   review: optional(Schema.String),
   merge: optional(Schema.String),
@@ -304,9 +314,11 @@ const AutomationSettings = Schema.Struct({
   "reviewer.model": optional(Schema.String),
   "reviewer.effort": optional(Schema.String),
   proof: optional(Schema.String),
+}).annotate({
+  description:
+    "--set pairs an automation gives each task it adds (automations.py set_auto_fields).",
 });
 
-/** A task that adds itself again on a schedule or an event (automations.py). */
 const Automation = Schema.Struct({
   id: Schema.Int,
   title: Schema.String,
@@ -346,9 +358,11 @@ const Automation = Schema.Struct({
   ),
   last_run: optional(Millis),
   last_task: optional(Schema.String),
+}).annotate({
+  description:
+    "A task that adds itself again on a schedule or an event (automations.py).",
 });
 
-/** A base branch watched on GitHub after a merge (github.py `watch_main`, ghnews.py). */
 const DestinationWatch = Schema.Struct({
   repo: Schema.String,
   until: Millis,
@@ -374,9 +388,11 @@ const DestinationWatch = Schema.Struct({
       dropped: optional(Flag),
     }),
   ),
+}).annotate({
+  description:
+    "A base branch watched on GitHub after a merge (github.py watch_main, ghnews.py).",
 });
 
-/** One folder's tasks: `tasks/<slug>.json` (store.py `Store`). */
 export const TaskListFile = Schema.Struct({
   version: Schema.Literal(1),
   folder: Schema.String,
@@ -387,8 +403,10 @@ export const TaskListFile = Schema.Struct({
   tasks: Schema.Array(Task),
   prefix: optional(Schema.String),
   project_id: optional(Schema.String),
-  // Nothing at 9859c344 puts a key in it (commands.py `cmd_config`).
-  config: optional(EmptyObject),
+  config: optional(EmptyObject).annotateKey({
+    description:
+      "Nothing at 9859c344 puts a key in it (commands.py cmd_config).",
+  }),
   github: optional(
     Schema.Struct({
       repo: Schema.NullOr(Schema.String),
@@ -404,8 +422,14 @@ export const TaskListFile = Schema.Struct({
       denied: Flag,
     }),
   ),
-  // Open by branch name: one record per base branch being watched.
-  main_watch: optional(Schema.Record(Schema.String, DestinationWatch)),
+  main_watch: optional(
+    Schema.Record(Schema.String, DestinationWatch),
+  ).annotateKey({
+    description:
+      "Open by branch name: one record per base branch being watched.",
+  }),
   automations: optional(Schema.Array(Automation)),
   auto_next: optional(Schema.Int),
+}).annotate({
+  description: "One folder's tasks: tasks/<slug>.json (store.py Store).",
 });

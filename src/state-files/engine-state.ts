@@ -9,11 +9,9 @@ import {
 const optional = Schema.optionalKey;
 const Flag = Schema.Literal(true);
 
-/** `tasks/.machines.json`: what was last synced to each linked machine (machines.py). */
 export const MachinesFile = Schema.Struct({
   seen: optional(Schema.String),
   seen_at: optional(Millis),
-  // Open by machine name: one record per machine herdr-core links.
   machines: optional(
     Schema.Record(
       Schema.String,
@@ -27,11 +25,15 @@ export const MachinesFile = Schema.Struct({
         at: optional(Millis),
       }),
     ),
-  ),
+  ).annotateKey({
+    description:
+      "Open by machine name: one record per machine herdr-core links.",
+  }),
+}).annotate({
+  description:
+    "tasks/.machines.json: what was last synced to each linked machine (machines.py).",
 });
 
-// One machine as the reach probe answers (machines.py `PROBE`). A link's
-// `next` holds the machine it leads to, so the shape refers to itself.
 interface ReachNodeEncoded {
   readonly host: string;
   readonly user: string;
@@ -72,10 +74,12 @@ const ReachNode: Schema.Codec<ReachNodeEncoded> = Schema.Struct({
   os: Schema.String,
   hc: Schema.Boolean,
   home: Schema.String,
-  // herdr-core's own answer to `hc server status`: only what the pilot shows.
   core: Schema.NullOr(
     Schema.Struct({ id: Schema.String, name: Schema.String }),
-  ),
+  ).annotateKey({
+    description:
+      "herdr-core's own answer to hc server status: only what the pilot shows.",
+  }),
   tools: Schema.NullOr(Schema.String),
   links: Schema.Array(
     Schema.Struct({
@@ -93,7 +97,6 @@ const ReachNode: Schema.Codec<ReachNodeEncoded> = Schema.Struct({
       ),
     }),
   ),
-  // Both lists are absent on a machine without hc.
   spaces: optional(
     Schema.Array(
       Schema.Struct({
@@ -104,7 +107,9 @@ const ReachNode: Schema.Codec<ReachNodeEncoded> = Schema.Struct({
         icon: Schema.NullOr(Schema.String),
       }),
     ),
-  ),
+  ).annotateKey({
+    description: "Absent on a machine without hc.",
+  }),
   assistants: optional(
     Schema.Array(
       Schema.Struct({
@@ -116,32 +121,37 @@ const ReachNode: Schema.Codec<ReachNodeEncoded> = Schema.Struct({
         name: Schema.NullOr(Schema.String),
       }),
     ),
-  ),
+  ).annotateKey({
+    description: "Absent on a machine without hc.",
+  }),
+}).annotate({
+  description:
+    "One machine as the reach probe answers (machines.py PROBE). A link's next holds the machine it leads to, so the shape refers to itself.",
 });
 
-/** `tasks/.reach.json`: the machines reachable from here, hop by hop (machines.py `probe`). */
-export const ReachFile = Schema.Struct({ at: Millis, graph: ReachNode });
+export const ReachFile = Schema.Struct({
+  at: Millis,
+  graph: ReachNode,
+}).annotate({
+  description:
+    "tasks/.reach.json: the machines reachable from here, hop by hop (machines.py probe).",
+});
 
-/** `tasks/.scheduler.json`: the one scheduler running here (automations.py `cmd_scheduler`). */
 export const SchedulerFile = Schema.Struct({
   pid: Schema.Int,
   hash: Schema.String,
   at: Millis,
   terminal: Schema.NullOr(Schema.String),
+}).annotate({
+  description:
+    "tasks/.scheduler.json: the one scheduler running here (automations.py cmd_scheduler).",
 });
 
-/**
- * `tasks/.seen.json`: how each folder's tasks looked at the scheduler's last
- * round (automations.py `one_pass`). The file itself is the map: open by task
- * list slug, one record per folder with tasks at work or automations.
- */
-export const SeenFile = Schema.Record(Schema.String, TaskEventsSeen);
+export const SeenFile = Schema.Record(Schema.String, TaskEventsSeen).annotate({
+  description:
+    "tasks/.seen.json: how each folder's tasks looked at the scheduler's last round (automations.py one_pass). The file itself is the map: open by task list slug, one record per folder with tasks at work or automations.",
+});
 
-/**
- * `tasks/.retries.json`: provider retries under way (tick.py `retry_pass`).
- * The file itself is the map: open by terminal address, one row per live
- * Assistant or task worker whose log is being followed.
- */
 export const RetriesFile = Schema.Record(
   Schema.String,
   Schema.Struct({
@@ -160,11 +170,12 @@ export const RetriesFile = Schema.Record(
     stale: optional(Flag),
     task: optional(Schema.String),
   }),
-);
+).annotate({
+  description:
+    "tasks/.retries.json: provider retries under way (tick.py retry_pass). The file itself is the map: open by terminal address, one row per live Assistant or task worker whose log is being followed.",
+});
 
-/** `tasks/.news.json`: each task's last told status, and lines not sent yet (news.py `news_pass`). */
 export const NewsFile = Schema.Struct({
-  // Open by task list slug, then by task number beside the `_init` marker.
   seen: Schema.Record(
     Schema.String,
     Schema.StructWithRest(Schema.Struct({ _init: optional(Flag) }), [
@@ -186,7 +197,10 @@ export const NewsFile = Schema.Struct({
         }),
       ),
     ]),
-  ),
+  ).annotateKey({
+    description:
+      "Open by task list slug, then by task number beside the _init marker.",
+  }),
   outbox: Schema.Array(
     Schema.Struct({
       key: Schema.String,
@@ -199,14 +213,18 @@ export const NewsFile = Schema.Struct({
       at: Millis,
     }),
   ),
-  // Open by terminal address: Assistants told news while their chat was read.
   quiet: Schema.Record(
     Schema.String,
     Schema.Struct({ turn: Schema.NullOr(Schema.Int), at: Millis }),
-  ),
+  ).annotateKey({
+    description:
+      "Open by terminal address: Assistants told news while their chat was read.",
+  }),
+}).annotate({
+  description:
+    "tasks/.news.json: each task's last told status, and lines not sent yet (news.py news_pass).",
 });
 
-/** `tasks/.newslog.json`: the last 300 news batches sent, for the home overview (home.py `log_news`). */
 export const NewslogFile = Schema.Array(
   Schema.Struct({
     at: Millis,
@@ -215,12 +233,11 @@ export const NewslogFile = Schema.Array(
     to: Schema.String,
     lines: Schema.Array(Schema.String),
   }),
-);
+).annotate({
+  description:
+    "tasks/.newslog.json: the last 300 news batches sent, for the home overview (home.py log_news).",
+});
 
-/**
- * `tasks/.held.json`: messages waiting while the person writes to an agent
- * (news.py `hold`). The file itself is the map: open by terminal address.
- */
 export const HeldFile = Schema.Record(
   Schema.String,
   Schema.Array(
@@ -230,7 +247,10 @@ export const HeldFile = Schema.Record(
       at: Millis,
     }),
   ),
-);
+).annotate({
+  description:
+    "tasks/.held.json: messages waiting while the person writes to an agent (news.py hold). The file itself is the map: open by terminal address.",
+});
 
 const Wake = Schema.Struct({
   at: Millis,
@@ -239,15 +259,14 @@ const Wake = Schema.Struct({
 });
 const Note = Schema.Struct({ text: Schema.String, at: Millis });
 
-/** `tasks/.autopilot.json`: each space's switch and how its wakes go (autopilot.py). */
 export const AutopilotFile = Schema.Struct({
   version: Schema.Literal(2),
-  // From before Settings kept the schedule and events.
   everywhere: Schema.Struct({
     every: Schema.NullOr(ScheduleRule),
     events: Schema.Array(Schema.String),
+  }).annotateKey({
+    description: "From before Settings kept the schedule and events.",
   }),
-  // Open by space id: one record per space whose switch was ever touched.
   spaces: Schema.Record(
     Schema.String,
     Schema.Struct({
@@ -277,15 +296,21 @@ export const AutopilotFile = Schema.Struct({
       wakes: optional(Schema.Array(Wake)),
       progress: optional(Note),
       completed: optional(Note),
-      // Open by task list slug: the folders whose task events wake this space.
-      seen: optional(Schema.Record(Schema.String, TaskEventsSeen)),
+      seen: optional(Schema.Record(Schema.String, TaskEventsSeen)).annotateKey({
+        description:
+          "Open by task list slug: the folders whose task events wake this space.",
+      }),
     }),
-  ),
+  ).annotateKey({
+    description:
+      "Open by space id: one record per space whose switch was ever touched.",
+  }),
+}).annotate({
+  description:
+    "tasks/.autopilot.json: each space's switch and how its wakes go (autopilot.py).",
 });
 
-/** `tasks/.feedback.json`: problems in Shepherdr itself that agents reported (feedback.py). */
 export const FeedbackFile = Schema.Struct({
-  // Open by problem key: ten hex digits of a hash of the problem's one line.
   problems: Schema.Record(
     Schema.String.check(Schema.isPattern(/^[0-9a-f]{10}$/)),
     Schema.Struct({
@@ -305,17 +330,21 @@ export const FeedbackFile = Schema.Struct({
       by: optional(Schema.String),
       url: optional(Schema.String),
     }),
-  ),
+  ).annotateKey({
+    description:
+      "Open by problem key: ten hex digits of a hash of the problem's one line.",
+  }),
+}).annotate({
+  description:
+    "tasks/.feedback.json: problems in Shepherdr itself that agents reported (feedback.py).",
 });
 
-/**
- * `tasks/.reactions.json` and `tasks/.assistant-settings.json`: when a pass
- * last looked at the settings file, and that file's modification time then
- * (reactions.py `reactions_pass`, assistant_settings.py `settings_pass`).
- */
 export const SettingsPassFile = Schema.Struct({
   mtime: Schema.Number,
   at: Millis,
+}).annotate({
+  description:
+    "tasks/.reactions.json and tasks/.assistant-settings.json: when a pass last looked at the settings file, and that file's modification time then (reactions.py reactions_pass, assistant_settings.py settings_pass).",
 });
 
 const StoppedTerminal = Schema.Struct({
@@ -326,10 +355,6 @@ const StoppedTerminal = Schema.Struct({
   role: Schema.NullOr(Schema.String),
 });
 
-/**
- * One line of `tasks/.stops.jsonl`: an agent that was ended or went missing
- * (base.py `stop_note`). Each kind carries its own fields.
- */
 export const StopsLine = Schema.Union([
   Schema.Struct({
     at: Millis,
@@ -374,4 +399,7 @@ export const StopsLine = Schema.Union([
     memory: Schema.Number,
     terminals: Schema.Array(Schema.String),
   }),
-]);
+]).annotate({
+  description:
+    "One line of tasks/.stops.jsonl: an agent that was ended or went missing (base.py stop_note). Each kind carries its own fields.",
+});

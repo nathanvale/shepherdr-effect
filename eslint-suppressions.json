@@ -69,16 +69,6 @@
       "count": 18
     }
   },
-  "src/state-files/attempts.ts": {
-    "repository/no-comments": {
-      "count": 12
-    }
-  },
-  "src/state-files/engine-state.ts": {
-    "repository/no-comments": {
-      "count": 22
-    }
-  },
   "src/state-files/handlers.ts": {
     "repository/no-comments": {
       "count": 4
@@ -112,16 +102,6 @@
   "src/state-files/settings.ts": {
     "repository/no-comments": {
       "count": 11
-    }
-  },
-  "src/state-files/shared.ts": {
-    "repository/no-comments": {
-      "count": 7
-    }
-  },
-  "src/state-files/task-list.ts": {
-    "repository/no-comments": {
-      "count": 17
     }
   },
   "tests/cli.test.ts": {

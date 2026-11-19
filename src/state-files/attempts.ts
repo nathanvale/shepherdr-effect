@@ -1,27 +1,29 @@
 import { Schema } from "effect";
-import { agentStartFields, Millis, RecordedBinding } from "./shared.ts";
+import {
+  agentRowFieldsBeforeTerminal,
+  Millis,
+  RecordedBinding,
+} from "./shared.ts";
 
 const optional = Schema.optionalKey;
 const Flag = Schema.Literal(true);
 
-// launch_admission.py `LAUNCH_ID` and `IDENTITY`.
 const LaunchId = Schema.String.check(
   Schema.isPattern(
     /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
   ),
-);
+).annotate({ description: "launch_admission.py LAUNCH_ID." });
 const LaunchIdentity = Schema.String.check(
   Schema.isPattern(/^(?:task|coordinator|agent):[A-Za-z0-9._:/#@-]{1,240}$/),
-);
+).annotate({ description: "launch_admission.py IDENTITY." });
 
-/** A task start as the journal keeps it, so a reconcile can put it on the task (launch.py `launch`). */
 const TaskAssignment = Schema.Struct({
   folder: Schema.String,
   id: Schema.Int,
   space: Schema.NullOr(Schema.String),
   role: Schema.NullOr(Schema.String),
   agent: Schema.Struct({
-    ...agentStartFields,
+    ...agentRowFieldsBeforeTerminal,
     argv: Schema.Array(Schema.String),
   }),
   made: Schema.Struct({
@@ -31,10 +33,12 @@ const TaskAssignment = Schema.Struct({
     base: optional(Schema.String),
     start: optional(Schema.String),
   }),
+}).annotate({
+  description:
+    "A task start as the journal keeps it, so a reconcile can put it on the task (launch.py launch).",
 });
 
-const LaunchRecord = Schema.Struct({
-  // Written at the claim (launch_admission.py `Admission.claimed`).
+const fieldsWrittenAtIntent = {
   launch: LaunchId,
   identity: LaunchIdentity,
   role: Schema.Literals(["task", "reviewer", "coordinator", "agent", "revive"]),
@@ -52,8 +56,9 @@ const LaunchRecord = Schema.Struct({
   parent: Schema.NullOr(Schema.String),
   pid: Schema.Int,
   config_dir: Schema.NullOr(Schema.String),
+};
 
-  // Written just before `hc run` or `hc send` (`_mark_sent`).
+const fieldsWrittenBeforeHcRunOrSend = {
   sent_at: optional(Millis),
   task: optional(TaskAssignment),
   provider: optional(RecordedBinding),
@@ -68,25 +73,39 @@ const LaunchRecord = Schema.Struct({
       previous_session: Schema.NullOr(Schema.String),
     }),
   ),
-  // In the pilot's journal. No writer at 9859c344 sets it.
-  invocation: optional(Schema.String),
+  invocation: optional(Schema.String).annotateKey({
+    description: "In the pilot's journal. No writer at 9859c344 sets it.",
+  }),
+};
 
-  // Written when the start closes (`_close`, `launch recover`, `launch reconcile`).
+const fieldsWrittenWhenLaunchCloses = {
   address: optional(Schema.String),
   reply: optional(Schema.String),
   reason: optional(Schema.String),
   reconciled: optional(Flag),
   revoked: optional(Flag),
   recorded: optional(Schema.Boolean),
+};
+
+const LaunchRecord = Schema.Struct({
+  ...fieldsWrittenAtIntent,
+  ...fieldsWrittenBeforeHcRunOrSend,
+  ...fieldsWrittenWhenLaunchCloses,
 });
 
-/** `tasks/.launches.json`: every agent start on this machine (launch_admission.py). */
 export const LaunchesFile = Schema.Struct({
   version: Schema.Literal(1),
-  // Open by launch id: one record per start, kept 30 days after it closes.
-  launches: Schema.Record(LaunchId, LaunchRecord),
-  // Open by identity: the one open start each task or Assistant may have.
-  claims: Schema.Record(LaunchIdentity, LaunchId),
+  launches: Schema.Record(LaunchId, LaunchRecord).annotateKey({
+    description:
+      "Open by launch id: one record per start, kept 30 days after it closes.",
+  }),
+  claims: Schema.Record(LaunchIdentity, LaunchId).annotateKey({
+    description:
+      "Open by identity: the one open start each task or Assistant may have.",
+  }),
+}).annotate({
+  description:
+    "tasks/.launches.json: every agent start on this machine (launch_admission.py).",
 });
 
 const BitbucketPullRequest = Schema.Struct({
@@ -112,12 +131,14 @@ const PublicationRecord = Schema.Struct({
   route: Schema.Struct({
     remote: Schema.String,
     push: Schema.String,
-    // Every view git has of the remote's URL (bitbucket_http.py `origins`).
     seen: Schema.Struct({
       written: Schema.String,
       pushurl: Schema.String,
       used: Schema.String,
       push: Schema.String,
+    }).annotateKey({
+      description:
+        "Every view git has of the remote's URL (bitbucket_http.py origins).",
     }),
   }),
   pushed: Schema.NullOr(
@@ -168,13 +189,13 @@ const PublicationRecord = Schema.Struct({
   at: Millis,
 });
 
-/**
- * `tasks/.publications.json`: this machine's Bitbucket publication claims
- * (publications.py). The pilot copy holds no such file, so this shape comes
- * from the writer alone.
- */
 export const PublicationsFile = Schema.Struct({
   version: Schema.Literal(1),
-  // Open by "<host>/<repo>:<branch>": one claim per published task branch.
-  claims: Schema.Record(Schema.String, PublicationRecord),
+  claims: Schema.Record(Schema.String, PublicationRecord).annotateKey({
+    description:
+      'Open by "<host>/<repo>:<branch>": one claim per published task branch.',
+  }),
+}).annotate({
+  description:
+    "tasks/.publications.json: this machine's Bitbucket publication claims (publications.py). The pilot copy holds no such file, so this shape comes from the writer alone.",
 });

@@ -1,19 +1,21 @@
 import { Schema } from "effect";
 
-/** Milliseconds since the epoch, as the old code's `now()` writes them. */
-export const Millis = Schema.Int;
+export const Millis = Schema.Int.annotate({
+  description:
+    "Milliseconds since the epoch, as the old code's now() writes them.",
+});
 
-/**
- * `{}` and nothing else. `Schema.Struct({})` alone accepts any value that is
- * not null, so the check is what refuses a key.
- */
-export const EmptyObject = Schema.Struct({}).check(
-  Schema.makeFilter((value) => Object.keys(value).length === 0, {
-    expected: "an object with no keys",
-  }),
-);
+export const EmptyObject = Schema.Struct({})
+  .check(
+    Schema.makeFilter((value) => Object.keys(value).length === 0, {
+      expected: "an object with no keys",
+    }),
+  )
+  .annotate({
+    description:
+      "{} and nothing else. Schema.Struct({}) alone accepts any value that is not null, so the check is what refuses a key.",
+  });
 
-/** What a start records about its provider route (providers.py `recorded`). */
 export const RecordedBinding = Schema.Union([
   Schema.Struct({ route: Schema.Literal("personal") }),
   Schema.Struct({
@@ -24,10 +26,12 @@ export const RecordedBinding = Schema.Union([
     auth: Schema.Literals(["entra-id", "api-key", "bearer-token"]),
     fingerprint: Schema.String,
   }),
-]);
+]).annotate({
+  description:
+    "What a start records about its provider route (providers.py recorded).",
+});
 
-/** The part of an agent record that exists before its terminal does (launch.py `launch`). */
-export const agentStartFields = {
+export const agentRowFieldsBeforeTerminal = {
   agent: Schema.String,
   at: Millis,
   parent: Schema.optionalKey(Schema.String),
@@ -35,7 +39,6 @@ export const agentStartFields = {
   provider: Schema.optionalKey(RecordedBinding),
 };
 
-/** A time rule as `parse_every` returns it (automations.py). */
 export const ScheduleRule = Schema.Union([
   Schema.Struct({
     text: Schema.String,
@@ -56,16 +59,16 @@ export const ScheduleRule = Schema.Union([
     days: Schema.Array(Schema.Int),
     times: Schema.Array(Schema.String),
   }),
-]);
+]).annotate({
+  description: "A time rule as parse_every returns it (automations.py).",
+});
 
-/** A task number written as an object key (`str(task["id"])`). */
-export const TaskNumberKey = Schema.String.check(Schema.isPattern(/^\d+$/));
+export const TaskNumberKey = Schema.String.check(
+  Schema.isPattern(/^\d+$/),
+).annotate({
+  description: 'A task number written as an object key (str(task["id"])).',
+});
 
-/**
- * How one folder's tasks looked at the last look (automations.py
- * `diff_events`). Open by task number: the old code keys it by every task the
- * list holds, beside the one fixed `_init` marker.
- */
 export const TaskEventsSeen = Schema.StructWithRest(
   Schema.Struct({ _init: Schema.optionalKey(Schema.Literal(true)) }),
   [
@@ -81,4 +84,7 @@ export const TaskEventsSeen = Schema.StructWithRest(
       }),
     ),
   ],
-);
+).annotate({
+  description:
+    "How one folder's tasks looked at the last look (automations.py diff_events). Open by task number: the old code keys it by every task the list holds, beside the one fixed _init marker.",
+});
