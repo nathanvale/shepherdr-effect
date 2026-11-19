@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { Deferred, Effect, Fiber, Result } from "effect";
 import { CliKernelJournal } from "../src/adapters/cli-kernel/index.ts";
 import type { Attempt } from "../src/domains/attempt/index.ts";
-import { failureOf, unbuiltEntryOf } from "./adapter-fixtures.ts";
+import { failureOf, refusedWith, unbuiltEntryOf } from "./adapter-fixtures.ts";
 import {
   anotherAttemptId,
   attemptId,
@@ -335,6 +335,47 @@ test("closing as completed needs positive evidence for every effect not yet conf
       },
     ],
     after: [],
+  });
+});
+
+test("closing as completed confirms an effect that never started only when its intent declares it keyed by the attempt id", async () => {
+  const seen = await onTestJournal(
+    Effect.gen(function* () {
+      const service = yield* journal;
+      yield* service.begin(utilityLaunch(anotherAttemptId, "scheduler:local"));
+      const neverStarted = yield* refusedWith(
+        service.close(anotherAttemptId, {
+          disposition: "completed",
+          evidence: { terminal: terminalFor(anotherAttemptId) },
+        }),
+      );
+      const kept = yield* effectStates;
+      yield* service.begin(taskLaunch);
+      yield* observed(attemptId, "terminal", terminalFor(attemptId));
+      yield* service.close(attemptId, {
+        disposition: "completed",
+        evidence: { "task-assignment": terminalFor(attemptId, "agent row") },
+      });
+      return {
+        neverStarted,
+        kept,
+        after: yield* effectStates,
+      };
+    }),
+  );
+
+  expect(seen).toEqual({
+    neverStarted: {
+      _tag: "AttemptRefused",
+      effectId: "terminal",
+      refusal: {
+        _tag: "EffectNotStarted",
+        state: "Intended",
+        event: "Confirm",
+      },
+    },
+    kept: [{ attemptId: anotherAttemptId, effects: { terminal: "Intended" } }],
+    after: [{ attemptId: anotherAttemptId, effects: { terminal: "Intended" } }],
   });
 });
 

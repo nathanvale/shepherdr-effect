@@ -11,13 +11,21 @@ import { attemptId } from "./attempt-fixtures.ts";
 export const taskLaunch: Intent = {
   attemptId,
   conflictKey: "task:shepherdr%234",
-  effectIds: ["terminal", "task-assignment"],
+  effects: [
+    { effectId: "terminal", keyedByAttemptId: false },
+    { effectId: "task-assignment", keyedByAttemptId: true },
+  ],
   owner: { machine: "local", processId: 4242, processStartedAtMs: 1_000 },
   facts: { launchRevision: "r1", task: { key: "shepherdr#4", role: "worker" } },
 };
 
 export function utilityLaunch(id: AttemptId, conflictKey: string): Intent {
-  return { ...taskLaunch, attemptId: id, conflictKey, effectIds: ["terminal"] };
+  return {
+    ...taskLaunch,
+    attemptId: id,
+    conflictKey,
+    effects: [{ effectId: "terminal", keyedByAttemptId: false }],
+  };
 }
 
 export function onTestJournal<A, E>(

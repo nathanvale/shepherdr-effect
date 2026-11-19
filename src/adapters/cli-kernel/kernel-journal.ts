@@ -16,10 +16,15 @@ export interface AttemptOwner {
   readonly processStartedAtMs: number;
 }
 
+export interface DeclaredEffect {
+  readonly effectId: string;
+  readonly keyedByAttemptId: boolean;
+}
+
 export interface Intent {
   readonly attemptId: AttemptId;
   readonly conflictKey: string;
-  readonly effectIds: readonly [string, ...string[]];
+  readonly effects: readonly [DeclaredEffect, ...DeclaredEffect[]];
   readonly owner: AttemptOwner;
   readonly facts: Readonly<Record<string, Schema.Json>>;
 }
@@ -129,7 +134,7 @@ function begun(intent: Intent): UnresolvedAttempt {
   return {
     intent,
     effects: Object.fromEntries(
-      intent.effectIds.map((effectId) => [
+      intent.effects.map(({ effectId }) => [
         effectId,
         { _tag: "Intended", id: intent.attemptId },
       ]),
@@ -229,8 +234,16 @@ function eventsOf(observation: Observation): ReadonlyArray<AttemptEvent> {
   }
 }
 
+function keyedByAttemptId({ effects }: Intent): ReadonlySet<string> {
+  return new Set(
+    effects
+      .filter((declared) => declared.keyedByAttemptId)
+      .map(({ effectId }) => effectId),
+  );
+}
+
 function closureEventsFor(
-  effectId: string,
+  { effectId, keyedByAttemptId }: DeclaredEffect,
   attempt: Attempt,
   closure: Closure,
 ): Result.Result<ReadonlyArray<AttemptEvent>, EvidenceMissing> {
@@ -246,7 +259,7 @@ function closureEventsFor(
     return Result.fail(new EvidenceMissing({ effectId }));
   const confirm: AttemptEvent = { _tag: "Confirm", evidence };
   return Result.succeed(
-    attempt._tag === "Intended"
+    attempt._tag === "Intended" && keyedByAttemptId
       ? [{ _tag: "EffectStarted" }, confirm]
       : [confirm],
   );
@@ -262,8 +275,13 @@ function closing(
     const unresolved = cases.get(attemptId);
     if (unresolved === undefined)
       return refused(cases, new AttemptNotFound({ attemptId }));
+    const keyed = keyedByAttemptId(unresolved.intent);
     for (const [effectId, attempt] of Object.entries(unresolved.effects)) {
-      const events = closureEventsFor(effectId, attempt, closure);
+      const events = closureEventsFor(
+        { effectId, keyedByAttemptId: keyed.has(effectId) },
+        attempt,
+        closure,
+      );
       if (Result.isFailure(events)) return refused(cases, events.failure);
       const after = applying(attempt, events.success);
       if (Result.isFailure(after))
