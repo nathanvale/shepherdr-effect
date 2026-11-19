@@ -31,8 +31,10 @@ The task assignment's read-back is reading the agent row by launch id.
 task (see open question 1 in [module-map.md](module-map.md)). The live run
 confirms on positive evidence it reads itself. After a crash the person runs a
 closure command: `launch recover` for an Intended attempt and
-`launch reconcile` for an Uncertain one, which needs positive evidence. A
-confirmed launch missing its task assignment is the one case the next tick
+`launch reconcile` for an Uncertain one, which needs positive evidence. The
+person may also refute an Uncertain attempt, closing it as not applied, only
+on evidence that herdr-core can no longer apply its request. A confirmed
+launch missing its task assignment is the one case the next tick
 finishes on its own, by the default in [launch-admission.md](launch-admission.md);
 `launch reconcile` still does the same for the person.
 
