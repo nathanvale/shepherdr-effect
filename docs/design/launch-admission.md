@@ -68,8 +68,9 @@ its run's context. So a launch can run only inside a kernel command run.
 - Tick procedures and the transport do not call launch admission as a plain
   Effect service. Each launch they start is its own kernel run in the same
   process, as decided on 19 November 2026 for the daemon.
-- The module map's invariant "the kernel flushes the intent before handler
-  entry" should read "before the work runs".
+- The invariant "the kernel flushes the intent before handler entry" in
+  [module-map-invariants.md](module-map-invariants.md) should read "before
+  the work runs".
 
 ## What Shepherdr owes the kernel
 

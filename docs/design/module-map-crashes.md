@@ -114,5 +114,5 @@ run there, and this program runs there only for that machine's own state.
    estimated a compiled binary at about 60 MB per release against about 1 MB
    for a bundle; `RemoteMachines` hides the choice.
 
-What goes: the Python zipapp, Python source piped over `hc exec`, the Python
-poll script and `bin/sync-shared`.
+What goes: the Python zipapp, Python source piped over `hc exec` and the
+Python poll script.
