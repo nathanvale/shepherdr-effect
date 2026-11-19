@@ -49,6 +49,16 @@
       "crap_moderate": {
         "count": 2
       }
+    },
+    "scripts/doctor.ts": {
+      "crap_high": {
+        "count": 3
+      }
+    },
+    "src/toolchain-resolution.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
     }
   },
   "identity_finding_counts": {
@@ -313,6 +323,26 @@
       }
     },
     "scripts/check-file-size.ts\u0000workingBytes": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowCheck": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowReadiness": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowReport": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/toolchain-resolution.ts\u0000acceptedBackends": {
       "crap_moderate": {
         "count": 1
       }
