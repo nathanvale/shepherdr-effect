@@ -78,7 +78,7 @@ const taskRows = Object.entries(taskTransitions).map(([event, row]) =>
 test("the note draws one diagram for each state machine", () => {
   expect(diagrams).toHaveLength(2);
   expect(attemptEdges).toHaveLength(4);
-  expect(taskEdges).toHaveLength(37);
+  expect(taskEdges).toHaveLength(39);
 });
 
 test("the attempt diagram draws exactly the attempt table's transitions", () => {
@@ -92,7 +92,7 @@ test("the task diagram draws exactly the task table's transitions", () => {
 test("the note's tables hold every row of both transition tables", () => {
   const written = rowsOfTables(note);
   expect(attemptRows).toHaveLength(5);
-  expect(taskRows).toHaveLength(10);
+  expect(taskRows).toHaveLength(11);
   expect(
     [...attemptRows, ...taskRows].filter((row) => !written.includes(row)),
   ).toEqual([]);

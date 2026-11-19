@@ -83,42 +83,44 @@ stateDiagram-v2
     ready --> queued: Queue
     ready --> running: BackToWork, Reopen
     ready --> ready: AssignAgent, MarkReady
-    ready --> done: MarkDone
+    ready --> done: MarkDone, IntegrationConfirmed
     done --> todo: Reopen
     done --> running: AssignAgent, Reopen
-    done --> done: MarkDone
+    done --> done: MarkDone, IntegrationConfirmed
 ```
 
 A cell names the next stored state, or the refusal. Any caller not listed
 under By is refused as `CallerMayNot`.
 
-| Event       | By                           | todo                           | scheduled           | queued                | running                 | ready                   | done                           |
-| ----------- | ---------------------------- | ------------------------------ | ------------------- | --------------------- | ----------------------- | ----------------------- | ------------------------------ |
-| Schedule    | person, assistant            | scheduled                      | scheduled           | scheduled             | refused: AlreadyStarted | refused: AlreadyStarted | refused: AlreadyStarted        |
-| Unschedule  | person, assistant            | refused: NotScheduled          | todo                | refused: NotScheduled | refused: NotScheduled   | refused: NotScheduled   | refused: NotScheduled          |
-| Queue       | person, assistant, scheduler | queued                         | queued              | queued                | queued                  | queued                  | refused: TaskDone              |
-| Due         | scheduler                    | refused: NotScheduled          | queued              | refused: NotScheduled | refused: NotScheduled   | refused: NotScheduled   | refused: NotScheduled          |
-| AssignAgent | person, assistant, scheduler | running                        | running             | running               | running                 | ready                   | running                        |
-| MarkReady   | person, worker               | ready                          | ready               | ready                 | ready                   | ready                   | refused: TaskDone              |
-| BackToWork  | person, assistant, scheduler | refused: NotReady              | refused: NotReady   | refused: NotReady     | refused: NotReady       | running                 | refused: NotReady              |
-| ReadyAgain  | scheduler                    | refused: NotRunning            | refused: NotRunning | refused: NotRunning   | ready                   | refused: NotRunning     | refused: NotRunning            |
-| MarkDone    | person, assistant            | done                           | done                | done                  | done                    | done                    | done                           |
-| Reopen      | person, assistant            | todo, or running if it started | todo                | todo                  | running                 | running                 | todo, or running if it started |
+| Event                | By                           | todo                           | scheduled           | queued                | running                 | ready                   | done                           |
+| -------------------- | ---------------------------- | ------------------------------ | ------------------- | --------------------- | ----------------------- | ----------------------- | ------------------------------ |
+| Schedule             | person, assistant            | scheduled                      | scheduled           | scheduled             | refused: AlreadyStarted | refused: AlreadyStarted | refused: AlreadyStarted        |
+| Unschedule           | person, assistant            | refused: NotScheduled          | todo                | refused: NotScheduled | refused: NotScheduled   | refused: NotScheduled   | refused: NotScheduled          |
+| Queue                | person, assistant, scheduler | queued                         | queued              | queued                | queued                  | queued                  | refused: TaskDone              |
+| Due                  | scheduler                    | refused: NotScheduled          | queued              | refused: NotScheduled | refused: NotScheduled   | refused: NotScheduled   | refused: NotScheduled          |
+| AssignAgent          | person, assistant, scheduler | running                        | running             | running               | running                 | ready                   | running                        |
+| MarkReady            | person, worker               | ready                          | ready               | ready                 | ready                   | ready                   | refused: TaskDone              |
+| BackToWork           | person, assistant, scheduler | refused: NotReady              | refused: NotReady   | refused: NotReady     | refused: NotReady       | running                 | refused: NotReady              |
+| ReadyAgain           | scheduler                    | refused: NotRunning            | refused: NotRunning | refused: NotRunning   | ready                   | refused: NotRunning     | refused: NotRunning            |
+| MarkDone             | person, assistant            | done                           | done                | done                  | done                    | done                    | done                           |
+| IntegrationConfirmed | person, assistant, scheduler | refused: NotReady              | refused: NotReady   | refused: NotReady     | refused: NotReady       | done                    | done                           |
+| Reopen               | person, assistant            | todo, or running if it started | todo                | todo                  | running                 | running                 | todo, or running if it started |
 
 Where each row comes from in the old system:
 
-| Event       | Old code                                                                        |
-| ----------- | ------------------------------------------------------------------------------- |
-| Schedule    | `schedule` in `ht/commands.py` (`start --at`, `add --at`, `edit --at`)          |
-| Unschedule  | `unschedule` (`edit --at ""`)                                                   |
-| Queue       | `cmd_start` when the task must wait; an automation's run in `ht/automations.py` |
-| Due         | `due_pass` in `ht/tick.py`                                                      |
-| AssignAgent | `put_on` in `ht/launch_admission.py`                                            |
-| MarkReady   | `cmd_ready` and `finalize`                                                      |
-| BackToWork  | `back_to_work`: `fix`, `resume`, and the tick when the agent works again        |
-| ReadyAgain  | `settle_back` in `ht/tick.py`                                                   |
-| MarkDone    | `cmd_state` for `done`; `cmd_accept`                                            |
-| Reopen      | `cmd_state` for `reopen`                                                        |
+| Event                | Old code                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| Schedule             | `schedule` in `ht/commands.py` (`start --at`, `add --at`, `edit --at`)                              |
+| Unschedule           | `unschedule` (`edit --at ""`)                                                                       |
+| Queue                | `cmd_start` when the task must wait; an automation's run in `ht/automations.py`                     |
+| Due                  | `due_pass` in `ht/tick.py`                                                                          |
+| AssignAgent          | `put_on` in `ht/launch_admission.py`                                                                |
+| MarkReady            | `cmd_ready` and `finalize`                                                                          |
+| BackToWork           | `back_to_work`: `fix`, `resume`, and the tick when the agent works again                            |
+| ReadyAgain           | `settle_back` in `ht/tick.py`                                                                       |
+| MarkDone             | `cmd_state` for `done`; `cmd_accept`                                                                |
+| IntegrationConfirmed | `finish` in `ht/github.py`, from `facts` in `ht/tick.py`, `cmd_ready`, `merge_now` and `cmd_accept` |
+| Reopen               | `cmd_state` for `reopen`                                                                            |
 
 - **Done.** The person marks a task Done, or the Assistant does when the
   person asks. The task stores which (`markedBy`). A worker, a reviewer and

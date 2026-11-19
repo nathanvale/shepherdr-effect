@@ -93,6 +93,10 @@ const EXPECTED = {
     by: ["person", "assistant"],
     from: ["done", "done", "done", "done", "done", "done"],
   },
+  IntegrationConfirmed: {
+    by: ["person", "assistant", "scheduler"],
+    from: [notReady, notReady, notReady, notReady, "done", "done"],
+  },
   Reopen: {
     by: ["person", "assistant"],
     from: ["todo", "todo", "todo", "running", "running", "running"],
@@ -108,6 +112,11 @@ const EVENTS = Object.keys(EXPECTED).filter(
 );
 
 const SCHEDULED_FOR = 5_000;
+const REASONS = [
+  "person-approval",
+  "merge-policy",
+  "merge-outside-shepherdr",
+] as const;
 
 const taskIn: Record<State, TaskState> = {
   todo: { state: "todo", started: false },
@@ -136,6 +145,8 @@ function eventBy(event: Event, by: Caller): TaskEvent {
         evidence: terminalFor(attemptId),
       },
     };
+  if (event === "IntegrationConfirmed")
+    return { _tag: event, by, reason: "merge-policy" };
   return { _tag: event, by };
 }
 
@@ -167,12 +178,12 @@ const triples = EVENTS.flatMap((event) =>
   ),
 );
 
-test("the task table has ten events, each over the six stored states", () => {
+test("the task table has eleven events, each over the six stored states", () => {
   expect(Object.keys(taskTransitions)).toEqual(EVENTS);
-  expect(EVENTS).toHaveLength(10);
+  expect(EVENTS).toHaveLength(11);
   for (const event of EVENTS)
     expect(Object.keys(taskTransitions[event].from)).toEqual([...STATES]);
-  expect(triples).toHaveLength(300);
+  expect(triples).toHaveLength(330);
 });
 
 test.each(triples)(
@@ -241,6 +252,50 @@ test("marking a Done task Done again keeps who first marked it", () => {
   ).toEqual(taskIn.done);
 });
 
+test.each(REASONS)(
+  "a Ready task whose integration is confirmed by %s is Done, and records why",
+  (reason) => {
+    expect(
+      stateAfter(taskIn.ready, {
+        _tag: "IntegrationConfirmed",
+        by: "scheduler",
+        reason,
+      }),
+    ).toEqual({
+      state: "done",
+      started: true,
+      markedBy: "integration",
+      reason,
+    });
+  },
+);
+
+const alreadyDone: readonly (readonly [string, TaskState])[] = [
+  ["the person", { state: "done", started: true, markedBy: "person" }],
+  [
+    "an earlier confirmed integration",
+    {
+      state: "done",
+      started: true,
+      markedBy: "integration",
+      reason: "merge-outside-shepherdr",
+    },
+  ],
+];
+
+test.each(alreadyDone)(
+  "confirming the integration of a task marked Done by %s leaves it as it is",
+  (_who, task) => {
+    expect(
+      stateAfter(task, {
+        _tag: "IntegrationConfirmed",
+        by: "scheduler",
+        reason: "merge-policy",
+      }),
+    ).toEqual(task);
+  },
+);
+
 const reopened: readonly (readonly [string, TaskState, TaskState])[] = [
   [
     "a Done task that never started",
@@ -250,6 +305,16 @@ const reopened: readonly (readonly [string, TaskState, TaskState])[] = [
   [
     "a Done task that started",
     { state: "done", started: true, markedBy: "person" },
+    { state: "running", started: true },
+  ],
+  [
+    "a Done task that confirmed integration marked",
+    {
+      state: "done",
+      started: true,
+      markedBy: "integration",
+      reason: "merge-policy",
+    },
     { state: "running", started: true },
   ],
   [
@@ -306,11 +371,56 @@ test("every stored state decodes", () => {
   expect(STATES.filter((state) => !decodes(taskIn[state]))).toEqual([]);
 });
 
+test.each(REASONS)(
+  "a task marked Done by confirmed integration for %s decodes",
+  (reason) => {
+    expect(
+      decodes({
+        state: "done",
+        started: true,
+        markedBy: "integration",
+        reason,
+      }),
+    ).toBe(true);
+  },
+);
+
 test.each([
   ["a Done task without who marked it", { state: "done", started: true }],
   [
     "a task marked Done by a worker",
     { state: "done", started: true, markedBy: "worker" },
+  ],
+  [
+    "a task marked Done by integration without its reason",
+    { state: "done", started: true, markedBy: "integration" },
+  ],
+  [
+    "a task marked Done by integration for a reason no note names",
+    {
+      state: "done",
+      started: true,
+      markedBy: "integration",
+      reason: "the-worker-said-so",
+    },
+  ],
+  [
+    "a task marked Done by the person that carries an integration reason",
+    {
+      state: "done",
+      started: true,
+      markedBy: "person",
+      reason: "person-approval",
+    },
+  ],
+  [
+    "a task marked Done by the Assistant that carries an integration reason",
+    {
+      state: "done",
+      started: true,
+      markedBy: "assistant",
+      reason: "merge-policy",
+    },
   ],
   ["a scheduled task without its time", { state: "scheduled", started: false }],
   ["a running task that never started", { state: "running", started: false }],

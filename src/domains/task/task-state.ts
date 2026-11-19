@@ -21,6 +21,17 @@ export const TaskState = Schema.Union([
     state: Schema.Literal("done"),
     started: Schema.Boolean,
     markedBy: Schema.Literals(["person", "assistant"]),
+    reason: Schema.optionalKey(Schema.Never),
+  }),
+  Schema.Struct({
+    state: Schema.Literal("done"),
+    started: Schema.Boolean,
+    markedBy: Schema.Literal("integration"),
+    reason: Schema.Literals([
+      "person-approval",
+      "merge-policy",
+      "merge-outside-shepherdr",
+    ]),
   }),
 ]);
 export type TaskState = typeof TaskState.Type;
@@ -43,6 +54,14 @@ export type TaskEvent =
       readonly _tag: "AssignAgent";
       readonly by: Caller;
       readonly confirmed: Confirmed;
+    }
+  | {
+      readonly _tag: "IntegrationConfirmed";
+      readonly by: Caller;
+      readonly reason: Extract<
+        TaskState,
+        { readonly markedBy: "integration" }
+      >["reason"];
     }
   | {
       readonly _tag:
@@ -98,12 +117,13 @@ const taskDone = { refusal: "TaskDone" } as const;
 
 const transitions: {
   readonly Schedule: Row<Caller, "scheduled">;
-  readonly MarkDone: Row<DoneMarker, "done">;
+  readonly MarkDone: Row<Extract<Caller, DoneMarker>, "done">;
+  readonly IntegrationConfirmed: Row<Caller, "done">;
 } & {
-  readonly [Event in Exclude<TaskEvent["_tag"], "Schedule" | "MarkDone">]: Row<
-    Caller,
-    WithoutItsOwnFacts
-  >;
+  readonly [Event in Exclude<
+    TaskEvent["_tag"],
+    "Schedule" | "MarkDone" | "IntegrationConfirmed"
+  >]: Row<Caller, WithoutItsOwnFacts>;
 } = {
   Schedule: {
     by: ["person", "assistant"],
@@ -204,6 +224,17 @@ const transitions: {
       done: { to: "done" },
     },
   },
+  IntegrationConfirmed: {
+    by: ["person", "assistant", "scheduler"],
+    from: {
+      todo: notReady,
+      scheduled: notReady,
+      queued: notReady,
+      running: notReady,
+      ready: { to: "done" },
+      done: { to: "done" },
+    },
+  },
   Reopen: {
     by: ["person", "assistant"],
     from: {
@@ -290,6 +321,19 @@ function stateAfter(
         allowedCell(transitions.MarkDone, task, event.by),
         ({ to, by }) =>
           task.state === "done" ? task : { state: to, started, markedBy: by },
+      );
+    case "IntegrationConfirmed":
+      return Result.map(
+        allowedCell(transitions.IntegrationConfirmed, task, event.by),
+        ({ to }) =>
+          task.state === "done"
+            ? task
+            : {
+                state: to,
+                started,
+                markedBy: "integration",
+                reason: event.reason,
+              },
       );
     default:
       return Result.flatMap(
