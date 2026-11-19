@@ -70,6 +70,38 @@ its run's context. So a launch can run only inside a kernel command run.
 - The module map's invariant "the kernel flushes the intent before handler
   entry" should read "before the work runs".
 
+## What Shepherdr owes the kernel
+
+Decided by Nathan on 19 November 2026 at 13:46 AEDT, for the kernel's journal
+version 2 (open points X and Y). Shepherdr opens herdr-core's socket itself,
+so the kernel never starts a program for it. The kernel checks none of the
+rules below. Shepherdr's own tests prove them.
+
+- **The herdr-core link opens outside every recorded effect.** It is never
+  opened inside a `record` call. So no operation Shepherdr leaves records a
+  delegate start, and the kernel can close a crashed case without waiting
+  for the machine to restart.
+- **Work sent through the link for an operation cannot outlive its attempt
+  owner unseen.** One of these holds, and a test covers each:
+  - herdr-core drops a request whose sender's connection has gone, so the
+    work ends when its owner ends; or
+  - Shepherdr's observer answers `unobservable` for that operation while
+    such work may still be pending.
+- Without that rule a closer could find the owner lease free, observe no
+  labelled terminal, close the case as not applied, and herdr-core could
+  still start the terminal afterwards.
+- **Every effect stops at the handler's deadline.** The kernel makes a
+  transaction wait for every `record` call it started. In the daemon a call
+  that never settles keeps its case unresolved, and its conflict key
+  blocked, until the process ends. So launch admission passes the handler's
+  abort signal (`context.signal`) into each effect, and an effect that is
+  interrupted ends its herdr-core request.
+
+Whether herdr-core drops a request when its sender's connection closes is not
+known. The old client never relied on it. Until a test against a real
+herdr-core shows it does, the observer answers `unobservable` for an
+operation whose request was sent and not answered.
+
 ## Who may finish a launch that its own run did not
 
 Two cases, with different defaults.
