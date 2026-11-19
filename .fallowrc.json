@@ -5,7 +5,8 @@
     "require": "complete"
   },
   "audit": {
-    "gate": "new-only"
+    "gate": "new-only",
+    "healthBaseline": "fallow-health-recorded-hits.json"
   },
   "rules": {
     "boundary-violation": "error",

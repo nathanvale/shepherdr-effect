@@ -1,0 +1,280 @@
+{
+  "kind": "health",
+  "finding_counts": {
+    "config/anti-slop-rules.mjs": {
+      "crap_critical": {
+        "count": 3
+      },
+      "crap_high": {
+        "count": 9
+      },
+      "crap_moderate": {
+        "count": 5
+      }
+    },
+    "config/anti-slop-type-rules.mjs": {
+      "crap_critical": {
+        "count": 4
+      },
+      "crap_high": {
+        "count": 6
+      },
+      "crap_moderate": {
+        "count": 6
+      }
+    },
+    "config/payload-rules.mjs": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs": {
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 7
+      }
+    }
+  },
+  "identity_finding_counts": {
+    "config/anti-slop-rules.mjs\u0000CallExpression": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000SpreadElement": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000assignmentHolding": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000bindingIdentifier": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000constInitializer": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000copiesAccumulator": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000enclosingReduceCall": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isArrayAnnotation": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isKnownArrayExpression": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isTestFrameworkImport": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isTestFrameworkObject": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000loopSpread": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reduceMember": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reduceSpread": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reducerOf": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000referencesAccumulator": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000staticPropertyName": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000aliasSubstitutions": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000annotatedEvidence": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000assertionIsNarrower": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000checkAssertion": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000declaredTypeBinding": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000evaluate": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000forEachChild": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isBroadRecordReference": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isBroadRecordType": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isDefinitelyNarrowerRecordType": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isDefinitelyObjectType": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isLocalConst": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000knownValueEvidence": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000lexicalTypeParameterNames": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000nearestTypeBindings": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000widenedBinding": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/payload-rules.mjs\u0000check": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/payload-rules.mjs\u0000named": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000CallExpression": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000CallExpression > MemberExpression.callee": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000Variable": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000castPlacements": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000commentBlocks": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000isAdmitted": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000namesNothing": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000onlyCall": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000resolves": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000traceIdentifier": {
+      "crap_moderate": {
+        "count": 1
+      }
+    }
+  },
+  "runtime_coverage_findings": [],
+  "target_keys": [
+    "src/commands.ts:hidden coupling",
+    "config/template-rules.mjs:untested risk",
+    "src/cli.ts:hidden coupling",
+    "config/payload-rules.mjs:untested risk",
+    "config/anti-slop-rules.mjs:untested risk",
+    "config/anti-slop-type-rules.mjs:untested risk",
+    "tests/cli.test.ts:hidden coupling"
+  ]
+}

@@ -1,8 +1,22 @@
 import js from "@eslint/js";
-import localRules from "./eslint-rules.mjs";
+import { defineConfig } from "eslint/config";
+import antiSlop, { chainedTypeAssertions } from "./config/anti-slop-rules.mjs";
+import payloadRules from "./config/payload-rules.mjs";
+import platformRules from "./config/platform-rules.mjs";
+import templateRules from "./config/template-rules.mjs";
+import domainRules from "./eslint-rules.mjs";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
+const localRules = {
+  rules: {
+    ...templateRules.rules,
+    ...platformRules.rules,
+    ...payloadRules.rules,
+    ...domainRules.rules,
+  },
+};
+
+export default defineConfig(
   {
     ignores: [
       "node_modules/**",
@@ -10,6 +24,7 @@ export default tseslint.config(
       "coverage/**",
       ".fallow/**",
       ".worktrees/**",
+      "config/*.d.mts",
     ],
   },
   {
@@ -31,10 +46,64 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.{ts,mts,cts,mjs}"],
+    plugins: { repository: localRules },
+    rules: {
+      "repository/no-comments": "error",
+      "repository/no-host-path-literal": "error",
+    },
+  },
+  {
     files: ["src/cli.ts"],
     rules: { "no-console": ["error", { allow: ["log"] }] },
   },
 
+  {
+    files: ["src/**/*.ts", "scripts/**/*.ts"],
+    plugins: { repository: localRules },
+    rules: {
+      "repository/no-locale-compare": "error",
+      "repository/no-in-operator": "error",
+    },
+  },
+  {
+    files: ["tests/**/*.{ts,mts,cts}"],
+    plugins: { repository: localRules },
+    rules: {
+      "repository/require-to-throw-message": "error",
+      "repository/tests-use-test-folder": "error",
+      "repository/tests-no-sleep": "error",
+    },
+  },
+  {
+    files: ["**/*.{mts,cts,tsx,jsx}"],
+    languageOptions: { parser: tseslint.parser },
+  },
+  {
+    files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+    ignores: [
+      ".agent/**",
+      ".agents/**",
+      ".claude/**",
+      ".codex/**",
+      ".continue/**",
+      ".cursor/**",
+      ".gemini/**",
+      ".opencode/**",
+      ".pi/**",
+      ".roo/**",
+      ".windsurf/**",
+    ],
+    plugins: { "anti-slop": antiSlop },
+    rules: {
+      "no-restricted-syntax": ["error", ...chainedTypeAssertions],
+      "anti-slop/no-accumulating-spread": "error",
+      "anti-slop/no-widen-then-assert": "error",
+      "anti-slop/no-unknown-type-aliases": "error",
+      "anti-slop/no-module-mocking": "error",
+      "anti-slop/no-reduce-accumulator-copy": "error",
+    },
+  },
   {
     files: [
       "src/domains/**/*.ts",

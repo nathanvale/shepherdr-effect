@@ -1,0 +1,189 @@
+{
+  "src/commands-contract.ts": {
+    "repository/no-comments": {
+      "count": 1
+    }
+  },
+  "src/inventory/diagram-elements.ts": {
+    "repository/no-comments": {
+      "count": 3
+    }
+  },
+  "src/inventory/fork-checkout.ts": {
+    "repository/no-comments": {
+      "count": 4
+    }
+  },
+  "src/inventory/handlers.ts": {
+    "repository/no-comments": {
+      "count": 18
+    }
+  },
+  "src/inventory/hc-cli-subcommands.ts": {
+    "repository/no-comments": {
+      "count": 11
+    }
+  },
+  "src/inventory/herdr-core-rpc-methods.ts": {
+    "repository/no-comments": {
+      "count": 5
+    }
+  },
+  "src/inventory/herdr-task-commands.ts": {
+    "repository/no-comments": {
+      "count": 19
+    }
+  },
+  "src/inventory/lists.ts": {
+    "repository/no-comments": {
+      "count": 8
+    }
+  },
+  "src/inventory/service-actions.ts": {
+    "repository/no-comments": {
+      "count": 7
+    }
+  },
+  "src/inventory/service-routes.ts": {
+    "repository/no-comments": {
+      "count": 13
+    }
+  },
+  "src/inventory/source.ts": {
+    "repository/no-comments": {
+      "count": 8
+    }
+  },
+  "src/inventory/state-files.ts": {
+    "repository/no-comments": {
+      "count": 1
+    }
+  },
+  "src/inventory/terminal-labels.ts": {
+    "repository/no-comments": {
+      "count": 4
+    }
+  },
+  "src/inventory/tokens.ts": {
+    "repository/no-comments": {
+      "count": 18
+    },
+    "repository/no-in-operator": {
+      "count": 1
+    }
+  },
+  "src/state-files/attempts.ts": {
+    "repository/no-comments": {
+      "count": 12
+    }
+  },
+  "src/state-files/engine-state.ts": {
+    "repository/no-comments": {
+      "count": 22
+    }
+  },
+  "src/state-files/handlers.ts": {
+    "repository/no-comments": {
+      "count": 4
+    }
+  },
+  "src/state-files/herdr-core.ts": {
+    "repository/no-comments": {
+      "count": 7
+    }
+  },
+  "src/state-files/machine-state.ts": {
+    "repository/no-comments": {
+      "count": 7
+    }
+  },
+  "src/state-files/registry.ts": {
+    "repository/no-comments": {
+      "count": 10
+    }
+  },
+  "src/state-files/round-trip.ts": {
+    "repository/no-comments": {
+      "count": 11
+    }
+  },
+  "src/state-files/service-state.ts": {
+    "repository/no-comments": {
+      "count": 6
+    }
+  },
+  "src/state-files/settings.ts": {
+    "repository/no-comments": {
+      "count": 11
+    }
+  },
+  "src/state-files/shared.ts": {
+    "repository/no-comments": {
+      "count": 7
+    }
+  },
+  "src/state-files/task-list.ts": {
+    "repository/no-comments": {
+      "count": 17
+    }
+  },
+  "tests/cli.test.ts": {
+    "repository/no-comments": {
+      "count": 1
+    },
+    "repository/no-host-path-literal": {
+      "count": 5
+    },
+    "repository/tests-no-sleep": {
+      "count": 1
+    },
+    "repository/tests-use-test-folder": {
+      "count": 5
+    }
+  },
+  "tests/inventory-extractors.test.ts": {
+    "repository/no-comments": {
+      "count": 15
+    },
+    "repository/require-to-throw-message": {
+      "count": 2
+    }
+  },
+  "tests/inventory-fixtures.ts": {
+    "repository/no-comments": {
+      "count": 6
+    }
+  },
+  "tests/inventory.test.ts": {
+    "repository/no-comments": {
+      "count": 6
+    },
+    "repository/tests-use-test-folder": {
+      "count": 2
+    }
+  },
+  "tests/state-check.test.ts": {
+    "repository/no-comments": {
+      "count": 1
+    },
+    "repository/tests-use-test-folder": {
+      "count": 2
+    }
+  },
+  "tests/state-file-fixtures.ts": {
+    "repository/no-comments": {
+      "count": 4
+    },
+    "repository/no-host-path-literal": {
+      "count": 23
+    }
+  },
+  "tests/state-files.test.ts": {
+    "repository/no-comments": {
+      "count": 2
+    },
+    "repository/no-host-path-literal": {
+      "count": 1
+    }
+  }
+}

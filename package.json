@@ -12,7 +12,7 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test",
-    "quality:fallow": "node_modules/.bin/fallow audit --format json --quiet --type-aware --type-aware-require complete --gate all",
+    "quality:fallow": "node_modules/.bin/fallow audit --baseline-mode identity --format json --quiet --type-aware --type-aware-require complete --gate all",
     "check": "bun run lint && bun run format:check && bun run typecheck && bun run test && bun run --silent quality:fallow",
     "format:check": "biome format .",
     "format": "biome format --write .",

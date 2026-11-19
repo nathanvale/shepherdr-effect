@@ -9,6 +9,7 @@
       "!**/coverage",
       "!**/.fallow",
       "!**/bun.lock",
+      "!eslint-suppressions.json",
       // Written by `inventory extract`, which is the one owner of their text.
       "!inventory"
     ]
