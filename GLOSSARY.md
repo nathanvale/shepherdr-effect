@@ -89,11 +89,13 @@ _Avoid_: blocked, waiting (for this status)
 _Code_: status literal `needs`.
 
 **Done**:
-The stored state that ends a task's work. The person marks a task Done, or
-the Assistant does when the person asks. The task records which.
+The stored state that ends a task's work. It has three sources: the person
+marks a task Done, the Assistant does when the person asks, or Completion
+does once the task's integration is confirmed. The task records which, and
+for integration, why.
 _Avoid_: complete, finished, closed (for a task)
-_Code_: function `markDone`, which takes a person caller or the Assistant's
-relay of the person's request.
+_Code_: function `markDone`, which takes a person caller, the Assistant's
+relay of the person's request, or confirmed integration from Completion.
 
 **Brief**:
 The words a task's agent starts from.

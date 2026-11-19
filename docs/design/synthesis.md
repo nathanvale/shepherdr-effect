@@ -193,7 +193,10 @@ Taken from the other design candidates and folded into the base by hand.
    may mark a task Done. The role templates already let it run `done` and
    `accept` when the person asks. It does so only when the person asks, never
    on its own judgement, and the task records that the Assistant relayed the
-   request. A worker or a reviewer still cannot mark Done.
+   request. A worker or a reviewer still cannot mark Done. Also decided by
+   Nathan on 2026-11-19: Completion marks a task Done once its integration is
+   confirmed, and the task records why, because otherwise every unattended
+   merge stalls the tasks queued behind it.
 5. **Other machines.** Bun plus one bundled file, or one compiled binary per
    platform? herdr-core's 16 MiB frame cap may force chunked installs either
    way. The thin slice measures both.
