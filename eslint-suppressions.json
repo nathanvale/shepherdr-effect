@@ -141,6 +141,11 @@
       "count": 5
     }
   },
+  "tests/engine-state-fixtures.ts": {
+    "repository/no-host-path-literal": {
+      "count": 12
+    }
+  },
   "tests/inventory-extractors.test.ts": {
     "repository/no-comments": {
       "count": 15
@@ -172,10 +177,10 @@
   },
   "tests/state-file-fixtures.ts": {
     "repository/no-comments": {
-      "count": 4
+      "count": 3
     },
     "repository/no-host-path-literal": {
-      "count": 23
+      "count": 6
     }
   },
   "tests/state-files.test.ts": {
@@ -184,6 +189,14 @@
     },
     "repository/no-host-path-literal": {
       "count": 1
+    }
+  },
+  "tests/task-list-fixtures.ts": {
+    "repository/no-comments": {
+      "count": 1
+    },
+    "repository/no-host-path-literal": {
+      "count": 5
     }
   }
 }

@@ -1,0 +1,6 @@
+{
+  "GLOSSARY.md": {
+    "lifetime": "standing",
+    "reason": "The names check reads the glossary from this one file."
+  }
+}

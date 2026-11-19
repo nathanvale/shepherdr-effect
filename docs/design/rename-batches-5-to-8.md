@@ -1,0 +1,93 @@
+# Rename batches 5 to 8
+
+Part of the [rename plan](rename-plan.md), which holds how to carry out a
+batch, the naming rules and the kinds. Batches 1 to 4 are in
+[rename-batches-1-to-4.md](rename-batches-1-to-4.md).
+
+## Batch 5: leave the domain core
+
+Done in a56851d. Row 5.1 done in 2088af3.
+
+Ready: wait until the inventory work is committed (row 5.1 changes
+`src/commands.ts`), and after batch 4. Files: `src/domains/state-check.ts`,
+`src/domains/result.ts`, `src/domains/status.ts`, `src/domains/template.ts`,
+`src/commands.ts`, `eslint.config.mjs`. Rule: F4, F6.
+
+Tests: `bun test tests/state-check.test.ts tests/cli.test.ts`.
+Gone: `test ! -e src/domains/state-check.ts && test ! -e src/domains/result.ts`,
+`rg -n -w IDENTITY src/state-files` and
+`rg -n '\bstatus\(' src/command-result.ts src/domains`.
+
+| #   | Kind              | Current name (path:line)                                                                             | Proposed name                 | Glossary term                 | Risk                                                                                                                                                                                                                                                                                                                       |
+| --- | ----------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5.1 | file              | `src/domains/state-check.ts`, imported at `src/commands.ts:29`                                       | `src/state-files/handlers.ts` | Command handler               | Needs care: change its imports to `./registry.ts` and `./round-trip.ts`, and the dynamic import in `src/commands.ts`. `eslint.config.mjs` applies `repository/no-domain-output` only to `src/domains/**/*.ts`: add `src/state-files/**/*.ts` to that `files` list in the same commit, or the rule stops covering this file |
+| 5.2 | constant          | `IDENTITY` `src/domains/state-check.ts:8`, used at `:22`                                             | `COMMAND_IDENTITY`            | Command identity (CLI kernel) | Safe                                                                                                                                                                                                                                                                                                                       |
+| 5.3 | file              | `src/domains/result.ts`, imported at `src/domains/status.ts:1`, `src/domains/template.ts:1`          | `src/command-result.ts`       | Result (CLI kernel)           | Safe: use `git mv`. If the owner removes the template's example commands first (see "Not renames"), delete this file instead                                                                                                                                                                                               |
+| 5.4 | exported function | `status` `src/domains/result.ts:3`, called at `src/domains/status.ts:3`, `src/domains/template.ts:3` | `unchangedSuccess`            | Outcome (CLI kernel)          | Safe                                                                                                                                                                                                                                                                                                                       |
+
+## Batch 6: the interface inventory
+
+Done in 5c60c7c. Row 6.1 done in c039068, row 6.2 in c61d583, row 6.3 in aef3a34, row 6.4 in 33f9f4e, row 6.11 in 74e7fda and row 6.7 in 26bae2f.
+
+Ready: wait until the inventory work is committed. Find each name again with
+`rg -n -w '<name>' src tests` before you change it.
+Files: everything under `src/domains/inventory/`, `tests/inventory*.ts`,
+`src/commands.ts`, `eslint.config.mjs`, and the kept file
+`inventory/core-rpc-methods.json`.
+
+Tests: `bun test tests/inventory.test.ts tests/inventory-extractors.test.ts tests/cli.test.ts`.
+Gone: `test ! -e src/domains/inventory` and
+`rg -n -w 'CoreRpcMethod|coreRpcMethods|settle|forkOption|forkFiles' src tests`.
+
+| #    | Kind              | Current name (path:line)                                                                                                            | Proposed name                                                                         | Glossary term                 | Risk                                                                                                                                                                                                                                                                                                           |
+| ---- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6.1  | folder            | `src/domains/inventory/`                                                                                                            | `src/inventory/`                                                                      | Interface inventory           | Needs care: `git mv` the folder; change `../../` imports inside it to `../`, the two dynamic imports in `src/commands.ts`, and every `../src/domains/inventory/` import in `tests/`. Add `src/inventory/**/*.ts` to the `repository/no-domain-output` files in `eslint.config.mjs`                             |
+| 6.2  | file              | `src/domains/inventory/commands.ts`                                                                                                 | `src/inventory/handlers.ts`                                                           | Command handler               | Safe after 6.1; change the two dynamic imports in `src/commands.ts`                                                                                                                                                                                                                                            |
+| 6.3  | file              | `src/domains/inventory/fork.ts`                                                                                                     | `src/inventory/fork-checkout.ts`                                                      | Fork checkout                 | Safe; change its import in `handlers.ts`                                                                                                                                                                                                                                                                       |
+| 6.4  | file              | `src/domains/inventory/core-rpc-methods.ts`                                                                                         | `src/inventory/herdr-core-rpc-methods.ts`                                             | herdr-core link               | Safe; change its imports in `lists.ts` and `tests/inventory-extractors.test.ts`                                                                                                                                                                                                                                |
+| 6.5  | type              | `CoreRpcMethod` (constant and type) `core-rpc-methods.ts:12`, `:19`; used in `lists.ts:2`, `:70`                                    | `HerdrCoreRpcMethod`                                                                  | herdr-core link               | Safe                                                                                                                                                                                                                                                                                                           |
+| 6.6  | exported function | `coreRpcMethods` `core-rpc-methods.ts:45`; used in `lists.ts:2`, `:71` and `tests/inventory-extractors.test.ts`                     | `herdrCoreRpcMethods`                                                                 | herdr-core link               | Safe                                                                                                                                                                                                                                                                                                           |
+| 6.7  | constant          | value: list name `"core-rpc-methods"` `lists.ts:69`, and item kind `"core-rpc-method"` `core-rpc-methods.ts:13`, `:60`              | values `"herdr-core-rpc-methods"` and `"herdr-core-rpc-method"`                       | herdr-core link               | Needs care: it renames the kept file `inventory/core-rpc-methods.json` and the `kind` of every item in it. `git mv` the kept file, run `bun run start inventory extract --fork <fork checkout>`, and change the tests that name either value (`tests/inventory.test.ts`, `tests/inventory-extractors.test.ts`) |
+| 6.8  | property          | `core` of `Sources` `lists.ts:18`; used in `lists.ts:81`, `:82`, `fork.ts:37`, `:48` and `sources` in `tests/inventory-fixtures.ts` | `coreFolder`                                                                          | Old system                    | Safe                                                                                                                                                                                                                                                                                                           |
+| 6.9  | function          | `settle` `commands.ts:48`; called at `:274`, `:469`                                                                                 | `resultOf`                                                                            | Closure (CLI kernel); rule V3 | Safe                                                                                                                                                                                                                                                                                                           |
+| 6.10 | function          | `forkOption` `commands.ts:120`; called at `:263`, `:457`                                                                            | `forkCheckoutOption`                                                                  | Fork checkout                 | Safe; the option word `--fork` stays                                                                                                                                                                                                                                                                           |
+| 6.11 | variable          | every local and parameter named `fork` in `commands.ts` and `fork.ts` (`sourcesIn`, `readSources`)                                  | `forkCheckout`                                                                        | Fork checkout                 | Needs care: `commands.ts:429` writes the key `fork` into the check command's result data. Keep that key and rename only the variable: `fork: forkCheckout ?? null`                                                                                                                                             |
+| 6.12 | constant          | `forkFiles` `tests/inventory-fixtures.ts:218`; used in `tests/inventory.test.ts`                                                    | `forkCheckoutFiles`                                                                   | Fork checkout                 | Safe                                                                                                                                                                                                                                                                                                           |
+| 6.13 | test name         | `"core RPC methods: the required list and every call by name, marked for each"` `tests/inventory-extractors.test.ts:109`            | `"herdr-core RPC methods: the required list and every call by name, marked for each"` | herdr-core link               | Safe                                                                                                                                                                                                                                                                                                           |
+
+## Batch 7: command identity prefix and program name
+
+Done in a71f114.
+
+Ready: wait until the inventory work is committed, and after batches 4 to 6.
+This batch changes output, so it goes last. Files: `src/commands.ts`,
+`src/commands-contract.ts`, `src/cli.ts`, `src/state-files/handlers.ts`,
+`src/inventory/handlers.ts`, `src/domains/status.ts`,
+`src/domains/template.ts`, `tests/cli.test.ts`, `tests/state-check.test.ts`,
+`tests/inventory.test.ts`.
+
+Tests: `bun test`.
+Gone: `rg -n 'example\.(status|template|state|inventory|dispatch|help|discovery|command-discovery)|\bexample (COMMAND|--help|status)|example CLI' src tests`.
+
+| #   | Kind     | Current name (path:line)                                                                                                                                                                                                                                                                                                                                                                                      | Proposed name       | Glossary term                 | Risk                                                                                                                                                                       |
+| --- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7.1 | constant | value: the command identity prefix `example.` in `src/commands.ts:5`, `:13`, `:23`, `:34`, `:45`; `src/commands-contract.ts:53`, `:59`, `:65`, `:71`, `:87`; `src/cli.ts:58`, `:112`, `:128`, `:143`, `:318`, `:339`, `:342`, `:364`, `:366`, `:396`, `:399`; `src/domains/state-check.ts:8`; `src/domains/status.ts:3`; `src/domains/template.ts:4`; the inventory handlers; and every test that asserts one | prefix `shepherdr.` | Command identity (CLI kernel) | Needs care: every command's JSON output changes, and the tests assert identities in many places, some inside preload source strings. Change source and tests in one commit |
+| 7.2 | constant | value: the program name `example` in human text, `src/cli.ts:64`, `:95`, `:134`, `:149`, `:352`, `:353`, `:358`, `:548` and `src/commands-contract.ts:94`, and the tests that assert that text                                                                                                                                                                                                                | `shepherdr`         | Program                       | Needs care: `src/cli.ts:95` is a string literal type, which must change together with the value it types; the help test asserts the usage line                             |
+
+## Batch 8: command line test titles
+
+Done in 8cab896.
+
+Ready: wait until the inventory work is committed (`tests/cli.test.ts` is in
+that change). File: `tests/cli.test.ts`. Rule: S2.
+
+Tests: `bun test tests/cli.test.ts`.
+Gone: `rg -n 'test\(.(machine status|.*before dispatch)' tests/cli.test.ts`.
+
+| #   | Kind      | Current name (path:line)                                                                 | Proposed name                                                                        | Glossary term                           | Risk |
+| --- | --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------- | ---- |
+| 8.1 | test name | `"machine status emits one 2.0 envelope and no stderr"` `tests/cli.test.ts:185`          | `"JSON status emits one 2.0 envelope and no stderr"`                                 | Machine (a computer here)               | Safe |
+| 8.2 | test name | `"machine status emits a strict internal fallback after serialization fails"` `:202`     | `"JSON status emits a strict internal fallback after serialization fails"`           | Machine                                 | Safe |
+| 8.3 | test name | `"machine status emits a distinct internal fallback after stdout emission fails"` `:282` | `"JSON status emits a distinct internal fallback after stdout emission fails"`       | Machine                                 | Safe |
+| 8.4 | test name | `"machine status reports repair guidance after a real stdout reader closes"` `:310`      | `"JSON status reports repair guidance after a real stdout reader closes"`            | Machine                                 | Safe |
+| 8.5 | test name | `` `builtin stdout errors are handled before dispatch: ${identity}` `` `:574`            | `` `a builtin's stdout error ends the run with exit 1 and no output: ${identity}` `` | Dispatch and handler entry (CLI kernel) | Safe |
