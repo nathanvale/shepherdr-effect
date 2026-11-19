@@ -39,6 +39,14 @@
         "count": 7
       }
     },
+    "scripts/check-commits.ts": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 2
+      }
+    },
     "scripts/check-file-size.ts": {
       "crap_critical": {
         "count": 1
@@ -301,6 +309,21 @@
       }
     },
     "config/template-rules.mjs\u0000traceIdentifier": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000check": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000main": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000release": {
       "crap_moderate": {
         "count": 1
       }

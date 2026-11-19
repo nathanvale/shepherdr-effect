@@ -96,11 +96,14 @@ Adopted from the template root:
   in `tests/`, `template` for the gate tests under `tests/template/`. Run it
   without an area to list the choices. The names check refuses a test file
   outside those folders.
+- `check:commits <base>` installs, type checks and lints each commit after
+  the fixed point, each at its own head. The fixed point in `repository.json`
+  is `d9b08e8`, the last commit before the first template gate arrived.
+  `.fallowrc.json` records the exports of `scripts/process-runner.ts` that
+  nothing here imports, because the tools' own tests stay in the template.
 
 The template root has these gates, and this repository does not have them yet:
 
-- `check:commits` installs, type checks and lints each commit of a pull
-  request.
 - `fault-replay` applies each recorded fault and confirms that a test fails.
 - The Git hooks run the names, file size, format, lint, type and Fallow checks
   on staged files before a commit, and Fallow and the fault replay before a

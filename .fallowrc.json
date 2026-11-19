@@ -83,9 +83,22 @@
     "unused-store-members": "error",
     "unused-svelte-events": "error"
   },
+  "ignoreExports": [
+    {
+      "file": "scripts/process-runner.ts",
+      "exports": [
+        "repositoryLocation",
+        "withoutRepositoryLocation",
+        "startChild",
+        "Finished",
+        "Child"
+      ]
+    }
+  ],
   "supportEntry": ["scripts/check-file-size.ts"],
   "entry": [
     "scripts/doctor.ts",
+    "scripts/check-commits.ts",
     "scripts/check-names.ts",
     "scripts/test-area.ts"
   ]

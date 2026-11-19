@@ -7,6 +7,7 @@
   "packageManager": "bun@1.4.4",
   "scripts": {
     "biome:check": "bun run format:check",
+    "check:commits": "bun run scripts/check-commits.ts",
     "check:file-size": "bun --no-install scripts/check-file-size.ts",
     "check:names": "bun run scripts/check-names.ts",
     "doctor": "bun run scripts/doctor.ts",
