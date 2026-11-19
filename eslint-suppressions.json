@@ -69,41 +69,6 @@
       "count": 18
     }
   },
-  "src/state-files/handlers.ts": {
-    "repository/no-comments": {
-      "count": 4
-    }
-  },
-  "src/state-files/herdr-core.ts": {
-    "repository/no-comments": {
-      "count": 7
-    }
-  },
-  "src/state-files/machine-state.ts": {
-    "repository/no-comments": {
-      "count": 7
-    }
-  },
-  "src/state-files/registry.ts": {
-    "repository/no-comments": {
-      "count": 10
-    }
-  },
-  "src/state-files/round-trip.ts": {
-    "repository/no-comments": {
-      "count": 11
-    }
-  },
-  "src/state-files/service-state.ts": {
-    "repository/no-comments": {
-      "count": 6
-    }
-  },
-  "src/state-files/settings.ts": {
-    "repository/no-comments": {
-      "count": 11
-    }
-  },
   "tests/cli.test.ts": {
     "repository/no-comments": {
       "count": 1

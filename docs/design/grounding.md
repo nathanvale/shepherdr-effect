@@ -183,3 +183,20 @@ from their names. Their origin in the old code:
 - `fieldsWrittenBeforeHcRunOrSend`: `_mark_sent`.
 - `fieldsWrittenWhenLaunchCloses`: `_close`, `launch recover` and
   `launch reconcile`.
+
+## Where the registry's and the settings file's facts come from
+
+- `sectionsALevelMaySet` in `settings.ts`: core/settings.js and settings.py
+  `DEFAULTS`. What a level may set for the agents and tasks under it.
+- `.stops.jsonl` is rewritten whole with its last 500 lines, by whichever
+  command ends an agent.
+- Any other JSON file in the tasks folder is a folder's task list. A slug can
+  start with a dot, so the name alone cannot tell; store.py `is_task_list`
+  goes by content.
+- `usage.jsonl`: past 2 MB the log is renamed to `usage.1.jsonl` and a new one
+  begins.
+- `renamedUnderSchedulerRoundAndWindowTickLock`: the scheduler's round and the
+  window's tick write those files inside one lock.
+- A `Writer` is a program that writes the file today, and a `WriteDiscipline`
+  is how those writers put it on disk today. `fsync` says the bytes are synced
+  before the rename.

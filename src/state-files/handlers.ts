@@ -6,8 +6,7 @@ import { type Family, findStateFile } from "./registry.ts";
 import { roundTrip, type Verdict } from "./round-trip.ts";
 
 const COMMAND_IDENTITY = "shepherdr.state.check";
-// A file can break its schema in every record it holds: a few places say enough.
-const SHOWN = 8;
+const BROKEN_PLACES_SHOWN_PER_FILE = 8;
 
 type FileVerdict = Verdict | { readonly status: "no-schema" };
 
@@ -58,8 +57,7 @@ function rootArgument(args: readonly string[]): string | undefined {
     : undefined;
 }
 
-/** Every regular file under the root, as a path from it with `/` between its parts. */
-const listFiles = (root: string) =>
+const listRegularFilesAsSlashPathsFromRoot = (root: string) =>
   Effect.tryPromise(async () => {
     const entries = await readdir(root, {
       recursive: true,
@@ -77,7 +75,6 @@ const unreadable: Verdict = {
   findings: [{ at: "", problem: "Expected a readable UTF-8 file" }],
 };
 
-/** A file with no schema is never opened: only its name is known here. */
 function checkFile(root: string, path: string): Effect.Effect<CheckedFile> {
   const file = findStateFile(path);
   if (file === undefined)
@@ -94,8 +91,8 @@ function checkFile(root: string, path: string): Effect.Effect<CheckedFile> {
 }
 
 function shortened(items: readonly string[]): string {
-  const more = items.length - SHOWN;
-  const shown = items.slice(0, SHOWN).join("; ");
+  const more = items.length - BROKEN_PLACES_SHOWN_PER_FILE;
+  const shown = items.slice(0, BROKEN_PLACES_SHOWN_PER_FILE).join("; ");
   return more > 0 ? `${shown}; and ${String(more)} more` : shown;
 }
 
@@ -167,11 +164,7 @@ function report(root: string, files: readonly CheckedFile[]): CommandResult {
   };
 }
 
-/**
- * Proves the state file schemas against a folder of real files: each file is
- * decoded with its registry entry, encoded back and compared with what was
- * read. Nothing is written, and no file content leaves this function.
- */
+// Interface: nothing is written, and no file content leaves this function.
 export function checkStateFiles(
   args: readonly string[],
 ): Promise<CommandResult> {
@@ -185,7 +178,7 @@ export function checkStateFiles(
         "Pass --dir with one folder path and retry.",
       ),
     );
-  const checked = listFiles(root).pipe(
+  const checked = listRegularFilesAsSlashPathsFromRoot(root).pipe(
     Effect.flatMap((paths) =>
       Effect.forEach(paths, (path) => checkFile(root, path), {
         concurrency: 8,

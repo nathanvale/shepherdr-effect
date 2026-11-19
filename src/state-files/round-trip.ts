@@ -8,7 +8,6 @@ import {
 } from "effect";
 import type { StateFileEntry } from "./registry.ts";
 
-/** Where a document broke its schema, and what the schema wanted there. Never the value. */
 export interface Finding {
   readonly at: string;
   readonly problem: string;
@@ -31,24 +30,22 @@ function isObject(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** A union stands for its members, and a schema that refers to itself for its target. */
-function alternatives(node: SchemaAST.AST): readonly SchemaAST.AST[] {
-  if (SchemaAST.isSuspend(node)) return alternatives(node.thunk());
-  if (SchemaAST.isUnion(node)) return node.types.flatMap(alternatives);
+function unionMembersOrSuspendTarget(
+  node: SchemaAST.AST,
+): readonly SchemaAST.AST[] {
+  if (SchemaAST.isSuspend(node))
+    return unionMembersOrSuspendTarget(node.thunk());
+  if (SchemaAST.isUnion(node))
+    return node.types.flatMap(unionMembersOrSuspendTarget);
   return [node];
 }
 
-/**
- * A JSON pointer that is safe to print. A key the schema declares is
- * structure and is shown. A key that an open record admits is data (a task
- * number, a machine name), so it is printed as `*`.
- */
-function pointer(schema: SchemaAST.AST, path: Path): string {
+function printablePointer(schema: SchemaAST.AST, path: Path): string {
   const tokens: string[] = [];
   let nodes: readonly SchemaAST.AST[] = [schema];
   for (const segment of path) {
     const key = String(segment);
-    const here = nodes.flatMap(alternatives);
+    const here = nodes.flatMap(unionMembersOrSuspendTarget);
     const objects = here.filter(SchemaAST.isObjects);
     const arrays = here.filter(SchemaAST.isArrays);
     const declared = objects.flatMap((object) =>
@@ -67,8 +64,9 @@ function pointer(schema: SchemaAST.AST, path: Path): string {
       tokens.push(key);
     } else {
       nodes = admitted;
-      // Undeclared in a closed object: a key name the schema does not know yet.
-      tokens.push(objects.length > 0 && admitted.length === 0 ? key : "*");
+      const keyTheSchemaDoesNotKnowYet =
+        objects.length > 0 && admitted.length === 0;
+      tokens.push(keyTheSchemaDoesNotKnowYet ? key : "*");
     }
   }
   return tokens.map((token) => `/${JsonPointer.escapeToken(token)}`).join("");
@@ -78,7 +76,7 @@ function findingsOf(
   schema: SchemaAST.AST,
   issue: SchemaIssue.Issue,
 ): Finding[] {
-  const found = new Map<string, Finding>();
+  const findingsCollapsedAcrossOpenRecordEntries = new Map<string, Finding>();
   const visit = (node: SchemaIssue.Issue, path: Path): void => {
     if (node._tag === "Pointer") {
       visit(node.issue, [...path, ...node.path]);
@@ -90,16 +88,18 @@ function findingsOf(
     ) {
       for (const inner of node.issues) visit(inner, path);
     } else {
-      const at = pointer(schema, path);
+      const at = printablePointer(schema, path);
       const problem = describe(node)
         .issues.map((leaf) => leaf.message)
         .join("; ");
-      // Every entry of an open record can fail the same way: say it once.
-      found.set(`${at} ${problem}`, { at, problem });
+      findingsCollapsedAcrossOpenRecordEntries.set(`${at} ${problem}`, {
+        at,
+        problem,
+      });
     }
   };
   visit(issue, []);
-  return [...found.values()];
+  return [...findingsCollapsedAcrossOpenRecordEntries.values()];
 }
 
 function differences(original: unknown, written: unknown, path: Path): Path[] {
@@ -129,11 +129,6 @@ function differs(pointers: readonly string[]): Verdict {
   return { status: "round-trip-differs", pointers: [...new Set(pointers)] };
 }
 
-/**
- * Decodes one parsed document, encodes it back and compares the two. A file
- * nobody here writes is only decoded: its schema models part of it, so it
- * could never come back whole.
- */
 function verifyDocument(
   file: StateFileEntry,
   original: unknown,
@@ -147,7 +142,8 @@ function verifyDocument(
       const findings = findingsOf(ast, decoded.failure.issue);
       return { status: "decode-failed", findings };
     }
-    if (file.discipline.write === "never") return OK;
+    const nobodyHereWritesIt = file.discipline.write === "never";
+    if (nobodyHereWritesIt) return OK;
     const written = yield* Effect.result(
       Schema.encodeEffect(file.schema)(decoded.success),
     );
@@ -158,7 +154,7 @@ function verifyDocument(
     const paths = differences(original, written.success, []);
     return paths.length === 0
       ? OK
-      : differs(paths.map((path) => pointer(ast, path)));
+      : differs(paths.map((path) => printablePointer(ast, path)));
   });
 }
 
@@ -167,18 +163,18 @@ function parse(text: string): { readonly document: unknown } | undefined {
     const document: unknown = JSON.parse(text);
     return { document };
   } catch {
-    // The parser's own message can quote the text, so it is not passed on.
+    // Platform: JSON.parse's message can quote the text, so it is not passed on.
     return undefined;
   }
 }
 
-/** One document's verdict, with each place prefixed by where the document sits in its file. */
 function verifyText(
   file: StateFileEntry,
   text: string,
-  where: string,
+  positionOfTheDocumentInItsFile: string,
 ): Effect.Effect<Verdict> {
-  const place = (at: string) => [where, at].filter(Boolean).join(" ");
+  const place = (at: string) =>
+    [positionOfTheDocumentInItsFile, at].filter(Boolean).join(" ");
   const parsed = parse(text);
   if (parsed === undefined)
     return Effect.succeed({
@@ -203,8 +199,7 @@ function verifyText(
   );
 }
 
-/** A log fails to decode if any line does. Otherwise it differs if any line does. */
-function combine(verdicts: readonly Verdict[]): Verdict {
+function worstLineVerdict(verdicts: readonly Verdict[]): Verdict {
   const findings = verdicts.flatMap((verdict) =>
     verdict.status === "decode-failed" ? verdict.findings : [],
   );
@@ -215,22 +210,18 @@ function combine(verdicts: readonly Verdict[]): Verdict {
   return pointers.length > 0 ? differs(pointers) : OK;
 }
 
-/**
- * Checks a state file's text against its registry entry: it must decode, and
- * what would be written back must equal what was read.
- */
 export function roundTrip(
   file: StateFileEntry,
   text: string,
 ): Effect.Effect<Verdict> {
   if (file.format === "json") return verifyText(file, text, "");
-  // A log ends with a new line. Any other empty line is not a document.
-  const lines = text.split("\n");
-  if (lines.at(-1) === "") lines.pop();
+  const linesAfterDroppingTheFinalNewlineOnly = text.split("\n");
+  if (linesAfterDroppingTheFinalNewlineOnly.at(-1) === "")
+    linesAfterDroppingTheFinalNewlineOnly.pop();
   return Effect.map(
-    Effect.forEach(lines, (line, index) =>
+    Effect.forEach(linesAfterDroppingTheFinalNewlineOnly, (line, index) =>
       verifyText(file, line, `line ${String(index + 1)}`),
     ),
-    combine,
+    worstLineVerdict,
   );
 }

@@ -116,6 +116,22 @@ Taken from the other design candidates and folded into the base by hand.
   built-in publish and subscribe for live state, `drain` and `pause` for
   terminal backpressure, and an Origin check before every upgrade.
 
+## How the state file check reads a file
+
+- The registry is searched in order and the first entry that matches a path is
+  its entry, so every named file comes before the task list pattern.
+- A round trip decodes a document, encodes it back and compares the two. A
+  file nobody here writes is only decoded: its schema models part of it, so it
+  could never come back whole.
+- A file with no registry entry is never opened; only its name is reported.
+- A finding or a pointer never carries a value from a document. A key the
+  schema declares is structure and is shown; a key an open record admits is
+  data (a task number, a machine name), so it is printed as `*`.
+- A key the schema does not know in a closed object is shown, since it is a
+  name and not a value.
+- The same failure in many entries of an open record is reported once.
+- `state check` writes nothing and lets no file content leave the command.
+
 ## Rejected
 
 - **The event log itself.** SQLite gives atomic multi-table changes without

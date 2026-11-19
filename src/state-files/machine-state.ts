@@ -7,10 +7,8 @@ const CliState = Schema.NullOr(
   Schema.Literals(["ready", "signed-out", "missing"]),
 );
 
-/** `cli-check.json`: which agent CLIs each machine can run (takeover.py `cli_check_pass`). */
 export const CliCheckFile = Schema.Struct({
   at: Millis,
-  // Open by machine name ("" is this machine).
   machines: Schema.Record(
     Schema.String,
     Schema.Struct({
@@ -19,10 +17,14 @@ export const CliCheckFile = Schema.Struct({
       at: Millis,
       failed: optional(Millis),
     }),
-  ),
+  ).annotateKey({
+    description: 'Open by machine name ("" is this machine).',
+  }),
+}).annotate({
+  description:
+    "cli-check.json: which agent CLIs each machine can run (takeover.py cli_check_pass).",
 });
 
-/** `codex-sandbox.json`: whether Codex's sandbox starts here, and what that answer depends on (sandbox.py). */
 export const CodexSandboxFile = Schema.Struct({
   key: Schema.Struct({
     codex: Schema.String,
@@ -33,8 +35,9 @@ export const CodexSandboxFile = Schema.Struct({
     profile: Schema.NullOr(Schema.String),
     limits: Schema.Array(Schema.NullOr(Schema.String)),
   }),
-  // Seconds with a fraction (`time.time()`), not milliseconds.
-  at: Schema.Number,
+  at: Schema.Number.annotateKey({
+    description: "Seconds with a fraction (time.time()), not milliseconds.",
+  }),
   broken: Schema.NullOr(
     Schema.Struct({
       error: Schema.String,
@@ -43,9 +46,11 @@ export const CodexSandboxFile = Schema.Struct({
       at: Schema.Int,
     }),
   ),
+}).annotate({
+  description:
+    "codex-sandbox.json: whether Codex's sandbox starts here, and what that answer depends on (sandbox.py).",
 });
 
-// layout.py `KINDS`: everything the move to Shepherdr's own folders carries.
 const MovedKind = Schema.Literals([
   "settings",
   "model-picks",
@@ -60,9 +65,11 @@ const MovedKind = Schema.Literals([
   "secret-served",
   "cli-check",
   "machine-hold",
-]);
+]).annotate({
+  description:
+    "layout.py KINDS: everything the move to Shepherdr's own folders carries.",
+});
 
-/** `migrate.json`: the journal of the move from `~/.herdr` (layout.py `_move_kind`, `migrate`, `cleanup`). */
 export const MigrateFile = Schema.Struct({
   started: optional(Millis),
   kinds: optional(
@@ -84,11 +91,14 @@ export const MigrateFile = Schema.Struct({
   finished: optional(Millis),
   notes: optional(Schema.Array(Schema.String)),
   cleaned: optional(Millis),
+}).annotate({
+  description:
+    "migrate.json: the journal of the move from ~/.herdr (layout.py _move_kind, migrate, cleanup).",
 });
 
-/**
- * The `LAYOUT` file: the layout number this machine's data is on, as digits
- * and a new line (layout.py `migrate`). That is also a JSON document, so it
- * is read as one.
- */
-export const LayoutFile = Schema.Int.check(Schema.isGreaterThanOrEqualTo(0));
+export const LayoutFile = Schema.Int.check(
+  Schema.isGreaterThanOrEqualTo(0),
+).annotate({
+  description:
+    "The LAYOUT file: the layout number this machine's data is on, as digits and a new line (layout.py migrate). That is also a JSON document, so it is read as one.",
+});

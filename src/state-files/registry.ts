@@ -25,7 +25,6 @@ import { SentFile, ServiceFile, UsageLine, WebFile } from "./service-state.ts";
 import { ModelPicksFile, SettingsFile } from "./settings.ts";
 import { TaskListFile } from "./task-list.ts";
 
-/** The program that writes a file today. */
 export type Writer =
   | "herdr-task"
   | "service"
@@ -33,16 +32,13 @@ export type Writer =
   | "installer"
   | "herdr-core";
 
-/**
- * How a file's writers put it on disk today. `lock` is the lock file its
- * writers hold, as a path from the file's folder. `fsync` says the bytes are
- * synced before the rename.
- */
+export type LockFilePathFromTheFilesFolder = string;
+
 export type WriteDiscipline =
   | { readonly write: "never" }
   | {
       readonly write: "rename" | "in-place" | "append";
-      readonly lock: string | null;
+      readonly lock: LockFilePathFromTheFilesFolder | null;
       readonly fsync: boolean;
     };
 
@@ -55,12 +51,14 @@ export type Family =
   | "machine-state"
   | "herdr-core";
 
+export type SlashPathFromStateRoot = string;
+export type PatternOverSlashPathsFromStateRoot = RegExp;
+export type EveryLineIsOneDocumentOfTheSchema = "json-lines";
+
 export interface StateFileEntry {
   readonly family: Family;
-  /** Path from the state root (a home folder on the default layout), or a pattern over it. */
-  readonly file: string | RegExp;
-  /** `json-lines`: every line is one document of `schema`. */
-  readonly format: "json" | "json-lines";
+  readonly file: SlashPathFromStateRoot | PatternOverSlashPathsFromStateRoot;
+  readonly format: "json" | EveryLineIsOneDocumentOfTheSchema;
   readonly schema: Schema.Codec<unknown, unknown>;
   readonly writers: readonly Writer[];
   readonly discipline: WriteDiscipline;
@@ -88,14 +86,8 @@ const inPlace = (lock: string | null = null): WriteDiscipline => ({
   lock,
   fsync: false,
 });
-// The scheduler's round and the window's tick write these inside one lock.
-const inTick = renamed(".tick.lock");
+const renamedUnderSchedulerRoundAndWindowTickLock = renamed(".tick.lock");
 
-/**
- * Every state file this program reads or writes, and the only list of them.
- * The first entry that matches a path is its entry, so the named files come
- * before the task list pattern.
- */
 export const stateFiles: readonly StateFileEntry[] = [
   {
     family: "attempts",
@@ -143,7 +135,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SeenFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
     family: "engine-state",
@@ -151,7 +143,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: RetriesFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
     family: "engine-state",
@@ -159,7 +151,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: NewsFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
     family: "engine-state",
@@ -167,7 +159,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: NewslogFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
     family: "engine-state",
@@ -199,7 +191,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SettingsPassFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
     family: "engine-state",
@@ -207,10 +199,9 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SettingsPassFile,
     writers: ["herdr-task"],
-    discipline: inTick,
+    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
   },
   {
-    // Rewritten whole with its last 500 lines, by whichever command ends an agent.
     family: "engine-state",
     file: `${TASKS}/.stops.jsonl`,
     format: "json-lines",
@@ -219,9 +210,6 @@ export const stateFiles: readonly StateFileEntry[] = [
     discipline: renamed(),
   },
   {
-    // Any other JSON file in the tasks folder is a folder's task list. A slug
-    // can start with a dot, so the name alone cannot tell (store.py
-    // `is_task_list` goes by content).
     family: "task-lists",
     file: /^\.local\/share\/shepherdr\/tasks\/[^/]+\.json$/,
     format: "json",
@@ -270,7 +258,6 @@ export const stateFiles: readonly StateFileEntry[] = [
     discipline: renamed(),
   },
   {
-    // Past 2 MB the log is renamed to usage.1.jsonl and a new one begins.
     family: "service-state",
     file: `${SERVICE}/usage.jsonl`,
     format: "json-lines",
@@ -328,8 +315,9 @@ export const stateFiles: readonly StateFileEntry[] = [
   },
 ];
 
-/** The entry for a path from the state root, with `/` between its parts. */
-export function findStateFile(path: string): StateFileEntry | undefined {
+export function findStateFile(
+  path: SlashPathFromStateRoot,
+): StateFileEntry | undefined {
   return stateFiles.find(({ file }) =>
     typeof file === "string" ? file === path : file.test(path),
   );

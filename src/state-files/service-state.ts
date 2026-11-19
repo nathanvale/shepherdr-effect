@@ -3,15 +3,16 @@ import { Millis } from "./shared.ts";
 
 const optional = Schema.optionalKey;
 
-/** `service/service.json`: this start of the service (service/main.ts). */
 export const ServiceFile = Schema.Struct({
   port: Schema.Int,
   id: Schema.String,
   pid: Schema.Int,
   version: Schema.String,
+}).annotate({
+  description:
+    "service/service.json: this start of the service (service/main.ts).",
 });
 
-/** `service/web.json`: what the service last said about the web app (service/main.ts `tailnet`, `serveNow`). */
 export const WebFile = Schema.Struct({
   on: Schema.Boolean,
   link: Schema.NullOr(Schema.String),
@@ -24,8 +25,10 @@ export const WebFile = Schema.Struct({
       Schema.Struct({
         name: Schema.String,
         here: Schema.Boolean,
-        // herdr-core's word for a machine link, passed through as it is.
-        state: Schema.String,
+        state: Schema.String.annotateKey({
+          description:
+            "herdr-core's word for a machine link, passed through as it is.",
+        }),
         os: Schema.NullOr(Schema.String),
         serves: Schema.Boolean,
         label: Schema.String,
@@ -37,28 +40,30 @@ export const WebFile = Schema.Struct({
     error: Schema.NullOr(Schema.String),
   }),
   at: Millis,
+}).annotate({
+  description:
+    "service/web.json: what the service last said about the web app (service/main.ts tailnet, serveNow).",
 });
 
-/**
- * `service/sent.json`: a page's sends of the last hour, so a retry gets the
- * same answer (service/send-once.ts). The file itself is the map: open by the
- * page's own send id. Only a send that went in is kept, so its answer is
- * always this one shape (service/actions.ts `sendNow`).
- */
 export const SentFile = Schema.Record(
   Schema.String,
   Schema.Struct({
     at: Millis,
     result: Schema.Struct({ ok: Schema.Literal(true), at: Millis }),
   }),
-);
+).annotate({
+  description:
+    "service/sent.json: a page's sends of the last hour, so a retry gets the same answer (service/send-once.ts). The file itself is the map: open by the page's own send id. Only a send that went in is kept, so its answer is always this one shape (service/actions.ts sendNow).",
+});
 
-// core/usage.js `ID`: an id, a kind or a key, never words.
-const UsageId = Schema.String.check(Schema.isPattern(/^[\w.:@#/+=-]{1,120}$/));
+const UsageId = Schema.String.check(
+  Schema.isPattern(/^[\w.:@#/+=-]{1,120}$/),
+).annotate({
+  description: "core/usage.js ID: an id, a kind or a key, never words.",
+});
 const count = (maximum: number) =>
   Schema.Int.check(Schema.isBetween({ minimum: 0, maximum }));
 
-/** One line of `service/usage.jsonl`: an event as core/usage.js `clean` keeps it. */
 export const UsageLine = Schema.Struct({
   at: Millis,
   kind: Schema.Literals(["view", "act", "send", "feature", "error", "ask"]),
@@ -76,4 +81,7 @@ export const UsageLine = Schema.Struct({
   ms: optional(count(86_400_000)),
   n: optional(count(100_000)),
   status: optional(count(999)),
+}).annotate({
+  description:
+    "One line of service/usage.jsonl: an event as core/usage.js clean keeps it.",
 });
