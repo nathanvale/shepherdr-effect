@@ -7,7 +7,7 @@ import {
   NUMBER,
   pythonTokens,
   STRING,
-  textAt,
+  textAtOrEmpty,
   type Tokens,
 } from "./tokens.ts";
 
@@ -72,7 +72,7 @@ function readRootParser(reading: Reading, at: number) {
 function readSubparsers(reading: Reading, at: number) {
   const { list } = reading.tokens;
   if (!matches(list, at - 2, [NAME, ".", "add_subparsers", "("])) return;
-  const route = reading.parsers.get(textAt(list, at - 2));
+  const route = reading.parsers.get(textAtOrEmpty(list, at - 2));
   const target = assignedName(reading.tokens, at);
   if (route !== undefined && target !== undefined)
     reading.groups.set(target, route);
@@ -85,10 +85,10 @@ function hasHelp(tokens: Tokens, open: number): boolean {
 }
 
 function keepParser(reading: Reading, at: number, route: Route) {
-  const { list, pair } = reading.tokens;
+  const { list, partnerOf } = reading.tokens;
   const target = assignedName(reading.tokens, at);
   if (target === undefined) return;
-  const close = pair.get(at + 1) ?? at;
+  const close = partnerOf.get(at + 1) ?? at;
   const nested = matches(list, close + 1, [".", "add_subparsers", "("]);
   (nested ? reading.groups : reading.parsers).set(target, route);
 }
@@ -122,7 +122,7 @@ function keepCommandAdder(reading: Reading, at: number, parameter: string) {
   );
   if (definition === undefined) return;
   reading.commandAdders.set(definition.name, {
-    group: textAt(reading.tokens.list, at - 2),
+    group: textAtOrEmpty(reading.tokens.list, at - 2),
     nameArgument: definition.parameters.indexOf(parameter),
     hidden: !hasHelp(reading.tokens, at + 1),
   });
@@ -135,7 +135,7 @@ function readAddParser(reading: Reading, at: number) {
   if (name === undefined) return;
   if (name.kind === "name") keepCommandAdder(reading, at, name.text);
   if (name.kind !== "string") return;
-  const group = textAt(tokens.list, at - 2);
+  const group = textAtOrEmpty(tokens.list, at - 2);
   keepQuotedCommand(reading, at, group, name.text, !hasHelp(tokens, at + 1));
 }
 
@@ -143,14 +143,14 @@ function readDefinition(reading: Reading, at: number) {
   const { list } = reading.tokens;
   if (!matches(list, at, ["def", NAME, "("])) return;
   const parameters = argumentsAt(reading.tokens, at + 2).map(([start]) =>
-    textAt(list, start),
+    textAtOrEmpty(list, start),
   );
-  reading.definitions.push({ name: textAt(list, at + 1), parameters });
+  reading.definitions.push({ name: textAtOrEmpty(list, at + 1), parameters });
 }
 
 function readCommandAdderCall(reading: Reading, at: number) {
   const { list } = reading.tokens;
-  const adder = reading.commandAdders.get(textAt(list, at));
+  const adder = reading.commandAdders.get(textAtOrEmpty(list, at));
   if (adder === undefined || !matches(list, at, [NAME, "("])) return;
   if (matches(list, at - 1, ["def"])) return;
   const name = argumentStart(reading.tokens, at + 1, adder.nameArgument);

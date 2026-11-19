@@ -3,11 +3,9 @@ import { join } from "node:path";
 import type { Sources } from "./lists.ts";
 import type { SourceFile } from "./source.ts";
 
-/** Where this repository keeps its copy of the old system's diagram, from the repository root. */
-export const DIAGRAM = "docs/design/current-architecture.mmd";
+export const DIAGRAM_COPY_PATH = "docs/design/current-architecture.mmd";
 
-/** A folder's own source files with one ending, tests left out, in name order. Folders inside it are not entered. */
-async function sourcesIn(
+async function ownNonTestSourcesIn(
   forkCheckout: string,
   folder: string,
   suffix: string,
@@ -28,26 +26,22 @@ async function sourcesIn(
   );
 }
 
-/**
- * Reads the old system's source as text, and the diagram from this
- * repository. Nothing in the fork is run or written.
- */
-export async function readSources(
+export async function readSourcesAsText(
   forkCheckout: string,
   repository: string,
 ): Promise<Sources> {
-  const [python, service, client, coreFolder, diagram] = await Promise.all([
-    sourcesIn(forkCheckout, "mods/tasks/bin/herdr_task", ".py"),
-    sourcesIn(forkCheckout, "service", ".ts"),
-    // The link to herdr-core is the one part of the service kept in a folder of its own.
-    sourcesIn(forkCheckout, "service/hc", ".ts"),
-    sourcesIn(forkCheckout, "core", ".js"),
-    readFile(join(repository, DIAGRAM), "utf8"),
-  ]);
+  const [python, service, herdrCoreLink, coreFolder, diagram] =
+    await Promise.all([
+      ownNonTestSourcesIn(forkCheckout, "mods/tasks/bin/herdr_task", ".py"),
+      ownNonTestSourcesIn(forkCheckout, "service", ".ts"),
+      ownNonTestSourcesIn(forkCheckout, "service/hc", ".ts"),
+      ownNonTestSourcesIn(forkCheckout, "core", ".js"),
+      readFile(join(repository, DIAGRAM_COPY_PATH), "utf8"),
+    ]);
   return {
     python,
-    service: [...service, ...client],
+    service: [...service, ...herdrCoreLink],
     coreFolder,
-    diagram: { path: DIAGRAM, text: diagram },
+    diagram: { path: DIAGRAM_COPY_PATH, text: diagram },
   };
 }

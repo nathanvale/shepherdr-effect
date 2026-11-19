@@ -1,10 +1,10 @@
 import { Schema } from "effect";
 import {
   byId,
-  fileAt,
+  fileAtOrThrow,
   itemFields,
-  lineAt,
-  matchesIn,
+  oneBasedLineAt,
+  matchesWithLines,
   place,
   type SourceFile,
 } from "./source.ts";
@@ -33,7 +33,7 @@ function requiredMethods(client: SourceFile): Map<string, number> {
   return new Map(
     [...(list[1] ?? "").matchAll(QUOTED)].map((word) => [
       word[2] ?? "",
-      lineAt(client.text, start + 1 + word.index),
+      oneBasedLineAt(client.text, start + 1 + word.index),
     ]),
   );
 }
@@ -41,11 +41,11 @@ function requiredMethods(client: SourceFile): Map<string, number> {
 export function herdrCoreRpcMethods(
   files: readonly SourceFile[],
 ): HerdrCoreRpcMethod[] {
-  const client = fileAt(files, CLIENT);
+  const client = fileAtOrThrow(files, CLIENT);
   const required = requiredMethods(client);
   const called = new Map<string, string>();
   for (const file of files)
-    for (const { match, line } of matchesIn(file, CALL)) {
+    for (const { match, line } of matchesWithLines(file, CALL)) {
       const method = match[2] ?? "";
       if (!called.has(method)) called.set(method, place(file.path, line));
     }

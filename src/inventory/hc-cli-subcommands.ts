@@ -2,7 +2,7 @@ import { Schema } from "effect";
 import {
   byId,
   itemFields,
-  matchesIn,
+  matchesWithLines,
   place,
   type SourceFile,
 } from "./source.ts";
@@ -58,7 +58,7 @@ export function hcCliSubcommands(
   for (const file of files)
     for (const { suffix, pattern } of COMMAND_LINE_STARTS) {
       if (!file.path.endsWith(suffix)) continue;
-      for (const { match, line } of matchesIn(file, pattern)) {
+      for (const { match, line } of matchesWithLines(file, pattern)) {
         const words = leadingQuotedWords(
           file.text,
           match.index + match[0].length,

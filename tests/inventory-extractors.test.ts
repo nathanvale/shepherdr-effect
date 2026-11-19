@@ -4,10 +4,10 @@ import { herdrCoreRpcMethods } from "../src/inventory/herdr-core-rpc-methods.ts"
 import { diagramElements } from "../src/inventory/diagram-elements.ts";
 import { hcCliSubcommands } from "../src/inventory/hc-cli-subcommands.ts";
 import { herdrTaskCommands } from "../src/inventory/herdr-task-commands.ts";
-import { lists } from "../src/inventory/lists.ts";
+import { listsKeptAsFiles } from "../src/inventory/lists.ts";
 import { serviceActions } from "../src/inventory/service-actions.ts";
 import { serviceRoutes } from "../src/inventory/service-routes.ts";
-import { stateFileItems } from "../src/inventory/state-files.ts";
+import { stateFileItemsFromRegistry } from "../src/inventory/state-files.ts";
 import { terminalLabels } from "../src/inventory/terminal-labels.ts";
 import { stateFiles } from "../src/state-files/registry.ts";
 import {
@@ -216,7 +216,7 @@ test("diagram elements: boxes by id, arrows by their ends, numbered when two box
 });
 
 test("the lists are the seven named ones, and each reads through its own schema only in id order", () => {
-  expect(lists.map(({ name }) => name)).toEqual([
+  expect(listsKeptAsFiles.map(({ name }) => name)).toEqual([
     "herdr-task-commands",
     "service-routes",
     "service-actions",
@@ -225,9 +225,9 @@ test("the lists are the seven named ones, and each reads through its own schema 
     "terminal-labels",
     "diagram-elements",
   ]);
-  for (const list of lists) {
+  for (const list of listsKeptAsFiles) {
     const items = list.extract(sources);
-    const read = Schema.decodeUnknownSync(list.schema);
+    const read = Schema.decodeUnknownSync(list.fileSchema);
 
     expect(read(items)).toEqual(items);
     expect(() => read([...items].reverse())).toThrow(
@@ -247,7 +247,7 @@ test("a file whose brackets do not pair up is refused by name, not read short", 
 });
 
 test("state files come from the registry: one item for each entry, each id once", () => {
-  const items = stateFileItems();
+  const items = stateFileItemsFromRegistry();
   const ids = items.map(({ id }) => id);
 
   expect(ids).toContain(".local/share/shepherdr/tasks/.launches.json");

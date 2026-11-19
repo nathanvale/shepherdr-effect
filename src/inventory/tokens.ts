@@ -1,18 +1,20 @@
 import type { SourceFile } from "./source.ts";
 
-/** One word of source text: enough to find calls, comparisons and blocks. */
 export interface Token {
   readonly kind: "name" | "string" | "regex" | "number" | "punct";
-  /** A string's text is what stands between its quotes, as written. A regex keeps its slashes. */
+  // Interface: a string's text is what stands between its quotes, as written. A regex keeps its slashes.
   readonly text: string;
   readonly line: number;
 }
 
+export type BracketIndex = number;
+
 export interface Tokens {
   readonly list: readonly Token[];
-  /** For a bracket's index, the index of the bracket that closes or opens it. */
-  readonly pair: ReadonlyMap<number, number>;
+  readonly partnerOf: ReadonlyMap<BracketIndex, BracketIndex>;
 }
+
+export type ExclusiveSpan = readonly [start: number, end: number];
 
 interface Read {
   readonly raw: string;
@@ -24,8 +26,7 @@ interface Rule {
   read(text: string, at: number): Read | undefined;
 }
 
-/** A rule that reads what a pattern matches at a position. `group` is the part kept as the token's text. */
-function pattern(kind: Rule["kind"], source: RegExp, group = 0): Rule {
+function patternRule(kind: Rule["kind"], source: RegExp, keptGroup = 0): Rule {
   const sticky = new RegExp(source.source, "y");
   return {
     kind,
@@ -33,7 +34,7 @@ function pattern(kind: Rule["kind"], source: RegExp, group = 0): Rule {
       sticky.lastIndex = at;
       const match = sticky.exec(text);
       if (match === null) return undefined;
-      return { raw: match[0], text: match[group] ?? "" };
+      return { raw: match[0], text: match[keptGroup] ?? "" };
     },
   };
 }
@@ -43,20 +44,18 @@ function firstRead(rules: readonly Rule[], text: string, at: number) {
     const read = rule.read(text, at);
     if (read !== undefined) return { kind: rule.kind, ...read };
   }
-  // Every rule list ends with one that takes any character.
+  return skipOneCharacter(text, at);
+}
+
+function skipOneCharacter(text: string, at: number) {
   return { kind: "skip" as const, raw: text.slice(at, at + 1), text: "" };
 }
 
-/**
- * Reads tokens from a position until the text ends or `done` says a token
- * was the last. The rules can depend on the token before, which is how a
- * script's `/` is told apart as a division or the start of a regex.
- */
 function scan(
   text: string,
   from: number,
   rulesAfter: (previous: Token | undefined) => readonly Rule[],
-  done: (token: Token) => boolean,
+  isLastToken: (token: Token) => boolean,
 ): { readonly list: Token[]; readonly end: number } {
   const list: Token[] = [];
   let at = from;
@@ -67,7 +66,7 @@ function scan(
     if (read.kind !== "skip") {
       const token = { kind: read.kind, text: read.text, line };
       list.push(token);
-      if (done(token)) break;
+      if (isLastToken(token)) break;
     }
     line += read.raw.split("\n").length - 1;
   }
@@ -81,18 +80,12 @@ const OPENED_BY: Readonly<Record<string, string>> = {
 };
 const OPENERS = new Set(Object.values(OPENED_BY));
 
-/** The text of the token at an index, or nothing where there is no token. */
-export function textAt(list: readonly Token[], at: number): string {
+export function textAtOrEmpty(list: readonly Token[], at: number): string {
   return list[at]?.text ?? "";
 }
 
-/**
- * Pairs every bracket with its partner. A file whose brackets do not pair up
- * was read wrongly (or is not whole), and a list taken from it would be
- * quietly short: that is refused instead.
- */
-function paired(file: SourceFile, list: readonly Token[]): Tokens {
-  const pair = new Map<number, number>();
+function pairedBrackets(file: SourceFile, list: readonly Token[]): Tokens {
+  const partnerOf = new Map<number, number>();
   const open: number[] = [];
   const alone = (index: number) =>
     new Error(
@@ -103,40 +96,49 @@ function paired(file: SourceFile, list: readonly Token[]): Tokens {
     if (OPENERS.has(token.text)) open.push(index);
     if (!Object.hasOwn(OPENED_BY, token.text)) continue;
     const start = open.pop() ?? -1;
-    if (textAt(list, start) !== OPENED_BY[token.text]) throw alone(index);
-    pair.set(start, index).set(index, start);
+    if (textAtOrEmpty(list, start) !== OPENED_BY[token.text])
+      throw alone(index);
+    partnerOf.set(start, index).set(index, start);
   }
   if (open.length > 0) throw alone(open.at(-1) ?? 0);
-  return { list, pair };
+  return { list, partnerOf };
 }
 
 const never = () => false;
 
 const PYTHON: readonly Rule[] = [
-  pattern("skip", /\s+|#[^\n]*|\\\r?\n/),
-  pattern("string", /[bBfFrRuU]{0,2}("""|''')([\s\S]*?)\1/, 2),
-  pattern("string", /[bBfFrRuU]{0,2}(["'])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/, 2),
-  pattern("name", /[A-Za-z_]\w*/),
-  pattern("number", /\d[\w.]*/),
-  pattern("punct", /[=!<>]=|[\s\S]/),
+  patternRule("skip", /\s+|#[^\n]*|\\\r?\n/),
+  patternRule("string", /[bBfFrRuU]{0,2}("""|''')([\s\S]*?)\1/, 2),
+  patternRule(
+    "string",
+    /[bBfFrRuU]{0,2}(["'])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/,
+    2,
+  ),
+  patternRule("name", /[A-Za-z_]\w*/),
+  patternRule("number", /\d[\w.]*/),
+  patternRule("punct", /[=!<>]=|[\s\S]/),
 ];
 
-/** Python source as tokens. Comments are dropped, and a string is one token whatever it holds. */
+// Interface: comments are dropped, and a string is one token whatever it holds.
 export function pythonTokens(file: SourceFile): Tokens {
-  return paired(file, scan(file.text, 0, () => PYTHON, never).list);
+  return pairedBrackets(file, scan(file.text, 0, () => PYTHON, never).list);
 }
 
-const SPACE = pattern("skip", /\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\//);
-const QUOTED = pattern("string", /(["'])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/, 2);
+const SPACE = patternRule("skip", /\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\//);
+const QUOTED = patternRule(
+  "string",
+  /(["'])((?:\\[\s\S]|(?!\1)[^\\\n])*)\1/,
+  2,
+);
 const TEMPLATE: Rule = { kind: "string", read: template };
-const REGEX = pattern(
+const REGEX = patternRule(
   "regex",
   /\/(?![/*])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\[\n])+\/[A-Za-z]*/,
 );
 const WORDS = [
-  pattern("name", /[A-Za-z_$][\w$]*/),
-  pattern("number", /\d[\w.]*/),
-  pattern("punct", /[=!]==?|=>|&&|\|\||\?\?|\?\.|\.\.\.|[\s\S]/),
+  patternRule("name", /[A-Za-z_$][\w$]*/),
+  patternRule("number", /\d[\w.]*/),
+  patternRule("punct", /[=!]==?|=>|&&|\|\||\?\?|\?\.|\.\.\.|[\s\S]/),
 ];
 const CODE: readonly Rule[] = [SPACE, QUOTED, TEMPLATE, ...WORDS];
 const CODE_OR_REGEX: readonly Rule[] = [
@@ -147,8 +149,7 @@ const CODE_OR_REGEX: readonly Rule[] = [
   ...WORDS,
 ];
 
-// After a value a `/` divides. After these words, as after an operator, it starts a regex.
-const BEFORE_REGEX = new Set([
+const WORDS_BEFORE_REGEX = new Set([
   "return",
   "typeof",
   "case",
@@ -169,13 +170,12 @@ function scriptRules(previous: Token | undefined): readonly Rule[] {
   if (previous === undefined) return CODE_OR_REGEX;
   if (previous.kind === "punct")
     return [")", "]", "}"].includes(previous.text) ? CODE : CODE_OR_REGEX;
-  return previous.kind === "name" && BEFORE_REGEX.has(previous.text)
+  return previous.kind === "name" && WORDS_BEFORE_REGEX.has(previous.text)
     ? CODE_OR_REGEX
     : CODE;
 }
 
-/** True for the `}` that ends a template's `${`: the first one with no `{` of its own. */
-function endsInterpolation(): (token: Token) => boolean {
+function closesInterpolation(): (token: Token) => boolean {
   let depth = 0;
   return ({ kind, text }) => {
     if (kind !== "punct") return false;
@@ -187,10 +187,12 @@ function endsInterpolation(): (token: Token) => boolean {
 
 function afterTemplatePart(text: string, at: number): number {
   if (text[at] === "\\") return at + 2;
-  // What a `${` holds is code, with strings and templates of its own.
-  if (text.startsWith("${", at))
-    return scan(text, at + 2, scriptRules, endsInterpolation()).end;
+  if (text.startsWith("${", at)) return afterInterpolation(text, at);
   return at + 1;
+}
+
+function afterInterpolation(text: string, at: number): number {
+  return scan(text, at + 2, scriptRules, closesInterpolation()).end;
 }
 
 function template(text: string, at: number): Read | undefined {
@@ -202,34 +204,34 @@ function template(text: string, at: number): Read | undefined {
   return { raw, text: raw.slice(1, -1) };
 }
 
-/** TypeScript or JavaScript source as tokens. Comments are dropped. */
+// Interface: comments are dropped.
 export function scriptTokens(file: SourceFile): Tokens {
-  return paired(file, scan(file.text, 0, scriptRules, never).list);
+  return pairedBrackets(file, scan(file.text, 0, scriptRules, never).list);
 }
 
-/** What a token must be: this word, one of these words, or any token of a kind. */
-export type Want =
-  | string
-  | readonly string[]
-  | { readonly kind: Token["kind"] };
+export type OneWord = string;
+export type OneOfWords = readonly string[];
+export type AnyTokenOfKind = { readonly kind: Token["kind"] };
+
+export type Want = OneWord | OneOfWords | AnyTokenOfKind;
 
 export const NAME: Want = { kind: "name" };
 export const STRING: Want = { kind: "string" };
 export const NUMBER: Want = { kind: "number" };
 export const REGEX_LITERAL: Want = { kind: "regex" };
 
-function isWord(token: Token): boolean {
+function isNameOrPunct(token: Token): boolean {
   return token.kind === "name" || token.kind === "punct";
 }
 
 function fits(token: Token | undefined, want: Want): boolean {
   if (token === undefined) return false;
-  if (typeof want === "string") return isWord(token) && token.text === want;
+  if (typeof want === "string")
+    return isNameOrPunct(token) && token.text === want;
   if ("kind" in want) return token.kind === want.kind;
-  return isWord(token) && want.includes(token.text);
+  return isNameOrPunct(token) && want.includes(token.text);
 }
 
-/** True when the tokens from a position are these, one after another. A quoted word never passes for a bare one. */
 export function matches(
   list: readonly Token[],
   at: number,
@@ -238,17 +240,15 @@ export function matches(
   return wants.every((want, offset) => fits(list[at + offset], want));
 }
 
-/** The index after a token, or after the whole group when the token opens one. */
-export function after({ pair }: Tokens, at: number): number {
-  return Math.max(pair.get(at) ?? at, at) + 1;
+export function afterTokenOrGroup({ partnerOf }: Tokens, at: number): number {
+  return Math.max(partnerOf.get(at) ?? at, at) + 1;
 }
 
-/** What stands between a bracket and its partner, split at its own commas, each as [start, end). */
-export function argumentsAt(tokens: Tokens, open: number): [number, number][] {
-  const close = tokens.pair.get(open) ?? open;
-  const found: [number, number][] = [];
+export function argumentsAt(tokens: Tokens, open: number): ExclusiveSpan[] {
+  const close = tokens.partnerOf.get(open) ?? open;
+  const found: ExclusiveSpan[] = [];
   let start = open + 1;
-  for (let at = start; at < close; at = after(tokens, at)) {
+  for (let at = start; at < close; at = afterTokenOrGroup(tokens, at)) {
     if (!matches(tokens.list, at, [","])) continue;
     found.push([start, at]);
     start = at + 1;
@@ -257,13 +257,12 @@ export function argumentsAt(tokens: Tokens, open: number): [number, number][] {
   return found;
 }
 
-/** Where the statement that holds a position ends: its `;`, or the bracket that closes around it. */
-export function statementEnd(tokens: Tokens, from: number): number {
+export function semicolonOrCloser(tokens: Tokens, from: number): number {
   let at = from;
   while (at < tokens.list.length) {
-    const closes = (tokens.pair.get(at) ?? at) < at;
+    const closes = (tokens.partnerOf.get(at) ?? at) < at;
     if (closes || matches(tokens.list, at, [";"])) return at;
-    at = after(tokens, at);
+    at = afterTokenOrGroup(tokens, at);
   }
   return at;
 }

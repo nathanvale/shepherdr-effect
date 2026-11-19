@@ -2,14 +2,13 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Effect, Result, Schema, SchemaIssue } from "effect";
 import type { CommandResult } from "../commands-contract.ts";
-import { DIAGRAM, readSources } from "./fork-checkout.ts";
-import { type List, lists } from "./lists.ts";
+import { DIAGRAM_COPY_PATH, readSourcesAsText } from "./fork-checkout.ts";
+import { type List, listsKeptAsFiles } from "./lists.ts";
 import type { Item } from "./source.ts";
-import { stateFileItems } from "./state-files.ts";
+import { stateFileItemsFromRegistry } from "./state-files.ts";
 
 const FOLDER = "inventory";
-// A list can differ in every item: a few ids say enough.
-const SHOWN = 8;
+const IDS_SHOWN_PER_LIST = 8;
 
 type Command = Pick<CommandResult, "commandIdentity" | "effectClass"> & {
   readonly usage: string;
@@ -26,11 +25,9 @@ const CHECK: Command = {
   usage: "inventory check [--fork PATH]",
 };
 
-/** A step of a command: its value, or the result the command ends with instead. */
-type Step<Value> = Effect.Effect<Value, CommandResult>;
+type CommandStep<Value> = Effect.Effect<Value, CommandResult>;
 
-/** One list with its items: read from the fork, or from its kept file. */
-interface Listed {
+interface ListWithItems {
   readonly list: List;
   readonly items: readonly Item[];
 }
@@ -40,12 +37,12 @@ const render = (items: readonly Item[]) =>
   `${JSON.stringify(items, null, 2)}\n`;
 const why = (cause: unknown) =>
   cause instanceof Error ? cause.message : String(cause);
-const counts = (listed: readonly Listed[]) =>
+const counts = (listed: readonly ListWithItems[]) =>
   listed
     .map(({ list, items }) => `${list.name} ${String(items.length)}`)
     .join(", ");
 
-function resultOf(step: Step<CommandResult>): Promise<CommandResult> {
+function resultOf(step: CommandStep<CommandResult>): Promise<CommandResult> {
   const either = { onFailure: same, onSuccess: same };
   return Effect.runPromise(Effect.match(step, either));
 }
@@ -89,12 +86,11 @@ function refused(
   };
 }
 
-/** The kept files were looked at and found wrong: the lines say what, one for each list or file. */
-function failed(
+function keptFilesFailed(
   failure: "domain" | "schema",
   causeCode: string,
   headline: string,
-  lines: readonly string[],
+  problemPerListOrFile: readonly string[],
   repairAction: string,
 ): CommandResult {
   return {
@@ -103,39 +99,46 @@ function failed(
     data: null,
     exitCode: failure === "schema" ? 4 : 3,
     failureClass: failure,
-    handoff: { owner: "operator", reason: headline, inspect: [...lines] },
-    message: [headline, ...lines].join("\n"),
+    handoff: {
+      owner: "operator",
+      reason: headline,
+      inspect: [...problemPerListOrFile],
+    },
+    message: [headline, ...problemPerListOrFile].join("\n"),
     outcome: "failed",
     repairAction,
   };
 }
 
 function shortened(ids: readonly string[]): string {
-  const more = ids.length - SHOWN;
-  const shown = ids.slice(0, SHOWN).join(", ");
+  const more = ids.length - IDS_SHOWN_PER_LIST;
+  const shown = ids.slice(0, IDS_SHOWN_PER_LIST).join(", ");
   return more > 0 ? `${shown}, and ${String(more)} more` : shown;
 }
 
-/** `--fork PATH` and nothing else names a fork. No words at all names none. Anything else is not understood. */
-function forkCheckoutOption(
-  args: readonly string[],
-): { readonly fork: string | undefined } | undefined {
+interface ForkChoice {
+  readonly fork: string | undefined;
+}
+
+function forkCheckoutOption(args: readonly string[]): ForkChoice | undefined {
   if (args.length === 0) return { fork: undefined };
   return args.length === 2 && args[0] === "--fork"
     ? { fork: args[1] }
     : undefined;
 }
 
-/** Every list, read fresh from the fork. Nothing is written. */
-function readFresh(
+function readListsFromFork(
   command: Command,
   forkCheckout: string,
   repository: string,
-): Step<Listed[]> {
+): CommandStep<ListWithItems[]> {
   return Effect.tryPromise({
     try: async () => {
-      const sources = await readSources(forkCheckout, repository);
-      return lists.map((list) => ({ list, items: list.extract(sources) }));
+      const sources = await readSourcesAsText(forkCheckout, repository);
+      return listsKeptAsFiles.map((list) => ({
+        list,
+        items: list.extract(sources),
+      }));
     },
     catch: (cause) =>
       refused(
@@ -143,7 +146,7 @@ function readFresh(
         "domain",
         "DOMAIN_FORK_UNREADABLE",
         `The lists could not be read from the fork: ${why(cause)}`,
-        `Pass the folder that holds the old system's source, keep ${DIAGRAM} in this repository, and retry.`,
+        `Pass the folder that holds the old system's source, keep ${DIAGRAM_COPY_PATH} in this repository, and retry.`,
       ),
   });
 }
@@ -156,8 +159,10 @@ async function textOf(path: string): Promise<string | undefined> {
   }
 }
 
-/** The files that do not hold their list's text yet, with that text. A second run of the same extract finds none. */
-async function differing(repository: string, listed: readonly Listed[]) {
+async function filesWithNewText(
+  repository: string,
+  listed: readonly ListWithItems[],
+) {
   const wanted = listed.map(({ list, items }) => ({
     file: fileOf(list),
     text: render(items),
@@ -177,8 +182,10 @@ async function write(
     await writeFile(join(repository, file), text);
 }
 
-/** A write that stopped part way: which of these files changed is not known here. */
-function writeFailed(files: string[], cause: unknown): CommandResult {
+function partialWriteFailure(
+  uncertainFiles: string[],
+  cause: unknown,
+): CommandResult {
   const reason = `The inventory files could not all be written: ${why(cause)}`;
   return {
     ...unchanged(EXTRACT),
@@ -187,7 +194,7 @@ function writeFailed(files: string[], cause: unknown): CommandResult {
     effects: {
       completed: [],
       remaining: [],
-      uncertain: files,
+      uncertain: uncertainFiles,
       inventoryComplete: true,
     },
     exitCode: 1,
@@ -217,7 +224,7 @@ const WROTE_FILES = {
 
 function extractedResult(
   forkCheckout: string,
-  listed: readonly Listed[],
+  listed: readonly ListWithItems[],
   written: string[],
 ): CommandResult {
   const total = String(listed.length);
@@ -251,11 +258,9 @@ function extractedResult(
   };
 }
 
-/**
- * Reads every list from the old system's source and keeps each as
- * `inventory/<list>.json` in the folder the command runs in. Only a file
- * whose text would differ is written, and nothing outside `inventory/` is.
- */
+// Interface: reads every list from the old system's source and keeps each as
+// inventory/<list>.json in the folder the command runs in. Only a file whose
+// text would differ is written, and nothing outside inventory/ is.
 export function extractInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
@@ -273,14 +278,18 @@ export function extractInventory(
     );
   return resultOf(
     Effect.gen(function* () {
-      const listed = yield* readFresh(EXTRACT, forkCheckout, repository);
+      const listed = yield* readListsFromFork(
+        EXTRACT,
+        forkCheckout,
+        repository,
+      );
       const changed = yield* Effect.promise(() =>
-        differing(repository, listed),
+        filesWithNewText(repository, listed),
       );
       const files = changed.map(({ file }) => file).sort();
       yield* Effect.tryPromise({
         try: () => write(repository, changed),
-        catch: (cause) => writeFailed(files, cause),
+        catch: (cause) => partialWriteFailure(files, cause),
       });
       return extractedResult(forkCheckout, listed, files);
     }),
@@ -298,17 +307,23 @@ function parsed(text: string): { readonly document: unknown } | undefined {
   }
 }
 
-/** A list's kept file: its items, or what is wrong with it. */
-type Kept = { readonly list: List } & (
+type KeptListOrProblem = { readonly list: List } & (
   | { readonly items: readonly Item[] }
   | { readonly problem: string }
 );
 
-/** A document read through a list's schema. A key the schema does not name breaks it, as a wrong value does. */
-async function decoded(list: List, document: unknown): Promise<Kept> {
-  const strict = { errors: "all", onExcessProperty: "error" } as const;
+async function decodedThroughSchema(
+  list: List,
+  document: unknown,
+): Promise<KeptListOrProblem> {
+  const refuseExcessKeys = {
+    errors: "all",
+    onExcessProperty: "error",
+  } as const;
   const result = await Effect.runPromise(
-    Effect.result(Schema.decodeUnknownEffect(list.schema, strict)(document)),
+    Effect.result(
+      Schema.decodeUnknownEffect(list.fileSchema, refuseExcessKeys)(document),
+    ),
   );
   if (Result.isSuccess(result)) return { list, items: result.success };
   const places = describe(result.failure.issue).issues.map(
@@ -317,29 +332,30 @@ async function decoded(list: List, document: unknown): Promise<Kept> {
   return { list, problem: shortened(places) };
 }
 
-async function kept(repository: string, list: List): Promise<Kept> {
+async function kept(
+  repository: string,
+  list: List,
+): Promise<KeptListOrProblem> {
   const text = await textOf(join(repository, fileOf(list)));
   if (text === undefined) return { list, problem: "missing" };
   const json = parsed(text);
   return json === undefined
     ? { list, problem: "not a JSON document" }
-    : decoded(list, json.document);
+    : decodedThroughSchema(list, json.document);
 }
 
-/** Files in the inventory folder that belong to no list. */
-async function strays(repository: string): Promise<string[]> {
-  const known = new Set(lists.map((list) => `${list.name}.json`));
+async function strayJsonFiles(repository: string): Promise<string[]> {
+  const known = new Set(listsKeptAsFiles.map((list) => `${list.name}.json`));
   const names = await readdir(join(repository, FOLDER)).catch(() => []);
   return names.filter((name) => name.endsWith(".json") && !known.has(name));
 }
 
-/** Every kept list, read through its schema. One file that is missing, broken or unknown fails them all. */
-function keptLists(repository: string): Step<Listed[]> {
+function allKeptLists(repository: string): CommandStep<ListWithItems[]> {
   return Effect.gen(function* () {
     const files = yield* Effect.promise(() =>
-      Promise.all(lists.map((list) => kept(repository, list))),
+      Promise.all(listsKeptAsFiles.map((list) => kept(repository, list))),
     );
-    const unknown = yield* Effect.promise(() => strays(repository));
+    const unknown = yield* Effect.promise(() => strayJsonFiles(repository));
     const problems = [
       ...files.flatMap((file) =>
         "problem" in file ? [`${fileOf(file.list)}: ${file.problem}`] : [],
@@ -348,7 +364,7 @@ function keptLists(repository: string): Step<Listed[]> {
     ];
     if (problems.length > 0)
       return yield* Effect.fail(
-        failed(
+        keptFilesFailed(
           "schema",
           "SCHEMA_INVENTORY_MISMATCH",
           `${String(problems.length)} inventory files did not pass.`,
@@ -362,17 +378,18 @@ function keptLists(repository: string): Step<Listed[]> {
   });
 }
 
-/** An item as one text that is the same however its keys are ordered. */
-const fingerprint = (item: Item) =>
+const textIgnoringKeyOrder = (item: Item) =>
   JSON.stringify(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : 1)));
 
-const byFingerprint = (items: readonly Item[]) =>
-  new Map(items.map((item) => [item.id, fingerprint(item)]));
+const byTextIgnoringKeyOrder = (items: readonly Item[]) =>
+  new Map(items.map((item) => [item.id, textIgnoringKeyOrder(item)]));
 
-/** How a kept list differs from the same list read fresh, by id. Nothing when it does not. */
-function staleness(kept: readonly Item[], fresh: readonly Item[]): string[] {
-  const was = byFingerprint(kept);
-  const now = byFingerprint(fresh);
+function differencesFromFresh(
+  kept: readonly Item[],
+  fresh: readonly Item[],
+): string[] {
+  const was = byTextIgnoringKeyOrder(kept);
+  const now = byTextIgnoringKeyOrder(fresh);
   const groups: [string, string[]][] = [
     ["missing", [...now.keys()].filter((id) => !was.has(id))],
     ["gone from the fork", [...was.keys()].filter((id) => !now.has(id))],
@@ -388,23 +405,22 @@ function staleness(kept: readonly Item[], fresh: readonly Item[]): string[] {
     .map(([what, ids]) => `${what}: ${shortened(ids)}`);
 }
 
-/** Fails when a kept list no longer says what the fork says, naming each such list and the ids that differ. */
-function matchFork(
+function requireKeptMatchFork(
   forkCheckout: string,
   repository: string,
-  kept: readonly Listed[],
-): Step<void> {
+  kept: readonly ListWithItems[],
+): CommandStep<void> {
   return Effect.gen(function* () {
-    const fresh = yield* readFresh(CHECK, forkCheckout, repository);
+    const fresh = yield* readListsFromFork(CHECK, forkCheckout, repository);
     const stale = kept.flatMap(({ list, items }, at) => {
-      const differences = staleness(items, fresh[at]?.items ?? []);
+      const differences = differencesFromFresh(items, fresh[at]?.items ?? []);
       return differences.length > 0
         ? [`${list.name}: ${differences.join("; ")}`]
         : [];
     });
     if (stale.length > 0)
       return yield* Effect.fail(
-        failed(
+        keptFilesFailed(
           "domain",
           "DOMAIN_INVENTORY_STALE",
           `${String(stale.length)} of ${String(kept.length)} inventory lists differ from the fork.`,
@@ -416,11 +432,15 @@ function matchFork(
 }
 
 function checkedResult(
-  kept: readonly Listed[],
+  kept: readonly ListWithItems[],
   forkCheckout: string | undefined,
 ): CommandResult {
   const total = String(kept.length);
-  const stateFiles = stateFileItems().length;
+  const stateFiles = stateFileItemsFromRegistry().length;
+  const registeredStateFiles = {
+    items: stateFiles,
+    from: "src/state-files/registry.ts",
+  };
   const matches = forkCheckout === undefined ? "" : " They match the fork.";
   return {
     ...unchanged(CHECK),
@@ -432,8 +452,7 @@ function checkedResult(
         items: items.length,
         file: fileOf(list),
       })),
-      // Not a file: the registry is the one list of state files.
-      stateFiles: { items: stateFiles, from: "src/state-files/registry.ts" },
+      stateFiles: registeredStateFiles,
     },
     exitCode: 0,
     failureClass: null,
@@ -444,12 +463,10 @@ function checkedResult(
   };
 }
 
-/**
- * Proves the kept inventory in the folder the command runs in: every list
- * has its file, and each file reads through its schema. With `--fork`, each
- * list is also read from the fork again and compared, so a list that no
- * longer matches the fork fails by name, with the ids that differ.
- */
+// Interface: proves the kept inventory in the folder the command runs in:
+// every list has its file, and each file reads through its schema. With
+// --fork, each list is also read from the fork again and compared, so a list
+// that no longer matches the fork fails by name, with the ids that differ.
 export function checkInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
@@ -468,9 +485,9 @@ export function checkInventory(
   const { fork: forkCheckout } = option;
   return resultOf(
     Effect.gen(function* () {
-      const kept = yield* keptLists(repository);
+      const kept = yield* allKeptLists(repository);
       if (forkCheckout !== undefined)
-        yield* matchFork(forkCheckout, repository, kept);
+        yield* requireKeptMatchFork(forkCheckout, repository, kept);
       return checkedResult(kept, forkCheckout);
     }),
   );

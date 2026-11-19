@@ -2,7 +2,7 @@ import { Schema } from "effect";
 import {
   byId,
   itemFields,
-  matchesIn,
+  matchesWithLines,
   place,
   type SourceFile,
 } from "./source.ts";
@@ -24,7 +24,10 @@ const LABEL_AT_STRING_START =
 export function terminalLabels(files: readonly SourceFile[]): TerminalLabel[] {
   const found = new Map<string, { source: string; files: Set<string> }>();
   for (const file of files)
-    for (const { match, line } of matchesIn(file, LABEL_AT_STRING_START)) {
+    for (const { match, line } of matchesWithLines(
+      file,
+      LABEL_AT_STRING_START,
+    )) {
       const id = `${match[1] ?? ""}${match[2] === "." ? ".*" : ""}`;
       const entry = found.get(id) ?? {
         source: place(file.path, line),

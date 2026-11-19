@@ -285,3 +285,14 @@ function `doAction`):
 - A boundary is a frame around boxes, not a box, and a style line draws
   nothing: both are left out.
 - An argument is a quoted text, which may hold commas, or a bare word.
+
+The source files the extractors are given (`readSourcesAsText`):
+
+- `python` is `mods/tasks/bin/herdr_task/*.py`. `service` is `service/*.ts`
+  and `service/hc/*.ts`: the link to herdr-core is the one part of the service
+  kept in a folder of its own. `coreFolder` is `core/*.js`.
+- Test files (`*.test.*`) are left out, and a folder inside one of these
+  folders is not entered.
+- The diagram is not in the old system's checkout. This repository keeps its
+  own copy at `docs/design/current-architecture.mmd`.
+- Nothing in the checkout is run or written: its files are read as text.

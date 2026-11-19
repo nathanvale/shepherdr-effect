@@ -132,6 +132,30 @@ Taken from the other design candidates and folded into the base by hand.
 - The same failure in many entries of an open record is reported once.
 - `state check` writes nothing and lets no file content leave the command.
 
+## How the inventory reads and keeps its lists
+
+- The extractors read tokens, not syntax trees. A token is one word of source
+  text: enough to find calls, comparisons and blocks.
+- Both token readers drop comments. A script's `/` is a division after a value
+  and the start of a regex after an operator or one of a few words (`return`,
+  `typeof`), so the reader decides from the token before.
+- A file whose brackets do not pair up was read wrongly or is not whole. A list
+  taken from it would be quietly short, so it is refused by name.
+- A list's name is its file's name: `inventory/<name>.json`. A list is in id
+  order, one code unit at a time, each id once.
+- State files are not an inventory list. `src/state-files/registry.ts` is their
+  one list, so they are taken from it each time and no file of them is kept. An
+  entry that matches by pattern is named by its pattern.
+- `--fork PATH` and nothing else names a fork, and no arguments name none.
+  Anything else is a usage refusal.
+- `inventory extract` writes only a file whose text would differ, so a second
+  run finds nothing to write, and it writes nothing outside `inventory/`.
+- `inventory check` reads a kept file through its list's schema, and a key the
+  schema does not name breaks it as a wrong value does. One file that is
+  missing, broken or unknown fails the check.
+- A list can differ in every item, so a failure names a few ids and counts the
+  rest.
+
 ## Rejected
 
 - **The event log itself.** SQLite gives atomic multi-table changes without

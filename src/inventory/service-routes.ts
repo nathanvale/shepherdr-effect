@@ -1,12 +1,13 @@
 import { Schema } from "effect";
 import { byId, itemFields, place, type SourceFile } from "./source.ts";
 import {
-  after,
+  afterTokenOrGroup,
+  type ExclusiveSpan,
   matches,
   NAME,
   REGEX_LITERAL,
   scriptTokens,
-  statementEnd,
+  semicolonOrCloser,
   STRING,
   type Tokens,
 } from "./tokens.ts";
@@ -26,8 +27,6 @@ export const ServiceRoute = Schema.Struct({
 });
 export type ServiceRoute = (typeof ServiceRoute)["Type"];
 
-type ExclusiveSpan = readonly [start: number, end: number];
-
 interface Found {
   readonly id: string;
   readonly at: number;
@@ -38,9 +37,12 @@ const MEMBER = [".", "?."];
 const within = (at: number, [start, end]: ExclusiveSpan) =>
   start < at && at < end;
 
-function enclosingBlock({ list, pair }: Tokens, at: number): ExclusiveSpan {
+function enclosingBlock(
+  { list, partnerOf }: Tokens,
+  at: number,
+): ExclusiveSpan {
   for (let index = at - 1; index >= 0; index -= 1) {
-    const partner = pair.get(index);
+    const partner = partnerOf.get(index);
     if (partner !== undefined && partner < index) index = partner;
     else if (partner !== undefined && matches(list, index, ["{"]))
       return [index, partner];
@@ -54,7 +56,7 @@ function pathVariables(
   const { list } = tokens;
   return list.flatMap((token, at) => {
     if (!matches(list, at, ["const", NAME, "="])) return [];
-    const end = statementEnd(tokens, at + 3);
+    const end = semicolonOrCloser(tokens, at + 3);
     const fromRequest = list
       .slice(at + 3, end)
       .some(({ kind, text }) => kind === "name" && text === "pathname");
@@ -90,13 +92,13 @@ interface Branch {
 }
 
 function branches(tokens: Tokens): Branch[] {
-  const { list, pair } = tokens;
+  const { list, partnerOf } = tokens;
   return list.flatMap((_, at) => {
-    const close = pair.get(at + 1);
+    const close = partnerOf.get(at + 1);
     if (!matches(list, at, ["if", "("]) || close === undefined) return [];
     const end = matches(list, close + 1, ["{"])
-      ? after(tokens, close + 1)
-      : statementEnd(tokens, close + 1);
+      ? afterTokenOrGroup(tokens, close + 1)
+      : semicolonOrCloser(tokens, close + 1);
     const between = (start: number, stop: number) =>
       Array.from({ length: stop - start }, (__, offset) => start + offset);
     const methods = between(at + 1, close)
@@ -127,7 +129,7 @@ function upgradeSpans(tokens: Tokens, all: readonly Branch[]): ExclusiveSpan[] {
   const flagged = list.flatMap((token, at): ExclusiveSpan[] =>
     matches(list, at, ["const", NAME, "="]) &&
     flags.has(list[at + 1]?.text ?? "")
-      ? [[at, statementEnd(tokens, at + 3)]]
+      ? [[at, semicolonOrCloser(tokens, at + 3)]]
       : [],
   );
   return [

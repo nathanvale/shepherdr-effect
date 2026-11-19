@@ -1,7 +1,13 @@
 import { Schema } from "effect";
-import { byId, fileAt, itemFields, place, type SourceFile } from "./source.ts";
 import {
-  after,
+  byId,
+  fileAtOrThrow,
+  itemFields,
+  place,
+  type SourceFile,
+} from "./source.ts";
+import {
+  afterTokenOrGroup,
   argumentsAt,
   matches,
   scriptTokens,
@@ -37,7 +43,7 @@ interface Named {
 }
 
 function functionBody(tokens: Tokens, name: string) {
-  const { list, pair } = tokens;
+  const { list, partnerOf } = tokens;
   const at = list.findIndex((_, index) =>
     matches(list, index, ["function", name, "("]),
   );
@@ -45,11 +51,11 @@ function functionBody(tokens: Tokens, name: string) {
   const parameters = argumentsAt(tokens, at + 2).map(
     ([start]) => list[start]?.text ?? "",
   );
-  const from = after(tokens, at + 2);
+  const from = afterTokenOrGroup(tokens, at + 2);
   const open = list.findIndex(
     (_, index) => index >= from && matches(list, index, ["{"]),
   );
-  return { parameters, open, close: pair.get(open) ?? open };
+  return { parameters, open, close: partnerOf.get(open) ?? open };
 }
 
 function comparedTypeWord({ list }: Tokens, at: number, parameters: string[]) {
@@ -60,12 +66,16 @@ function comparedTypeWord({ list }: Tokens, at: number, parameters: string[]) {
 }
 
 function switchedTypeWords(tokens: Tokens, at: number, parameters: string[]) {
-  const { list, pair } = tokens;
+  const { list, partnerOf } = tokens;
   const shape = ["switch", "(", parameters, MEMBER, "type", ")", "{"];
-  const close = pair.get(at + 6);
+  const close = partnerOf.get(at + 6);
   if (!matches(list, at, shape) || close === undefined) return [];
   const labels: (Token | undefined)[] = [];
-  for (let index = at + 7; index < close; index = after(tokens, index))
+  for (
+    let index = at + 7;
+    index < close;
+    index = afterTokenOrGroup(tokens, index)
+  )
     if (matches(list, index, ["case", STRING])) labels.push(list[index + 1]);
   return labels;
 }
@@ -91,7 +101,7 @@ function handled(file: SourceFile, name: string): Named[] {
 export function serviceActions(files: readonly SourceFile[]): ServiceAction[] {
   const found = PAGE_ACTION_HANDLERS.flatMap(
     ({ handler, path, function: name }) =>
-      handled(fileAt(files, path), name).map((action) => ({
+      handled(fileAtOrThrow(files, path), name).map((action) => ({
         ...action,
         handler,
         path,

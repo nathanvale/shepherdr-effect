@@ -1,39 +1,4 @@
 {
-  "src/commands-contract.ts": {
-    "repository/no-comments": {
-      "count": 1
-    }
-  },
-  "src/inventory/fork-checkout.ts": {
-    "repository/no-comments": {
-      "count": 4
-    }
-  },
-  "src/inventory/handlers.ts": {
-    "repository/no-comments": {
-      "count": 18
-    }
-  },
-  "src/inventory/lists.ts": {
-    "repository/no-comments": {
-      "count": 8
-    }
-  },
-  "src/inventory/source.ts": {
-    "repository/no-comments": {
-      "count": 8
-    }
-  },
-  "src/inventory/state-files.ts": {
-    "repository/no-comments": {
-      "count": 1
-    }
-  },
-  "src/inventory/tokens.ts": {
-    "repository/no-comments": {
-      "count": 18
-    }
-  },
   "tests/cli.test.ts": {
     "repository/no-comments": {
       "count": 1
