@@ -311,12 +311,14 @@ test("closing as completed needs positive evidence for every effect not yet conf
       const missing = yield* Effect.flip(
         service.close(attemptId, {
           disposition: "completed",
+          by: "person",
           evidence: { terminal: terminalFor(attemptId) },
         }),
       );
       const kept = yield* effectStates;
       yield* service.close(attemptId, {
         disposition: "completed",
+        by: "person",
         evidence: {
           terminal: terminalFor(attemptId),
           "task-assignment": terminalFor(attemptId, "agent row"),
@@ -346,6 +348,7 @@ test("closing as completed confirms an effect that never started only when its i
       const neverStarted = yield* refusedWith(
         service.close(anotherAttemptId, {
           disposition: "completed",
+          by: "person",
           evidence: { terminal: terminalFor(anotherAttemptId) },
         }),
       );
@@ -354,6 +357,7 @@ test("closing as completed confirms an effect that never started only when its i
       yield* observed(attemptId, "terminal", terminalFor(attemptId));
       yield* service.close(attemptId, {
         disposition: "completed",
+        by: "person",
         evidence: { "task-assignment": terminalFor(attemptId, "agent row") },
       });
       return {
@@ -379,6 +383,73 @@ test("closing as completed confirms an effect that never started only when its i
   });
 });
 
+test("only the person closes an Uncertain launch as completed, and the scheduler finishes one whose terminal is Confirmed", async () => {
+  const bothEffects = {
+    terminal: terminalFor(attemptId),
+    "task-assignment": terminalFor(attemptId, "agent row"),
+  };
+  const seen = await onTestJournal(
+    Effect.gen(function* () {
+      const service = yield* journal;
+      yield* service.begin(taskLaunch);
+      yield* observed(attemptId, "terminal", noEvidence);
+      const scheduler = yield* refusedWith(
+        service.close(attemptId, {
+          disposition: "completed",
+          by: "scheduler",
+          evidence: bothEffects,
+        }),
+      );
+      const kept = yield* effectStates;
+      const person = yield* refusedWith(
+        service.close(attemptId, {
+          disposition: "completed",
+          by: "person",
+          evidence: bothEffects,
+        }),
+      );
+      const afterPerson = yield* effectStates;
+      yield* service.begin(taskLaunch);
+      yield* observed(attemptId, "terminal", terminalFor(attemptId));
+      yield* observed(attemptId, "task-assignment", noEvidence);
+      const confirmed = yield* refusedWith(
+        service.close(attemptId, {
+          disposition: "completed",
+          by: "scheduler",
+          evidence: { "task-assignment": terminalFor(attemptId, "agent row") },
+        }),
+      );
+      return {
+        scheduler,
+        kept,
+        person,
+        afterPerson,
+        confirmed,
+        afterScheduler: yield* effectStates,
+      };
+    }),
+  );
+
+  expect(seen).toEqual({
+    scheduler: {
+      _tag: "CallerMayNotClose",
+      effectId: "terminal",
+      by: "scheduler",
+      state: "Uncertain",
+    },
+    kept: [
+      {
+        attemptId,
+        effects: { terminal: "Uncertain", "task-assignment": "Intended" },
+      },
+    ],
+    person: "not refused",
+    afterPerson: [],
+    confirmed: "not refused",
+    afterScheduler: [],
+  });
+});
+
 test("an attempt the journal does not hold, and an effect its intent did not declare, are refused by name", async () => {
   const seen = await onTestJournal(
     Effect.gen(function* () {
@@ -390,6 +461,7 @@ test("an attempt the journal does not hold, and an effect its intent did not dec
       const unknownClose = yield* Effect.flip(
         service.close(anotherAttemptId, {
           disposition: "completed",
+          by: "person",
           evidence: {},
         }),
       );
@@ -415,7 +487,11 @@ function eachEntry() {
       Effect.flip(observed(attemptId, "terminal", noEvidence)),
       Effect.flip(service.unresolved()),
       Effect.flip(
-        service.close(attemptId, { disposition: "completed", evidence: {} }),
+        service.close(attemptId, {
+          disposition: "completed",
+          by: "person",
+          evidence: {},
+        }),
       ),
     ]);
   });

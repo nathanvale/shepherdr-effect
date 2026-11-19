@@ -45,6 +45,7 @@ interface UnresolvedAttempt {
 type Closure =
   | {
       readonly disposition: "completed";
+      readonly by: "person" | "scheduler";
       readonly evidence: Readonly<Record<string, PositiveEvidence>>;
     }
   | {
@@ -69,6 +70,12 @@ class EffectNotDeclared extends Data.TaggedError("EffectNotDeclared")<{
 class AttemptRefused extends Data.TaggedError("AttemptRefused")<{
   readonly effectId: string;
   readonly refusal: AttemptRefusal;
+}> {}
+
+class CallerMayNotClose extends Data.TaggedError("CallerMayNotClose")<{
+  readonly effectId: string;
+  readonly by: "scheduler";
+  readonly state: Attempt["_tag"];
 }> {}
 
 class EvidenceMissing extends Data.TaggedError("EvidenceMissing")<{
@@ -116,6 +123,7 @@ interface CliKernelJournalShape {
     void,
     | AttemptNotFound
     | AttemptRefused
+    | CallerMayNotClose
     | EvidenceMissing
     | JournalUnreadable
     | NotBuilt
@@ -246,7 +254,10 @@ function closureEventsFor(
   { effectId, keyedByAttemptId }: DeclaredEffect,
   attempt: Attempt,
   closure: Closure,
-): Result.Result<ReadonlyArray<AttemptEvent>, EvidenceMissing> {
+): Result.Result<
+  ReadonlyArray<AttemptEvent>,
+  CallerMayNotClose | EvidenceMissing
+> {
   if (closure.disposition === "not-applied")
     return Result.succeed(
       attempt._tag === "Refuted"
@@ -254,6 +265,14 @@ function closureEventsFor(
         : [{ _tag: "Cancel", by: closure.by, reason: closure.reason }],
     );
   if (attempt._tag === "Confirmed") return Result.succeed([]);
+  if (closure.by === "scheduler" && !keyedByAttemptId)
+    return Result.fail(
+      new CallerMayNotClose({
+        effectId,
+        by: closure.by,
+        state: attempt._tag,
+      }),
+    );
   const evidence = closure.evidence[effectId];
   if (evidence === undefined)
     return Result.fail(new EvidenceMissing({ effectId }));
@@ -270,7 +289,10 @@ function closing(
   closure: Closure,
 ): (
   cases: Cases,
-) => Step<void, AttemptNotFound | AttemptRefused | EvidenceMissing> {
+) => Step<
+  void,
+  AttemptNotFound | AttemptRefused | CallerMayNotClose | EvidenceMissing
+> {
   return (cases) => {
     const unresolved = cases.get(attemptId);
     if (unresolved === undefined)
