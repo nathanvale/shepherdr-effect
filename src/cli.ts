@@ -6,6 +6,7 @@ import {
   commandSummaries,
   type CommandDefinition,
   type CommandResult,
+  selectCommand,
 } from "./commands-contract.ts";
 
 const CONTRACT_VERSION = "2.0.0";
@@ -562,12 +563,7 @@ async function main(argv: string[]): Promise<number> {
   );
   const inspection = runInspection(args, json);
   if (inspection !== undefined) return inspection;
-  const selected = commands.find(
-    (command) =>
-      command.route.every((token, index) => token === args[index]) &&
-      (command.route.length === args.length ||
-        command.argumentUsage !== undefined),
-  );
+  const selected = selectCommand(commands, args);
   if (selected !== undefined)
     return await runSelectedCommand(
       selected,

@@ -34,6 +34,18 @@ export interface CommandDefinition {
   stations(): readonly unknown[];
 }
 
+export function selectCommand(
+  commands: readonly CommandDefinition[],
+  args: readonly string[],
+): CommandDefinition | undefined {
+  return commands.find(
+    (command) =>
+      command.route.every((token, index) => token === args[index]) &&
+      (command.route.length === args.length ||
+        command.argumentUsage !== undefined),
+  );
+}
+
 export function commandSummaries(commands: readonly CommandDefinition[]) {
   return commands.map(
     ({ argumentUsage, commandIdentity, effectClass, route, summary }) => ({

@@ -15,7 +15,7 @@ export const itemFields = <Kind extends string>(kind: Kind) => ({
   }),
   source: Schema.String.check(Schema.isPattern(/^[^:]+:\d+$/)).annotateKey({
     description:
-      "Where the item was read: a path from the fork root, a colon and a line number.",
+      "Where the item was read: a path, a colon and a line number. The path is from the fork root, or from this repository's root for a diagram element.",
   }),
 });
 
