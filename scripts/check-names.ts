@@ -1,0 +1,224 @@
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
+import {
+  namesOnPaths,
+  newNameProblems,
+  readGlossary,
+  readRecordedHits,
+  recordedHitsFile,
+  stagedNewPaths,
+  stagedText,
+} from "./glossary.ts";
+import { holdsTestFile, readRepository, testFilePlaces } from "./repository.ts";
+
+const usage =
+  "Usage: bun run check:names <path> [path ...] | --staged | --tool-call";
+
+class UsageError extends Error {}
+
+export type Environment = {
+  readonly root: string;
+  readonly cwd: string;
+  readonly stdin: () => Promise<string>;
+};
+
+export type Outcome = {
+  readonly stderr: string;
+  readonly code: number;
+};
+
+type TextOf = (path: string) => string;
+
+function problemsGiven(textOf: TextOf, names: readonly string[]): string[] {
+  return newNameProblems(
+    names,
+    readGlossary(textOf("GLOSSARY.md")),
+    readRecordedHits(textOf(recordedHitsFile)),
+  );
+}
+
+function placementProblems(tree: string, names: readonly string[]): string[] {
+  if (!existsSync(join(tree, "repository.json"))) return [];
+  const { testAreas } = readRepository(tree);
+  const places = testFilePlaces(testAreas).join(", ");
+  return names
+    .filter(
+      (name) =>
+        name.startsWith("tests/") &&
+        name.endsWith(".test.ts") &&
+        !testAreas.some((area) => holdsTestFile(area, name)),
+    )
+    .map(
+      (name) =>
+        `${name} is a test file outside the folders repository.json gives test files. Repair: move it into one of ${places}, or add its folder to testAreas. Done when bun run check:names ${name} passes.`,
+    );
+}
+
+function problemsIn(tree: string, names: readonly string[]): string[] {
+  return [
+    ...problemsGiven((path) => readFileSync(join(tree, path), "utf8"), names),
+    ...placementProblems(tree, names),
+  ];
+}
+
+function stagedProblems(root: string): string[] {
+  const names = namesOnPaths(stagedNewPaths(root));
+  return [
+    ...problemsGiven((path) => stagedText(root, path), names),
+    ...placementProblems(root, names),
+  ];
+}
+
+function pathWithin(tree: string, absolute: string): string | undefined {
+  const path = relative(tree, absolute);
+  return /^(?:\.\.(?:\/|$)|\/|$)/.test(path) ? undefined : path;
+}
+
+function givenPath(root: string, cwd: string, arg: string): string {
+  const path = pathWithin(root, resolve(cwd, arg));
+  if (path === undefined)
+    throw new UsageError(`${arg} is outside this repository.`);
+  return path;
+}
+
+function givenPaths(
+  root: string,
+  cwd: string,
+  args: readonly string[],
+): string[] {
+  const option = args.find((arg) => arg.startsWith("--"));
+  if (option !== undefined) throw new UsageError(`Unknown option "${option}".`);
+  return args.map((arg) => givenPath(root, cwd, arg));
+}
+
+function owningTree(path: string): string | undefined {
+  const folder = dirname(path);
+  if (existsSync(join(folder, ".git"))) return folder;
+  return folder === path ? undefined : owningTree(folder);
+}
+
+function hasNamesCheck(tree: string): boolean {
+  return (
+    existsSync(join(tree, "GLOSSARY.md")) &&
+    existsSync(join(tree, recordedHitsFile))
+  );
+}
+
+function problemsCreating(file: string): string[] {
+  const tree = owningTree(file);
+  if (tree === undefined || !hasNamesCheck(tree)) return [];
+  return problemsIn(
+    tree,
+    namesOnPaths([relative(tree, file)]).filter(
+      (name) => !existsSync(join(tree, name)),
+    ),
+  );
+}
+
+function ownFields(value: unknown): Map<string, unknown> {
+  return new Map(
+    typeof value === "object" && value !== null ? Object.entries(value) : [],
+  );
+}
+
+type CallReader = {
+  readonly field: string;
+  readonly created: (value: string) => string[];
+};
+
+const callReaders = new Map<unknown, CallReader>([
+  ["Write", { field: "file_path", created: (filePath) => [filePath] }],
+  [
+    "apply_patch",
+    {
+      field: "command",
+      created: (patch) =>
+        [...patch.matchAll(/^\*\*\* (?:Add File|Move to): (.+?)\s*$/gm)].map(
+          ([, path = ""]) => path,
+        ),
+    },
+  ],
+]);
+
+function createdPaths(tool: unknown, input: Map<string, unknown>): string[] {
+  const reader = callReaders.get(tool);
+  if (reader === undefined)
+    throw new Error(
+      `--tool-call reads a Write call's file_path and an apply_patch call's command, not a ${String(tool)} call. Repair: wire the names check hook to those two tools.`,
+    );
+  const value = input.get(reader.field);
+  if (typeof value !== "string")
+    throw new Error(
+      `--tool-call got a ${String(tool)} call whose tool_input has no string ${reader.field}, so it cannot tell which names the call creates. Repair: pass the tool call as the hook receives it.`,
+    );
+  return reader.created(value);
+}
+
+function toolCallProblems(hookInput: string, fallbackCwd: string): string[] {
+  const call = ownFields(JSON.parse(hookInput));
+  const cwd = call.get("cwd");
+  const from =
+    typeof cwd === "string" ? resolve(fallbackCwd, cwd) : fallbackCwd;
+  return createdPaths(
+    call.get("tool_name"),
+    ownFields(call.get("tool_input")),
+  ).flatMap((path) => problemsCreating(resolve(from, path)));
+}
+
+type Mode = (environment: Environment) => Promise<string[]>;
+
+const modes = new Map<string, Mode>([
+  ["--staged", ({ root }) => Promise.resolve(stagedProblems(root))],
+  [
+    "--tool-call",
+    async ({ cwd, stdin }) => toolCallProblems(await stdin(), cwd),
+  ],
+]);
+
+function problemsFor(
+  args: readonly string[],
+  environment: Environment,
+): Promise<string[]> {
+  const [first, ...rest] = args;
+  if (first === undefined)
+    throw new UsageError("Give at least one path, --staged or --tool-call.");
+  const mode = modes.get(first);
+  if (mode === undefined)
+    return Promise.resolve(
+      problemsIn(
+        environment.root,
+        namesOnPaths(givenPaths(environment.root, environment.cwd, args)),
+      ),
+    );
+  if (rest.length > 0) throw new UsageError(`${first} takes no path.`);
+  return mode(environment);
+}
+
+export async function runNamesCheck(
+  args: readonly string[],
+  environment: Environment,
+): Promise<Outcome> {
+  try {
+    const problems = new Set(await problemsFor(args, environment));
+    return {
+      stderr: [...problems].map((problem) => `${problem}\n`).join(""),
+      code: problems.size > 0 ? 1 : 0,
+    };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return {
+      stderr: `${error instanceof UsageError ? `${usage}. ` : ""}${reason}\n`,
+      code: 2,
+    };
+  }
+}
+
+if (import.meta.main) {
+  const { stderr, code } = await runNamesCheck(process.argv.slice(2), {
+    root: join(import.meta.dir, ".."),
+    cwd: process.cwd(),
+    stdin: () => Bun.stdin.text(),
+  });
+  process.stderr.write(stderr);
+  process.exitCode = code;
+}

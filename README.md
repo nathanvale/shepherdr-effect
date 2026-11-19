@@ -84,11 +84,15 @@ Adopted from the template root:
 - Fallow checks folder boundaries and a recorded health baseline. The zones
   are the root's without its `kernel` zone. Fallow here also gates every
   finding and requires complete type-aware evidence, which the root does not.
+- `check:names` refuses a new file or folder name that uses a word
+  `GLOSSARY.md` lists under Avoid. Two naming tests run with `bun test`: they
+  judge every tracked name, and they fail on a glossary term that no tracked
+  file uses unless `tests/template/naming/recorded-unused-terms.json` records
+  it. Nine terms are recorded there. `names.test.ts` differs from the root's
+  copy in one assertion, which names three paths this repository has.
 
 The template root has these gates, and this repository does not have them yet:
 
-- `check:names` refuses a new file or folder name that uses a word
-  `GLOSSARY.md` lists under Avoid.
 - `check:commits` installs, type checks and lints each commit of a pull
   request.
 - `fault-replay` applies each recorded fault and confirms that a test fails.
@@ -100,8 +104,8 @@ The template root has these gates, and this repository does not have them yet:
 - The CI workflows run the checks on every pull request and every push to
   `main`, and the full check on macOS each night.
 
-The root's tests of its own gate tools stay in the template, as do its
-`CODING_STANDARDS.md` and `docs/standards/`.
+The root's tests of its own gate tools stay in the template, apart from the
+two naming tests above. So do its `CODING_STANDARDS.md` and `docs/standards/`.
 
 ## Checks this profile includes
 

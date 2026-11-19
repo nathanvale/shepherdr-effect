@@ -8,6 +8,7 @@
   "scripts": {
     "biome:check": "bun run format:check",
     "check:file-size": "bun --no-install scripts/check-file-size.ts",
+    "check:names": "bun run scripts/check-names.ts",
     "doctor": "bun run scripts/doctor.ts",
     "pretest": "bun run doctor",
     "check:write": "bun run format",

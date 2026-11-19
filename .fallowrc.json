@@ -84,5 +84,5 @@
     "unused-svelte-events": "error"
   },
   "supportEntry": ["scripts/check-file-size.ts"],
-  "entry": ["scripts/doctor.ts"]
+  "entry": ["scripts/doctor.ts", "scripts/check-names.ts"]
 }

@@ -50,8 +50,21 @@
         "count": 2
       }
     },
+    "scripts/check-names.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
     "scripts/doctor.ts": {
       "crap_high": {
+        "count": 3
+      }
+    },
+    "scripts/repository.ts": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
         "count": 3
       }
     },
@@ -327,6 +340,11 @@
         "count": 1
       }
     },
+    "scripts/check-names.ts\u0000runNamesCheck": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
     "scripts/doctor.ts\u0000fallowCheck": {
       "crap_high": {
         "count": 1
@@ -339,6 +357,26 @@
     },
     "scripts/doctor.ts\u0000fallowReport": {
       "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000fields": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000holdsTestFile": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000requireText": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000testArea": {
+      "crap_moderate": {
         "count": 1
       }
     },
