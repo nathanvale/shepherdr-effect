@@ -20,7 +20,7 @@ overrule them.
 | Client          | `bun:sqlite` directly            | Kept                                       |
 | Database files  | One per machine                  | Kept                                       |
 
-**One decision for the owner.** On macOS `synchronous=FULL` calls `fsync()`,
+**Full flush on macOS.** On macOS `synchronous=FULL` calls `fsync()`,
 which does not flush the drive's cache. Measured here (`fsync-cost.ts`, 300
 calls each): `fsync` p50 0.03 ms, `F_BARRIERFSYNC` 0.3 ms, `F_FULLFSYNC` 4.0
 ms. sqlite.org: "The default value of the fullfsync flag is off. Only Mac OS
@@ -28,8 +28,11 @@ X supports F_FULLFSYNC" ([pragma.html](https://www.sqlite.org/pragma.html#pragma
 So FULL alone is weaker on macOS than on Linux. This note turns `fullfsync`
 on, since the intent is durability. The cost is a long tail at 20 concurrent
 writers (p99 1.3 to 1.4 s). Off, the p99 is near 54 ms but the last commits
-may be lost on a power cut. That weakens durability, so it is the owner's
-call and not recommended here.
+may be lost on a power cut. That weakens durability.
+
+Decided by Nathan on 2026-11-19: `fullfsync` stays on. Most work runs on
+Linux, where this pragma has no effect; macOS is supported, and accepts the
+slower tail.
 
 ## The 3.52.0 corruption bug
 
@@ -157,7 +160,7 @@ Why each step, in order:
 - **`synchronous=FULL`.** "FULL is atomic, consistent, isolated, and durable
   (ACID) in WAL mode"; under NORMAL a commit "might roll back following a
   power loss or system crash" (pragma.html).
-- **`fullfsync=ON` on macOS.** The owner's decision above.
+- **`fullfsync=ON` on macOS.** Decided above.
 - **`foreign_keys=ON`.** Off by default and "a no-op within a transaction",
   so set at open.
 - **`wal_autocheckpoint=1000`.** The default, made explicit. It stays on in
