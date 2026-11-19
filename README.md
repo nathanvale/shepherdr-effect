@@ -105,14 +105,18 @@ Adopted from the template root:
   confirms that its named test fails. The one fault record removes the state
   check's usage refusal, and `tests/state-check.test.ts` must catch it.
   `bun run planted-fault:add` writes a new record.
+- The agent hooks run the names check on each file an agent creates (a
+  Claude Code `Write`, a Codex `apply_patch`), and block an agent's
+  `git commit` or `git push` when Fallow's audit fails. `CLAUDE.md` loads
+  `AGENTS.md` into Claude Code. Fallow's two pointer skills are under
+  `.agents/skills/`, with links under `.claude/skills/`. `biome.jsonc` skips
+  the skill folders, as the root does.
 
 The template root has these gates, and this repository does not have them yet:
 
 - The Git hooks run the names, file size, format, lint, type and Fallow checks
   on staged files before a commit, and Fallow and the fault replay before a
   push.
-- The agent hooks run the names check on each file an agent writes, and block
-  an agent's commit or push when Fallow fails.
 - The CI workflows run the checks on every pull request and every push to
   `main`, and the full check on macOS each night.
 

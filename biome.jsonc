@@ -11,7 +11,11 @@
       "!**/bun.lock",
       "!eslint-suppressions.json",
       // Written by `inventory extract`, which is the one owner of their text.
-      "!inventory"
+      "!inventory",
+      "!!.agents/skills/fallow",
+      "!!.agents/skills/fallow-setup",
+      "!!.claude/skills/fallow",
+      "!!.claude/skills/fallow-setup"
     ]
   },
   "formatter": {
