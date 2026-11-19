@@ -9,6 +9,8 @@ working replacement, and nothing here runs against a live Herdr install.
 
 - **Run:** `bun run start --help`
 - **Check:** `bun run check`
+- **Remote:** `nathanvale/shepherdr-effect` on GitHub, public. The work is on
+  the `feat/effect-v4-design` branch; `main` holds only the comparison base.
 - **Source:** the C4 diagram named under Source packet below, and the fork's
   code at `9859c344`. No vault project packet exists yet.
 - **Promote** to `~/code/<repository>/` with a vault project packet if the

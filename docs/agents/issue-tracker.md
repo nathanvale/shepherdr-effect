@@ -3,8 +3,9 @@
 Issues and specs for this repository live in Linear, in the team
 `myagentdojo` (issue keys start with `MAG-`), project `Agent ecosystem`.
 
-Use the Linear tools the session provides. This repository has no Git remote,
-so there are no GitHub issues and no pull requests to treat as requests.
+Use the Linear tools the session provides. The repository's remote is
+`nathanvale/shepherdr-effect` on GitHub, and it is public. GitHub issues are
+not used, and a pull request there is a change to review, not a request.
 
 ## Conventions
 
