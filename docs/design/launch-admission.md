@@ -128,7 +128,8 @@ returns. The morning report lists it.
 
 A model of one task launch, checked over every order of its steps, is in
 [launch-model/README.md](launch-model/README.md), which lists its rules and
-results. One rule breaks: a launch never blocks its task for good.
+results. One rule breaks: an unresolved launch is never left with no step
+that anyone can take.
 
 - The run records that it is about to send, and herdr-core never starts the
   terminal. Either the run crashes before it writes the request, or the

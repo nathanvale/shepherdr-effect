@@ -34,15 +34,27 @@ are not kebab-case.
 
 ## Results
 
-TLC finds 26 states and 32 steps.
+TLC finds 26 states and 32 steps. The statechart tool checks each rule in a
+run of its own, and then checks every rule on every state of the whole graph.
+So the rule that breaks does not hide a state from the others.
 
 | Rule                                                                                          | In the design |
 | --------------------------------------------------------------------------------------------- | ------------- |
-| A launch is Confirmed, or closed as completed, only on a terminal that carries its attempt id | Holds         |
+| A launch is Confirmed, or closed as completed, only after herdr-core has started its terminal | Holds         |
 | Nothing closes as not applied while a herdr-core request may still be pending                 | Holds         |
-| A launch never blocks its task for good                                                       | Breaks        |
+| An unresolved launch is never left with no step that anyone can take                          | Breaks        |
 
 The first two rules are Nathan's. The third is the architecture review's.
+
+Two of these say less than they may seem to:
+
+- The first rule checks the order of steps, not the label. The model has one
+  launch and one request, so "herdr-core has started its terminal" stands in
+  for positive evidence. It cannot tell a terminal that carries the attempt
+  id from one with a wrong or missing label.
+- The third rule is weaker than "a launch never blocks its task for good". A
+  stopped run with a pending request passes it, because herdr-core can still
+  start or drop the request, and the model does not say that it ever does.
 
 Nathan's third rule, that the task assignment happens at most once, is not a
 result. The model writes the agent row as one store transaction keyed by the
@@ -70,8 +82,10 @@ The path that the first change opens: the run sends the request and stops
 waiting for a reply, the person closes the launch as not applied because no
 terminal shows, and herdr-core can still start the terminal.
 
-The second change holds only in the model. Whether herdr-core can show that
-a request can no longer apply is not known.
+The second change holds only in the model, and on an assumption. The model
+lets the person refute exactly when the request was never written or was
+dropped. It does not model the evidence, or how it is observed. Whether
+herdr-core can show that a request can no longer apply is not known.
 
 ## What it leaves out
 

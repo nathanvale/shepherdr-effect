@@ -141,8 +141,10 @@ Spec == Init /\ [][Next]_vars
 \* The kernel's unresolved case: a launch with no completion and no closure.
 UnresolvedCase == kernelJournal \in {"intent", "effect-started", "effect-unconfirmed", "effect-confirmed"}
 
-\* A launch counts as Confirmed, or is closed as completed, only on positive
-\* evidence: a terminal that carries its attempt id.
+\* A launch counts as Confirmed, or is closed as completed, only after
+\* herdr-core has started the terminal for its request. The model has one
+\* launch and one request, so that stands in for positive evidence. It cannot
+\* tell a terminal with the right label from one with a wrong or missing label.
 EvidenceBeforeConfirmed ==
   kernelJournal \in {"effect-confirmed", "completion", "closed-completed"} => request = "applied"
 
@@ -154,7 +156,8 @@ NoNotAppliedWhilePending ==
 \* AssignAgent is keyed by the attempt id, so no order of steps can break it.
 AssignedAtMostOnce == assignments <= 1
 
-\* The review's own rule, not one of Nathan's three: a launch never blocks its
-\* task for good. Someone can always still close an unresolved launch.
+\* The review's own rule, not one of Nathan's three: an unresolved launch is
+\* never left with no step that anyone can take. It does not say that a
+\* pending request is ever started or dropped.
 NoDeadEnd == ~(UnresolvedCase /\ ~ENABLED Next)
 ====
