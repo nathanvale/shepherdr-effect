@@ -128,7 +128,7 @@ for (const [path, change, finding] of wrongTypes) {
 test("a task state outside the six stored states does not decode", async () => {
   const verdict = await verdictOf(`${TASKS}/widgets.json`, {
     version: 1,
-    folder: "/home/example/widgets",
+    folder: "/example-home/widgets",
     kind: "repo",
     name: "widgets",
     slug: "widgets",

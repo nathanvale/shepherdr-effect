@@ -67,9 +67,6 @@
   "src/inventory/tokens.ts": {
     "repository/no-comments": {
       "count": 18
-    },
-    "repository/no-in-operator": {
-      "count": 1
     }
   },
   "src/state-files/attempts.ts": {
@@ -130,28 +127,11 @@
   "tests/cli.test.ts": {
     "repository/no-comments": {
       "count": 1
-    },
-    "repository/no-host-path-literal": {
-      "count": 5
-    },
-    "repository/tests-no-sleep": {
-      "count": 1
-    },
-    "repository/tests-use-test-folder": {
-      "count": 5
-    }
-  },
-  "tests/engine-state-fixtures.ts": {
-    "repository/no-host-path-literal": {
-      "count": 12
     }
   },
   "tests/inventory-extractors.test.ts": {
     "repository/no-comments": {
       "count": 15
-    },
-    "repository/require-to-throw-message": {
-      "count": 2
     }
   },
   "tests/inventory-fixtures.ts": {
@@ -162,41 +142,26 @@
   "tests/inventory.test.ts": {
     "repository/no-comments": {
       "count": 6
-    },
-    "repository/tests-use-test-folder": {
-      "count": 2
     }
   },
   "tests/state-check.test.ts": {
     "repository/no-comments": {
       "count": 1
-    },
-    "repository/tests-use-test-folder": {
-      "count": 2
     }
   },
   "tests/state-file-fixtures.ts": {
     "repository/no-comments": {
       "count": 3
-    },
-    "repository/no-host-path-literal": {
-      "count": 6
     }
   },
   "tests/state-files.test.ts": {
     "repository/no-comments": {
       "count": 2
-    },
-    "repository/no-host-path-literal": {
-      "count": 1
     }
   },
   "tests/task-list-fixtures.ts": {
     "repository/no-comments": {
       "count": 1
-    },
-    "repository/no-host-path-literal": {
-      "count": 5
     }
   }
 }

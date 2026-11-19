@@ -101,7 +101,7 @@ function paired(file: SourceFile, list: readonly Token[]): Tokens {
   for (const [index, token] of list.entries()) {
     if (token.kind !== "punct") continue;
     if (OPENERS.has(token.text)) open.push(index);
-    if (!(token.text in OPENED_BY)) continue;
+    if (!Object.hasOwn(OPENED_BY, token.text)) continue;
     const start = open.pop() ?? -1;
     if (textAt(list, start) !== OPENED_BY[token.text]) throw alone(index);
     pair.set(start, index).set(index, start);

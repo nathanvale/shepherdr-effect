@@ -63,7 +63,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
     },
     spaces: {
       sp1: {
-        folder: "/home/example/widgets",
+        folder: "/example-home/widgets",
         name: "Widgets",
         machine: "vm-b",
         tasks: { base: "develop" },
@@ -159,9 +159,9 @@ export const validFiles: Readonly<Record<string, unknown>> = {
   },
   [`${STATE}/codex-sandbox.json`]: {
     key: {
-      codex: "/usr/bin/codex",
+      codex: "/example-bin/codex",
       codex_at: "1000:1800000000",
-      bwrap: "/usr/bin/bwrap",
+      bwrap: "/example-bin/bwrap",
       bwrap_at: null,
       userns: "1",
       profile: null,
@@ -170,7 +170,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
     at: 1_800_000_000.5,
     broken: {
       error: "bwrap: example refusal",
-      bwrap: "/usr/bin/bwrap",
+      bwrap: "/example-bin/bwrap",
       userns: true,
       at: 1_800_000_000,
     },
@@ -178,7 +178,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
   [`${STATE}/migrate.json`]: {
     started: T0,
     kinds: { tasks: "moved", "model-picks": "kept", settings: "swapped" },
-    backups: { settings: "/home/example/.herdr/shepherdr.json.pre-layout2" },
+    backups: { settings: "/example-home/.herdr/shepherdr.json.pre-layout2" },
     finished: T0,
     notes: ["example note"],
     cleaned: T0,
@@ -202,7 +202,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
         state: "live",
         labels: { "herdr.role": "coordinator" },
         argv: ["claude"],
-        cwd: "/home/example/widgets",
+        cwd: "/example-home/widgets",
         pid: 4242,
         parent: null,
         template: "assistant",

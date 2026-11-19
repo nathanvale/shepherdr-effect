@@ -1,13 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import {
-  mkdir,
-  mkdtemp,
-  readdir,
-  readFile,
-  rm,
-  writeFile,
-} from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { stateFiles } from "../src/state-files/registry.ts";
 import {
@@ -18,6 +10,7 @@ import {
   forkCheckoutFiles,
   MAIN,
 } from "./inventory-fixtures.ts";
+import { testFolder } from "./support/test-folder.ts";
 
 const CLI_FILE = resolve(import.meta.dir, "../src/cli.ts");
 const roots: string[] = [];
@@ -42,7 +35,7 @@ afterEach(async () => {
 });
 
 async function folderOf(files: Readonly<Record<string, string>>) {
-  const root = await mkdtemp(join(tmpdir(), "inventory-test-"));
+  const root = testFolder("inventory-test-");
   roots.push(root);
   for (const [path, text] of Object.entries(files)) {
     await mkdir(dirname(join(root, path)), { recursive: true });

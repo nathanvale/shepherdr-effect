@@ -230,9 +230,13 @@ test("the lists are the seven named ones, and each reads through its own schema 
     const read = Schema.decodeUnknownSync(list.schema);
 
     expect(read(items)).toEqual(items);
-    expect(() => read([...items].reverse())).toThrow();
+    expect(() => read([...items].reverse())).toThrow(
+      "Expected items in id order, each id once",
+    );
     // The same id twice.
-    expect(() => read([...items, ...items.slice(-1)])).toThrow();
+    expect(() => read([...items, ...items.slice(-1)])).toThrow(
+      "Expected items in id order, each id once",
+    );
   }
 });
 

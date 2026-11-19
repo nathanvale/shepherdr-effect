@@ -1,8 +1,8 @@
 import { afterEach, expect, test } from "bun:test";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileText, validFiles } from "./state-file-fixtures.ts";
+import { testFolder } from "./support/test-folder.ts";
 
 const ROOT = resolve(import.meta.dir, "..");
 const TASKS = ".local/share/shepherdr/tasks";
@@ -16,7 +16,7 @@ afterEach(async () => {
 
 /** A state root holding these files, each given as its content or its exact text. */
 async function stateRoot(files: Readonly<Record<string, unknown>>) {
-  const root = await mkdtemp(join(tmpdir(), "state-check-test-"));
+  const root = testFolder("state-check-test-");
   roots.push(root);
   for (const [path, content] of Object.entries(files)) {
     await mkdir(dirname(join(root, path)), { recursive: true });

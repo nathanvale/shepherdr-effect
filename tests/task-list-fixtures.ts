@@ -54,10 +54,10 @@ const runningTask = {
       at: T0 + 1,
       launch: LAUNCH_ID,
       parent: "t1",
-      config_dir: "/home/example/.claude",
+      config_dir: "/example-home/.claude",
       provider: AZURE_BINDING,
       session: "session-1",
-      log: "/home/example/logs/session-1.jsonl",
+      log: "/example-home/logs/session-1.jsonl",
       log_looked: T0 + 2,
       ended: T0 + 3,
     },
@@ -70,7 +70,7 @@ const runningTask = {
   ],
   reviewers: [{ address: "t1c", agent: "codex", argv: ["codex"], at: T0 + 5 }],
   space: "sp1",
-  worktree: "/home/example/worktrees/widget",
+  worktree: "/example-home/worktrees/widget",
   branch: "task/1-add-the-widget",
   base: "main",
   start: "1111111",
@@ -279,7 +279,7 @@ const automation = {
 export const taskListFiles = {
   [`${TASKS}/widgets.json`]: {
     version: 1,
-    folder: "/home/example/widgets",
+    folder: "/example-home/widgets",
     kind: "repo",
     name: "widgets",
     slug: "widgets",
@@ -318,7 +318,7 @@ export const taskListFiles = {
   // A folder whose path under home starts with a dot keeps the dot in its slug.
   [`${TASKS}/.config-example.json`]: {
     version: 1,
-    folder: "/home/example/.config/example",
+    folder: "/example-home/.config/example",
     kind: "folder",
     name: "example",
     slug: ".config-example",
