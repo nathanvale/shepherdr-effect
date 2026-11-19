@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { Effect, Fiber, Stream } from "effect";
+import { Deferred, Effect, Exit, Fiber, Stream } from "effect";
 import {
   HerdrCore,
   SendPermitMaker,
@@ -135,6 +135,61 @@ for (const [startReply, terminals, observed] of [
       terminals: [...terminals],
     });
   });
+
+test("an interrupted start stops waiting for its reply, and the terminal herdr-core starts later is found by its label", async () => {
+  const herdrCoreActs = Deferred.makeUnsafe<void>();
+  const seen = await onTestLink(
+    Effect.gen(function* () {
+      const link = yield* HerdrCore;
+      const terminalStarted = yield* link.events.pipe(
+        Stream.take(1),
+        Stream.runCollect,
+        Effect.forkChild({ startImmediately: true }),
+      );
+      const starting = yield* started.pipe(
+        Effect.forkChild({ startImmediately: true }),
+      );
+      const whileWithheld = {
+        observed: yield* link.observeLaunch(attemptId),
+        terminals: yield* link.listTerminals(),
+      };
+      yield* Fiber.interrupt(starting);
+      const stopped = yield* Fiber.await(starting);
+      yield* Deferred.succeed(herdrCoreActs, undefined);
+      yield* Fiber.join(terminalStarted);
+      return {
+        whileWithheld,
+        interrupted: Exit.hasInterrupts(stopped),
+        later: yield* link.observeLaunch(attemptId),
+      };
+    }),
+    { startReply: { withheldUntil: Deferred.await(herdrCoreActs) } },
+  );
+
+  expect(seen).toEqual({
+    whileWithheld: { observed: { _tag: "Unobservable" }, terminals: [] },
+    interrupted: true,
+    later: { _tag: "PositiveEvidence", attemptId, result: "t1" },
+  });
+});
+
+test("a start whose reply is withheld answers the address once herdr-core has started the terminal", async () => {
+  const herdrCoreActs = Deferred.makeUnsafe<void>();
+  const seen = await onTestLink(
+    Effect.gen(function* () {
+      const link = yield* HerdrCore;
+      const starting = yield* started.pipe(
+        Effect.forkChild({ startImmediately: true }),
+      );
+      const before = yield* link.listTerminals();
+      yield* Deferred.succeed(herdrCoreActs, undefined);
+      return { before, address: yield* Fiber.join(starting) };
+    }),
+    { startReply: { withheldUntil: Deferred.await(herdrCoreActs) } },
+  );
+
+  expect(seen).toEqual({ before: [], address: t1 });
+});
 
 test("what is typed into a terminal reaches its screen and whoever watches it", async () => {
   const seen = await onTestLink(

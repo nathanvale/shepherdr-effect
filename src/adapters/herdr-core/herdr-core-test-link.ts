@@ -1,4 +1,4 @@
-import { Effect, PubSub, Ref, Stream } from "effect";
+import { Effect, Fiber, PubSub, Ref, Stream } from "effect";
 import {
   HerdrCoreUnavailable,
   type HerdrCoreShape,
@@ -23,7 +23,11 @@ export interface HerdrCoreTestScript {
     command: MachineCommand,
     files: ReadonlyMap<string, Uint8Array>,
   ) => MachineReply;
-  readonly startReply?: "address" | "lost-after-start" | "lost-before-start";
+  readonly startReply?:
+    | "address"
+    | "lost-after-start"
+    | "lost-before-start"
+    | { readonly withheldUntil: Effect.Effect<void> };
   readonly linkLost?: boolean;
 }
 
@@ -132,15 +136,28 @@ export function herdrCoreTestLink(
             return yield* new SendPermitRefused({
               reason: "not made by the send permit maker, or already spent",
             });
-          const { terminals } = yield* linked("startTerminal");
+          yield* linked("startTerminal");
           const reply = script.startReply ?? "address";
           if (reply === "lost-before-start") return yield* unanswered;
-          const address = TerminalAddress.make(`t${terminals.size + 1}`);
-          yield* changed({
-            ...start,
-            address,
-            labels: { ...start.labels, "herdr.launch": attemptId },
-          });
+          const startedByHerdrCore = Ref.get(core).pipe(
+            Effect.map(({ terminals }) =>
+              TerminalAddress.make(`t${terminals.size + 1}`),
+            ),
+            Effect.tap((address) =>
+              changed({
+                ...start,
+                address,
+                labels: { ...start.labels, "herdr.launch": attemptId },
+              }),
+            ),
+          );
+          if (typeof reply === "object")
+            return yield* reply.withheldUntil.pipe(
+              Effect.andThen(startedByHerdrCore),
+              Effect.forkDetach,
+              Effect.flatMap(Fiber.join),
+            );
+          const address = yield* startedByHerdrCore;
           if (reply === "lost-after-start") return yield* unanswered;
           return address;
         }),

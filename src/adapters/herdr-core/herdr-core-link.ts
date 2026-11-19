@@ -86,6 +86,9 @@ export class MachineNotLinked extends Data.TaggedError("MachineNotLinked")<{
 }> {}
 
 export interface HerdrCoreShape {
+  // Interface: interrupting a start ends its request on the link: the call
+  // stops at once and its reply is given up. herdr-core may still start the
+  // terminal afterwards, and `observeLaunch` then finds it by its label.
   readonly startTerminal: (
     permit: SendPermit,
     start: TerminalStart,
