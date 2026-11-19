@@ -111,17 +111,23 @@ Adopted from the template root:
   `AGENTS.md` into Claude Code. Fallow's two pointer skills are under
   `.agents/skills/`, with links under `.claude/skills/`. `biome.jsonc` skips
   the skill folders, as the root does.
+- The CI workflows are the root's own files. `ci.yml` runs on every pull
+  request and on every push to `main`: the checks, the tests in three shards,
+  the commit check and the fault replay. `macos-nightly.yml` runs the full
+  check on macOS each night. The pins test fails when a workflow's
+  `setup-bun` step names another Bun version than `package.json`. The root's
+  `tests/test-timings.json` is not copied, so Bun splits the shards without
+  recorded timings.
 
 The template root has these gates, and this repository does not have them yet:
 
 - The Git hooks run the names, file size, format, lint, type and Fallow checks
   on staged files before a commit, and Fallow and the fault replay before a
   push.
-- The CI workflows run the checks on every pull request and every push to
-  `main`, and the full check on macOS each night.
 
 The root's tests of its own gate tools stay in the template, apart from the
-two naming tests above. So do its `CODING_STANDARDS.md` and `docs/standards/`.
+two naming tests and the pins test above. So do its `CODING_STANDARDS.md`,
+`docs/standards/`, `.coderabbit.yaml` and pull request guide.
 
 ## Checks this profile includes
 
