@@ -90,6 +90,8 @@ Tasks:
   herdr-core reads.
 - Only the person makes a task Done. Today nothing in code enforces this: the
   `done` command has no caller check; agents are held back by an allow-list.
+  Nathan decided on 2026-11-19 that the Assistant may also mark a task Done,
+  as a recorded relay of the person's request.
 - One scheduler per machine, in a kept terminal named `herdr-automations`.
   One tick at a time (`.tick.lock`).
 

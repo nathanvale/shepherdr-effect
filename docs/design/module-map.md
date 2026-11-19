@@ -130,7 +130,7 @@ and how.
 | Missing settings means Personal; unreadable refuses                   | Settings                          | `readStrict` returns a `SettingsView` or `SettingsUnreadable`                                                                              |
 | Resume, stale selection, Azure AI Foundry on the settings owner       | Provider route                    | `planFromRecordedBinding`, the `SelectionRevision` compare, the `settingsOwner` check                                                      |
 | Six stored states; the rest derived                                   | Task                              | `TaskState` has six literals and a store check; `TaskStatus` comes only from `deriveTaskStatus`                                            |
-| Only the person marks Done                                            | Task                              | `markDone` takes a `PersonCaller`; same user, so not a security boundary                                                                   |
+| The person marks Done, or the Assistant relays the person's request   | Task                              | `markDone` takes a `PersonCaller` or an Assistant relay, and records which; same user, so not a security boundary                          |
 | One scheduler per machine, in `herdr-automations`                     | Tick procedures                   | A utility launch with launch identity `scheduler:<machine>`                                                                                |
 | One tick at a time                                                    | Tick procedures                   | The tick lock is a store row naming its holder (was `flock`)                                                                               |
 | Request admission                                                     | Request admission                 | The transport runs `admitRequest` before every handler and the Origin check before every upgrade                                           |
@@ -163,8 +163,9 @@ From [synthesis.md](synthesis.md):
    An agent's command never depends on the daemon.
 3. **A dead attempt owner.** May an Intended attempt close as not applied
    without you? The kernel cannot yet prove an attempt owner stopped (item 1).
-4. **Done and the Assistant.** Refuse it, or allow it as a recorded relay of
-   your words?
+4. **Done and the Assistant.** Decided by Nathan on 2026-11-19: the Assistant
+   may mark a task Done. The design reads this as a relay of the person's
+   request, and the task records that the Assistant relayed it.
 5. **Other machines.** Bun with one bundle, or a compiled binary per platform?
 
 New:
