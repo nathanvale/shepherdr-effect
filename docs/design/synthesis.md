@@ -131,6 +131,13 @@ Taken from the other design candidates and folded into the base by hand.
   name and not a value.
 - The same failure in many entries of an open record is reported once.
 - `state check` writes nothing and lets no file content leave the command.
+- A registry entry names its file by a path from the state root with `/`
+  between its parts, or by a pattern over such paths. A lock path is from the
+  file's own folder.
+- In a `json-lines` file every line is one document of the schema. Only the
+  final newline is dropped before the lines are read, so an empty line
+  anywhere else is a finding.
+- `listRegularFiles` returns regular files only, as paths from the state root.
 
 ## How the inventory reads and keeps its lists
 

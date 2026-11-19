@@ -57,7 +57,7 @@ function rootArgument(args: readonly string[]): string | undefined {
     : undefined;
 }
 
-const listRegularFilesAsSlashPathsFromRoot = (root: string) =>
+const listRegularFiles = (root: string) =>
   Effect.tryPromise(async () => {
     const entries = await readdir(root, {
       recursive: true,
@@ -178,7 +178,7 @@ export function checkStateFiles(
         "Pass --dir with one folder path and retry.",
       ),
     );
-  const checked = listRegularFilesAsSlashPathsFromRoot(root).pipe(
+  const checked = listRegularFiles(root).pipe(
     Effect.flatMap((paths) =>
       Effect.forEach(paths, (path) => checkFile(root, path), {
         concurrency: 8,

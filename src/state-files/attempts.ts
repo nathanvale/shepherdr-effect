@@ -58,7 +58,7 @@ const fieldsWrittenAtIntent = {
   config_dir: Schema.NullOr(Schema.String),
 };
 
-const fieldsWrittenBeforeHcRunOrSend = {
+const fieldsWrittenBeforeSend = {
   sent_at: optional(Millis),
   task: optional(TaskAssignment),
   provider: optional(RecordedBinding),
@@ -89,7 +89,7 @@ const fieldsWrittenWhenLaunchCloses = {
 
 const LaunchRecord = Schema.Struct({
   ...fieldsWrittenAtIntent,
-  ...fieldsWrittenBeforeHcRunOrSend,
+  ...fieldsWrittenBeforeSend,
   ...fieldsWrittenWhenLaunchCloses,
 });
 

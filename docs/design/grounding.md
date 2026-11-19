@@ -180,7 +180,7 @@ from their names. Their origin in the old code:
 - `ownChoicesInsteadOfSettings`: what runs the task and how, where the task
   says so itself instead of Settings.
 - `fieldsWrittenAtIntent`: launch_admission.py `Admission.claimed`.
-- `fieldsWrittenBeforeHcRunOrSend`: `_mark_sent`.
+- `fieldsWrittenBeforeSend`: `_mark_sent`, before `hc run` or `hc send`.
 - `fieldsWrittenWhenLaunchCloses`: `_close`, `launch recover` and
   `launch reconcile`.
 
@@ -195,8 +195,8 @@ from their names. Their origin in the old code:
   goes by content.
 - `usage.jsonl`: past 2 MB the log is renamed to `usage.1.jsonl` and a new one
   begins.
-- `renamedUnderSchedulerRoundAndWindowTickLock`: the scheduler's round and the
-  window's tick write those files inside one lock.
+- `renamedUnderTickLock`: the scheduler's round and the window's tick write
+  those files inside one lock, `.tick.lock`.
 - A `Writer` is a program that writes the file today, and a `WriteDiscipline`
   is how those writers put it on disk today. `fsync` says the bytes are synced
   before the rename.

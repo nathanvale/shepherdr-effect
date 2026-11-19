@@ -32,13 +32,13 @@ export type Writer =
   | "installer"
   | "herdr-core";
 
-export type LockFilePathFromTheFilesFolder = string;
+export type LockPath = string;
 
 export type WriteDiscipline =
   | { readonly write: "never" }
   | {
       readonly write: "rename" | "in-place" | "append";
-      readonly lock: LockFilePathFromTheFilesFolder | null;
+      readonly lock: LockPath | null;
       readonly fsync: boolean;
     };
 
@@ -52,13 +52,13 @@ export type Family =
   | "herdr-core";
 
 export type SlashPathFromStateRoot = string;
-export type PatternOverSlashPathsFromStateRoot = RegExp;
-export type EveryLineIsOneDocumentOfTheSchema = "json-lines";
+export type StatePathPattern = RegExp;
+export type JsonLinesFormat = "json-lines";
 
 export interface StateFileEntry {
   readonly family: Family;
-  readonly file: SlashPathFromStateRoot | PatternOverSlashPathsFromStateRoot;
-  readonly format: "json" | EveryLineIsOneDocumentOfTheSchema;
+  readonly file: SlashPathFromStateRoot | StatePathPattern;
+  readonly format: "json" | JsonLinesFormat;
   readonly schema: Schema.Codec<unknown, unknown>;
   readonly writers: readonly Writer[];
   readonly discipline: WriteDiscipline;
@@ -86,7 +86,7 @@ const inPlace = (lock: string | null = null): WriteDiscipline => ({
   lock,
   fsync: false,
 });
-const renamedUnderSchedulerRoundAndWindowTickLock = renamed(".tick.lock");
+const renamedUnderTickLock = renamed(".tick.lock");
 
 export const stateFiles: readonly StateFileEntry[] = [
   {
@@ -135,7 +135,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SeenFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",
@@ -143,7 +143,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: RetriesFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",
@@ -151,7 +151,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: NewsFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",
@@ -159,7 +159,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: NewslogFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",
@@ -191,7 +191,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SettingsPassFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",
@@ -199,7 +199,7 @@ export const stateFiles: readonly StateFileEntry[] = [
     format: "json",
     schema: SettingsPassFile,
     writers: ["herdr-task"],
-    discipline: renamedUnderSchedulerRoundAndWindowTickLock,
+    discipline: renamedUnderTickLock,
   },
   {
     family: "engine-state",

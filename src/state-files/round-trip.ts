@@ -64,9 +64,8 @@ function printablePointer(schema: SchemaAST.AST, path: Path): string {
       tokens.push(key);
     } else {
       nodes = admitted;
-      const keyTheSchemaDoesNotKnowYet =
-        objects.length > 0 && admitted.length === 0;
-      tokens.push(keyTheSchemaDoesNotKnowYet ? key : "*");
+      const isUnknownKey = objects.length > 0 && admitted.length === 0;
+      tokens.push(isUnknownKey ? key : "*");
     }
   }
   return tokens.map((token) => `/${JsonPointer.escapeToken(token)}`).join("");
@@ -76,7 +75,7 @@ function findingsOf(
   schema: SchemaAST.AST,
   issue: SchemaIssue.Issue,
 ): Finding[] {
-  const findingsCollapsedAcrossOpenRecordEntries = new Map<string, Finding>();
+  const distinctFindings = new Map<string, Finding>();
   const visit = (node: SchemaIssue.Issue, path: Path): void => {
     if (node._tag === "Pointer") {
       visit(node.issue, [...path, ...node.path]);
@@ -92,14 +91,14 @@ function findingsOf(
       const problem = describe(node)
         .issues.map((leaf) => leaf.message)
         .join("; ");
-      findingsCollapsedAcrossOpenRecordEntries.set(`${at} ${problem}`, {
+      distinctFindings.set(`${at} ${problem}`, {
         at,
         problem,
       });
     }
   };
   visit(issue, []);
-  return [...findingsCollapsedAcrossOpenRecordEntries.values()];
+  return [...distinctFindings.values()];
 }
 
 function differences(original: unknown, written: unknown, path: Path): Path[] {
@@ -171,10 +170,10 @@ function parse(text: string): { readonly document: unknown } | undefined {
 function verifyText(
   file: StateFileEntry,
   text: string,
-  positionOfTheDocumentInItsFile: string,
+  documentPosition: string,
 ): Effect.Effect<Verdict> {
   const place = (at: string) =>
-    [positionOfTheDocumentInItsFile, at].filter(Boolean).join(" ");
+    [documentPosition, at].filter(Boolean).join(" ");
   const parsed = parse(text);
   if (parsed === undefined)
     return Effect.succeed({
@@ -215,11 +214,10 @@ export function roundTrip(
   text: string,
 ): Effect.Effect<Verdict> {
   if (file.format === "json") return verifyText(file, text, "");
-  const linesAfterDroppingTheFinalNewlineOnly = text.split("\n");
-  if (linesAfterDroppingTheFinalNewlineOnly.at(-1) === "")
-    linesAfterDroppingTheFinalNewlineOnly.pop();
+  const linesWithoutFinalNewline = text.split("\n");
+  if (linesWithoutFinalNewline.at(-1) === "") linesWithoutFinalNewline.pop();
   return Effect.map(
-    Effect.forEach(linesAfterDroppingTheFinalNewlineOnly, (line, index) =>
+    Effect.forEach(linesWithoutFinalNewline, (line, index) =>
       verifyText(file, line, `line ${String(index + 1)}`),
     ),
     worstLineVerdict,
