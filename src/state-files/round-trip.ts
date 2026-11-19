@@ -162,7 +162,6 @@ function parse(text: string): { readonly document: unknown } | undefined {
     const document: unknown = JSON.parse(text);
     return { document };
   } catch {
-    // Platform: JSON.parse's message can quote the text, so it is not passed on.
     return undefined;
   }
 }

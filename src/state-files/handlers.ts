@@ -164,7 +164,6 @@ function report(root: string, files: readonly CheckedFile[]): CommandResult {
   };
 }
 
-// Interface: nothing is written, and no file content leaves this function.
 export function checkStateFiles(
   args: readonly string[],
 ): Promise<CommandResult> {

@@ -146,6 +146,8 @@ Taken from the other design candidates and folded into the base by hand.
 - Both token readers drop comments. A script's `/` is a division after a value
   and the start of a regex after an operator or one of a few words (`return`,
   `typeof`), so the reader decides from the token before.
+- A string is one token whatever it holds. Its text is what stands between its
+  quotes, as written, and a regex token keeps its slashes.
 - A file whose brackets do not pair up was read wrongly or is not whole. A list
   taken from it would be quietly short, so it is refused by name.
 - A list's name is its file's name: `inventory/<name>.json`. A list is in id

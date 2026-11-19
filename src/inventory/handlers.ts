@@ -258,9 +258,6 @@ function extractedResult(
   };
 }
 
-// Interface: reads every list from the old system's source and keeps each as
-// inventory/<list>.json in the folder the command runs in. Only a file whose
-// text would differ is written, and nothing outside inventory/ is.
 export function extractInventory(
   args: readonly string[],
 ): Promise<CommandResult> {
@@ -463,10 +460,6 @@ function checkedResult(
   };
 }
 
-// Interface: proves the kept inventory in the folder the command runs in:
-// every list has its file, and each file reads through its schema. With
-// --fork, each list is also read from the fork again and compared, so a list
-// that no longer matches the fork fails by name, with the ids that differ.
 export function checkInventory(
   args: readonly string[],
 ): Promise<CommandResult> {

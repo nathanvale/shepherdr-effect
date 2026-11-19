@@ -253,7 +253,7 @@ test("a third-party file is only read: what the schema leaves out is not a failu
   });
 });
 
-test("a file that is not JSON does not decode, and its text is not repeated", async () => {
+test("a file that is not JSON does not decode, and its text is not repeated, though JSON.parse's own message quotes it", async () => {
   const file = findStateFile(".local/share/shepherdr/LAYOUT");
   if (file === undefined) throw new Error("No registry entry for LAYOUT");
   expect(await Effect.runPromise(roundTrip(file, "private words\n"))).toEqual({

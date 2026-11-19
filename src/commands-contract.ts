@@ -25,8 +25,6 @@ export interface CommandResult {
 }
 
 export interface CommandDefinition {
-  // Interface: what follows the route, as help shows it. A command without it
-  // takes no arguments.
   argumentUsage?: string;
   commandIdentity: string;
   effectClass: EffectClass;

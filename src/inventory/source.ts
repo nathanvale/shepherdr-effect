@@ -19,13 +19,14 @@ export const itemFields = <Kind extends string>(kind: Kind) => ({
   }),
 });
 
-// Interface: `path` is from the fork root, with `/` between its parts.
+export type SlashPathFromRoot = string;
+
 export interface SourceFile {
-  readonly path: string;
+  readonly path: SlashPathFromRoot;
   readonly text: string;
 }
 
-export function place(path: string, line: number): string {
+export function place(path: SlashPathFromRoot, line: number): string {
   return `${path}:${String(line)}`;
 }
 
@@ -33,8 +34,6 @@ export function oneBasedLineAt(text: string, index: number): number {
   return text.slice(0, index).split("\n").length;
 }
 
-// Platform: a locale's order can change between machines, and the committed
-// files must not, so this orders by code unit.
 export function byId<Item extends { readonly id: string }>(
   items: readonly Item[],
 ): Item[] {
@@ -43,7 +42,7 @@ export function byId<Item extends { readonly id: string }>(
 
 export function fileAtOrThrow(
   files: readonly SourceFile[],
-  path: string,
+  path: SlashPathFromRoot,
 ): SourceFile {
   const file = files.find((candidate) => candidate.path === path);
   if (file === undefined) throw new Error(`${path} is missing from the fork.`);

@@ -2,7 +2,6 @@ import type { SourceFile } from "./source.ts";
 
 export interface Token {
   readonly kind: "name" | "string" | "regex" | "number" | "punct";
-  // Interface: a string's text is what stands between its quotes, as written. A regex keeps its slashes.
   readonly text: string;
   readonly line: number;
 }
@@ -119,7 +118,6 @@ const PYTHON: readonly Rule[] = [
   patternRule("punct", /[=!<>]=|[\s\S]/),
 ];
 
-// Interface: comments are dropped, and a string is one token whatever it holds.
 export function pythonTokens(file: SourceFile): Tokens {
   return pairedBrackets(file, scan(file.text, 0, () => PYTHON, never).list);
 }
@@ -204,7 +202,6 @@ function template(text: string, at: number): Read | undefined {
   return { raw, text: raw.slice(1, -1) };
 }
 
-// Interface: comments are dropped.
 export function scriptTokens(file: SourceFile): Tokens {
   return pairedBrackets(file, scan(file.text, 0, scriptRules, never).list);
 }
