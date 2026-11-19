@@ -39,6 +39,7 @@ export const Attempt = Schema.Union([
   Cancelled,
 ]);
 export type Attempt = typeof Attempt.Type;
+export type Confirmed = typeof Confirmed.Type;
 
 type AttemptTag = Attempt["_tag"];
 

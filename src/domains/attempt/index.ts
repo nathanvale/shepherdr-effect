@@ -4,6 +4,7 @@ export {
   AttemptId,
   type AttemptRefusal,
   attemptTransitions,
+  type Confirmed,
   type PositiveEvidence,
   type RefutingEvidence,
   transitionAttempt,
