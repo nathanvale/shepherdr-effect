@@ -10,15 +10,16 @@ import {
   type Tokens,
 } from "./tokens.ts";
 
-/** `id` is the action's `type`. When both files handle one, each is listed, with `@` and its file after the name. */
 export const ServiceAction = Schema.Struct({
   ...itemFields("service-action"),
   handler: Schema.Literals(["actions.ts", "main.ts"]),
+}).annotate({
+  description:
+    "id is the action's type. When both files handle one, each is listed, with @ and its file after the name.",
 });
 export type ServiceAction = (typeof ServiceAction)["Type"];
 
-/** The two functions that take a page's action, and the file each is in. */
-const HANDLERS: readonly {
+const PAGE_ACTION_HANDLERS: readonly {
   readonly handler: ServiceAction["handler"];
   readonly path: string;
   readonly function: string;
@@ -35,7 +36,6 @@ interface Named {
   readonly line: number;
 }
 
-/** A function's parameter names and the tokens of its body. */
 function functionBody(tokens: Tokens, name: string) {
   const { list, pair } = tokens;
   const at = list.findIndex((_, index) =>
@@ -45,8 +45,6 @@ function functionBody(tokens: Tokens, name: string) {
   const parameters = argumentsAt(tokens, at + 2).map(
     ([start]) => list[start]?.text ?? "",
   );
-  // The first `{` after the parameters is taken as the body's. A return type
-  // written as an object would be mistaken for it.
   const from = after(tokens, at + 2);
   const open = list.findIndex(
     (_, index) => index >= from && matches(list, index, ["{"]),
@@ -54,16 +52,14 @@ function functionBody(tokens: Tokens, name: string) {
   return { parameters, open, close: pair.get(open) ?? open };
 }
 
-/** `b?.type === "send"`, where `b` is one of the function's parameters. */
-function compared({ list }: Tokens, at: number, parameters: string[]) {
+function comparedTypeWord({ list }: Tokens, at: number, parameters: string[]) {
   const word = list[at + 4];
   return matches(list, at, [parameters, MEMBER, "type", EQUALS, STRING])
     ? word
     : undefined;
 }
 
-/** `switch (b?.type) { case "send": ... }`: the labels of that switch, and of no switch inside it. */
-function switched(tokens: Tokens, at: number, parameters: string[]) {
+function switchedTypeWords(tokens: Tokens, at: number, parameters: string[]) {
   const { list, pair } = tokens;
   const shape = ["switch", "(", parameters, MEMBER, "type", ")", "{"];
   const close = pair.get(at + 6);
@@ -82,8 +78,8 @@ function handled(file: SourceFile, name: string): Named[] {
   const first = new Map<string, number>();
   for (let at = body.open; at < body.close; at += 1) {
     const words = [
-      compared(tokens, at, body.parameters),
-      ...switched(tokens, at, body.parameters),
+      comparedTypeWord(tokens, at, body.parameters),
+      ...switchedTypeWords(tokens, at, body.parameters),
     ];
     for (const word of words)
       if (word !== undefined && !first.has(word.text))
@@ -92,18 +88,14 @@ function handled(file: SourceFile, name: string): Named[] {
   return [...first].map(([action, line]) => ({ name: action, line }));
 }
 
-/**
- * Every action name the service handles: each `type` its two handler
- * functions compare or switch on. Reads `service/actions.ts` and
- * `service/main.ts` from the files given.
- */
 export function serviceActions(files: readonly SourceFile[]): ServiceAction[] {
-  const found = HANDLERS.flatMap(({ handler, path, function: name }) =>
-    handled(fileAt(files, path), name).map((action) => ({
-      ...action,
-      handler,
-      path,
-    })),
+  const found = PAGE_ACTION_HANDLERS.flatMap(
+    ({ handler, path, function: name }) =>
+      handled(fileAt(files, path), name).map((action) => ({
+        ...action,
+        handler,
+        path,
+      })),
   );
   const count = (name: string) =>
     found.filter((action) => action.name === name).length;

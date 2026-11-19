@@ -4,11 +4,6 @@
       "count": 1
     }
   },
-  "src/inventory/diagram-elements.ts": {
-    "repository/no-comments": {
-      "count": 3
-    }
-  },
   "src/inventory/fork-checkout.ts": {
     "repository/no-comments": {
       "count": 4
@@ -19,34 +14,9 @@
       "count": 18
     }
   },
-  "src/inventory/hc-cli-subcommands.ts": {
-    "repository/no-comments": {
-      "count": 11
-    }
-  },
-  "src/inventory/herdr-core-rpc-methods.ts": {
-    "repository/no-comments": {
-      "count": 5
-    }
-  },
-  "src/inventory/herdr-task-commands.ts": {
-    "repository/no-comments": {
-      "count": 19
-    }
-  },
   "src/inventory/lists.ts": {
     "repository/no-comments": {
       "count": 8
-    }
-  },
-  "src/inventory/service-actions.ts": {
-    "repository/no-comments": {
-      "count": 7
-    }
-  },
-  "src/inventory/service-routes.ts": {
-    "repository/no-comments": {
-      "count": 13
     }
   },
   "src/inventory/source.ts": {
@@ -57,11 +27,6 @@
   "src/inventory/state-files.ts": {
     "repository/no-comments": {
       "count": 1
-    }
-  },
-  "src/inventory/terminal-labels.ts": {
-    "repository/no-comments": {
-      "count": 4
     }
   },
   "src/inventory/tokens.ts": {

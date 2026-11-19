@@ -1,18 +1,19 @@
 import { Schema } from "effect";
 import { byId, itemFields, place, type SourceFile } from "./source.ts";
 
-/** `id` is a box's own id, or `from->to` for an arrow, with `#` and a number when two boxes have more than one. */
 export const DiagramElement = Schema.Struct({
   ...itemFields("diagram-element"),
   element: Schema.Literals(["box", "arrow"]),
   label: Schema.String,
+}).annotate({
+  description:
+    "id is a box's own id, or from->to for an arrow, with # and a number when two boxes have more than one.",
 });
 export type DiagramElement = (typeof DiagramElement)["Type"];
 
 const LINE =
   /^\s*(Person|System_Ext|Container|ContainerDb|ContainerDb_Ext|Rel)\((.*)\)\s*$/;
-// An argument is a quoted text, which may hold commas, or a bare word.
-const ARGUMENT = /"((?:[^"\\]|\\.)*)"|([^,\s][^,]*)/g;
+const QUOTED_TEXT_OR_BARE_WORD = /"((?:[^"\\]|\\.)*)"|([^,\s][^,]*)/g;
 
 interface Shape {
   readonly element: "box" | "arrow";
@@ -24,7 +25,7 @@ interface Shape {
 function shapeOf(text: string, line: number): Shape | undefined {
   const call = LINE.exec(text);
   if (call === null) return undefined;
-  const values = [...(call[2] ?? "").matchAll(ARGUMENT)].map(
+  const values = [...(call[2] ?? "").matchAll(QUOTED_TEXT_OR_BARE_WORD)].map(
     (argument) => argument[1] ?? argument[2]?.trim() ?? "",
   );
   const [first = "", second = "", third = ""] = values;
@@ -33,10 +34,6 @@ function shapeOf(text: string, line: number): Shape | undefined {
     : { element: "box", id: first, label: second, line };
 }
 
-/**
- * The boxes and arrows of a Mermaid C4 diagram. A boundary is a frame around
- * boxes, not a box, and a style line draws nothing: both are left out.
- */
 export function diagramElements(file: SourceFile): DiagramElement[] {
   const shapes = file.text
     .split("\n")

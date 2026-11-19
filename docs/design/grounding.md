@@ -200,3 +200,88 @@ from their names. Their origin in the old code:
 - A `Writer` is a program that writes the file today, and a `WriteDiscipline`
   is how those writers put it on disk today. `fsync` says the bytes are synced
   before the rename.
+
+## Where the inventory extractors' facts come from
+
+What the extractors in `src/inventory` read in the old system's source, and the
+choices they make about it.
+
+`herdrTaskCommands` (the herdr-task CLI file, argparse):
+
+- It lists every subcommand the file registers, nested verbs included
+  (`auto add`), read from how the file calls argparse.
+- `p = argparse.ArgumentParser(...)` is the parser every route starts from.
+- `sub = p.add_subparsers(...)`: commands added to `sub` extend the route of
+  `p`.
+- `c = sub.add_parser("name", ...)` assigns the new parser to `c`. It is kept
+  as a group when its own `add_subparsers` follows at once, else as a parser.
+- `def cmd(name, ...)` whose body calls `sub.add_parser(name, ...)` is a
+  command adder: `cmd("where", ...)` names the command, so the command is
+  found at the adder's call, not in its body.
+- A command is hidden when it is added with no `help=` argument.
+- `argv[:1] == ["_job"]` is a first word the program acts on itself, which
+  argparse never sees. A registered command also named there (`tick`) is
+  listed once, as registered.
+
+`serviceRoutes` (the service's request handler, JavaScript):
+
+- The handler is found by what it does: the block that takes a variable from
+  the URL's `pathname`, as in `const path = ...pathname...;`.
+- A route is a comparison of that variable with a string, a `startsWith` call
+  (a prefix, written with a final `*`) or a regex tested against it. `a.path`
+  is some other object's path, not the request's.
+- The block a position sits in is the nearest `{` before it that is still open
+  there.
+- A route is a WebSocket where the comparison is in the condition of an `if`
+  that calls `upgrade`, or in the statement that sets a flag such an `if` tests
+  alone, as in `const socket = path === "/api/ws"` followed by
+  `if (socket) return srv.upgrade(...)`.
+- A route's methods are those compared in any `if` condition that reaches it.
+
+`hcCliSubcommands` (child processes the code starts):
+
+- The whole text is searched, so a command line inside a script kept as a
+  string is found too. Each pattern ends just before the first word after the
+  program:
+  - `.py`: `["hc", "get", ...]` and `[hc, "get", ...]`, where `hc` holds the
+    program's path; `hc_json("get", ...)`.
+  - `.ts`: `["hc", "get", ...]`; the same with `process.env.SHEPHERDR_HC ||`
+    before `"hc"`; `hc(["get", ...])` and `this.hc(["get", ...])`, a function
+    that puts the program first; `spawn(endpoint.binary, ["connect"], ...)`,
+    the program and its words apart.
+- The leading quoted words are read up to two. A variable or a spread ends
+  them.
+- A second plain word is part of the subcommand (`file write`, `machine ls`):
+  an option, an address in a variable or a key name with a `+` is not.
+
+`serviceActions` (`service/actions.ts` function `act`, `service/main.ts`
+function `doAction`):
+
+- An action is each `type` that function compares (`b?.type === "send"`) or
+  switches on (`switch (b?.type) { case "send": ... }`), where `b` is one of
+  its parameters. A switch's labels are read without those of any switch
+  inside it.
+- The body is taken to open at the first `{` after the parameters. A return
+  type written as an object would be mistaken for it.
+
+`herdrCoreRpcMethods` (`service/hc/client.ts`):
+
+- A method can be required and never called: the client checks that the core
+  has it and nothing uses it.
+- A call may carry a type argument between the name and the bracket
+  (`hub.call<{ code: number }>("machine.exec", ...)`).
+- A required method is cited where the `REQUIRED` list names it, any other at
+  its first call.
+
+`terminalLabels`:
+
+- A label is written at the start of a string: `"herdr.task"`,
+  `f"herdr.space={id}"`, `` `herdr.chat=${pane}` ``. The quote before it keeps
+  out `"shepherdr.host"` and `"https://herdr.dev"`. A final dot marks a prefix
+  (`"herdr.secret.ask."`).
+
+`diagramElements` (a Mermaid C4 diagram):
+
+- A boundary is a frame around boxes, not a box, and a style line draws
+  nothing: both are left out.
+- An argument is a quoted text, which may hold commas, or a bare word.

@@ -11,17 +11,18 @@ import {
 
 export const HerdrCoreRpcMethod = Schema.Struct({
   ...itemFields("herdr-core-rpc-method"),
-  /** In the list the client refuses to start without. */
-  required: Schema.Boolean,
-  /** Passed by name to a `call(...)` somewhere in the service. */
-  called: Schema.Boolean,
+  required: Schema.Boolean.annotateKey({
+    description: "In the list the client refuses to start without.",
+  }),
+  called: Schema.Boolean.annotateKey({
+    description: "Passed by name to a call(...) somewhere in the service.",
+  }),
 });
 export type HerdrCoreRpcMethod = (typeof HerdrCoreRpcMethod)["Type"];
 
 const CLIENT = "service/hc/client.ts";
 const REQUIRED = /\bREQUIRED\s*=\s*\[([^\]]*)\]/;
 const QUOTED = /(["'])([^"'\\\n]+)\1/g;
-// `hub.call<{ code: number }>("machine.exec", ...)`: a type argument may stand between the name and the bracket.
 const CALL = /\bcall\s*(?:<[^()]*?>)?\(\s*(["'])([A-Za-z][\w.]*)\1/g;
 
 function requiredMethods(client: SourceFile): Map<string, number> {
@@ -37,11 +38,6 @@ function requiredMethods(client: SourceFile): Map<string, number> {
   );
 }
 
-/**
- * The herdr-core methods the service's client requires, and every method the
- * service calls by name. A method can be required and never called: the
- * client checks that the core has it and nothing uses it.
- */
 export function herdrCoreRpcMethods(
   files: readonly SourceFile[],
 ): HerdrCoreRpcMethod[] {
@@ -60,7 +56,6 @@ export function herdrCoreRpcMethods(
       return {
         id,
         kind: "herdr-core-rpc-method" as const,
-        // A required method is cited where the list names it, any other at its first call.
         source:
           listed === undefined
             ? (called.get(id) ?? "")
