@@ -138,9 +138,9 @@ Taken from the other design candidates and folded into the base by hand.
    today's rule unless told otherwise.
 4. **Done and the Assistant.** Decided by Nathan on 2026-11-19: the Assistant
    may mark a task Done. The role templates already let it run `done` and
-   `accept` when the person asks. The design reads the decision as a relay of
-   the person's request, and the task records that the Assistant relayed it.
-   A worker or a reviewer still cannot mark Done.
+   `accept` when the person asks. It does so only when the person asks, never
+   on its own judgement, and the task records that the Assistant relayed the
+   request. A worker or a reviewer still cannot mark Done.
 5. **Other machines.** Bun plus one bundled file, or one compiled binary per
    platform? herdr-core's 16 MiB frame cap may force chunked installs either
    way. The thin slice measures both.

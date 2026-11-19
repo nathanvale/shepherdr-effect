@@ -164,8 +164,8 @@ From [synthesis.md](synthesis.md):
 3. **A dead attempt owner.** May an Intended attempt close as not applied
    without you? The kernel cannot yet prove an attempt owner stopped (item 1).
 4. **Done and the Assistant.** Decided by Nathan on 2026-11-19: the Assistant
-   may mark a task Done. The design reads this as a relay of the person's
-   request, and the task records that the Assistant relayed it.
+   may mark a task Done only when the person asks, never on its own
+   judgement. The task records that the Assistant relayed the request.
 5. **Other machines.** Bun with one bundle, or a compiled binary per platform?
 
 New:
