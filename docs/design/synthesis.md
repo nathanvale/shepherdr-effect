@@ -129,9 +129,9 @@ Taken from the other design candidates and folded into the base by hand.
 1. **CLI kernel.** Keep `agent-cli-kernel` code out of the first version and
    design for adopting it later, or use it now? See the uplift list in
    [kernel-uplift.md](kernel-uplift.md).
-2. **Agents and the daemon.** This note assumes an agent's command must work
-   with the daemon down. If that is wrong, candidate 2 deserves a second
-   look.
+2. **Agents and the daemon.** Decided by Nathan on 2026-11-19: an agent's
+   command must always work with the daemon down. This settles the base
+   choice over design candidate 2.
 3. **An intended attempt whose owner is provably dead.** May an `Intended`
    attempt be cancelled automatically when its attempt owner is gone? All three
    design candidates asked. Today only a person can close it. The design keeps

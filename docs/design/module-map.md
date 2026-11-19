@@ -159,8 +159,8 @@ From [synthesis.md](synthesis.md):
 1. **The daemon on the kernel.** The kernel allows one transaction per process
    ([kernel-uplift.md](kernel-uplift.md), item 7). Should the tick and service
    role wait for that, or run the command entry per launch until then?
-2. **Agents and the daemon.** Must an agent's command work with the daemon
-   down, as assumed here?
+2. **Agents and the daemon.** Decided by Nathan on 2026-11-19: yes, always.
+   An agent's command never depends on the daemon.
 3. **A dead attempt owner.** May an Intended attempt close as not applied
    without you? The kernel cannot yet prove an attempt owner stopped (item 1).
 4. **Done and the Assistant.** Refuse it, or allow it as a recorded relay of
