@@ -29,10 +29,12 @@ The task assignment's read-back is reading the agent row by launch id.
 
 `herdr-task start HAT-4` from the command entry, or a tick starting a queued
 task (see open question 1 in [module-map.md](module-map.md)). The live run
-confirms on positive evidence it reads itself. After a crash nothing closes an
-attempt on its own: the person runs a closure command, `launch recover` for an
-Intended attempt and `launch reconcile` for an Uncertain one or a confirmed
-one missing its task assignment, which needs positive evidence.
+confirms on positive evidence it reads itself. After a crash the person runs a
+closure command: `launch recover` for an Intended attempt and
+`launch reconcile` for an Uncertain one, which needs positive evidence. A
+confirmed launch missing its task assignment is the one case the next tick
+finishes on its own, by the default in [launch-admission.md](launch-admission.md);
+`launch reconcile` still does the same for the person.
 
 | Step                    | What happens                                                                                                                                                                 | Journal after a crash here                      | Store after a crash here        | How it is resolved                                                                                                                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,14 +44,14 @@ one missing its task assignment, which needs positive evidence.
 | 2a. Refused before send | The prepare step fails, the launch revision changed, or the caller interrupts                                                                                                | the run's own `not-applied`                     | placement stays                 | The run itself: Cancelled, since no effect started. The worktree stays the task's, as today.                                                                                              |
 | 3. Send                 | The kernel flushes `effect-started` and calls the effect; launch admission makes the send permit there; `HerdrCore` starts the terminal labelled `herdr.launch=<attempt id>` | `effect-started`: Uncertain                     | placement                       | Nothing retries it. `launch reconcile` looks once for exactly one terminal with that label. Found: step 5's re-run, then the closure. None or several: it stays Uncertain for the person. |
 | 3a. Refuting reply      | herdr-core's reply proves nothing reached it                                                                                                                                 | `effect-unconfirmed`                            | placement                       | Refuted in the domain core. How the kernel case closes is open question 7.                                                                                                                |
-| 4. Confirm              | The terminal effect's read-back is `observeLaunch`: the address in the reply, or one labelled terminal; the kernel flushes `effect-confirmed`                                | terminal confirmed; task assignment not started | placement; no agent on the task | `launch reconcile` re-runs the task assignment (step 5) from the intent's task assignment and the observation's terminal address, then closes as `completed`.                             |
+| 4. Confirm              | The terminal effect's read-back is `observeLaunch`: the address in the reply, or one labelled terminal; the kernel flushes `effect-confirmed`                                | terminal confirmed; task assignment not started | placement; no agent on the task | The next tick, or `launch reconcile`, re-runs the task assignment (step 5) from the intent's task assignment and the observation's terminal address, then closes as `completed`.          |
 | 5. Task assignment      | The second effect: `assignAgent` writes the agent row (launch id, terminal address) and the stored state `running` in one store transaction; its read-back reads the row     | task assignment started                         | the agent on its task           | The same re-run: `assignAgent` finds the launch id already there and changes nothing; its read-back confirms; then the closure.                                                           |
 | 6. Completion           | Both effects confirmed; the kernel flushes `completion`                                                                                                                      | resolved                                        | the agent on its task           | Nothing.                                                                                                                                                                                  |
 | 7. Best effort          | The session watch and the log record                                                                                                                                         | resolved                                        | as step 6                       | A later tick pass.                                                                                                                                                                        |
 
 The re-run of step 5, keyed by the attempt id and then closed, is the one
-step that spans both stores. It is idempotent, so a person may run
-`launch reconcile` twice.
+step that spans both stores. It is idempotent, so the tick and a person may
+both run it, in either order.
 
 An Assistant launch, a tab agent or a utility launch runs steps 0, 1, 3, 4
 and 6: it declares one effect and has no task assignment. A revival's positive
@@ -60,8 +62,10 @@ A crash test (the graft from design candidate 2) stops the process after each
 step and checks the journal and the store against this table, with both on a
 temporary folder.
 
-Changed from the base: its confirmed-but-not-on-its-task state was repaired by
-the tick on its own; now only the person's closure command re-runs it. Its
+Changed from the base, then back: the base let the tick repair a
+confirmed-but-not-on-its-task start on its own, this note first gave that
+only to the person's closure command, and the default in
+[launch-admission.md](launch-admission.md) gives it back to the tick. Its
 single store transaction for a confirmed start now covers only the agent row
 and the stored state; confirmation lives in the journal.
 

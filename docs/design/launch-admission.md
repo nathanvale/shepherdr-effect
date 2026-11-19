@@ -111,8 +111,8 @@ Two cases, with different defaults.
 | **Uncertain.** The terminal may or may not have started.                                 | Only the person closes it, with a closure command.                            | This is the old system's rule: nothing calls recover or reconcile by itself.                          |
 | **Confirmed, but the agent is not on its task.** The journal shows the terminal started. | The next tick re-runs the task assignment and closes the launch as completed. | The old tick does this today. The assignment is keyed by the attempt id, so a repeat changes nothing. |
 
-The second default changes [module-map-crashes.md](module-map-crashes.md),
-which says that only the person's closure command re-runs the task assignment.
+The crash table in [module-map-crashes.md](module-map-crashes.md) follows
+the second default.
 
 Either way the kernel closes a launch only when it can show that the run that
 recorded it has stopped. An Intended launch whose attempt owner is gone stays
@@ -153,7 +153,7 @@ map to launch admission.
 | Default                                                         | The alternative                                                                                       |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Only the person closes an Uncertain launch                      | The next tick confirms it on exactly one terminal labelled with its attempt id, and never cancels it. |
-| The next tick re-runs a confirmed launch's task assignment      | Only the person's closure command does, as the crash note says now.                                   |
+| The next tick re-runs a confirmed launch's task assignment      | Only the person's closure command does. Then the crash table goes back to that.                       |
 | Shepherdr starts the reviewer when the worker asks              | The tick starts a reviewer for every task that says ready, with no request from the worker.           |
 | `start`, `resume` and `switch` stay commands of Task procedures | They become launch admission's commands. Then the task-side checks move with them.                    |
 
