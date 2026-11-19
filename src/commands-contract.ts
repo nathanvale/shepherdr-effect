@@ -1,0 +1,131 @@
+export type EffectClass = "inspect" | "repository-local";
+export type Outcome = "failed" | "refused" | "success";
+export type TransactionState = "completed" | "unchanged" | "unknown";
+
+export interface CommandResult {
+  causeCode: string;
+  commandIdentity: string;
+  data: unknown;
+  effectClass: EffectClass;
+  effects: {
+    completed: string[];
+    inventoryComplete: boolean;
+    remaining: string[];
+    uncertain: string[];
+  };
+  exitCode: 0 | 1 | 2 | 3 | 4;
+  failureClass: "domain" | "internal" | "schema" | "usage" | null;
+  handoff?: { owner: "human" | "operator"; reason: string; inspect: string[] };
+  message: string;
+  nextAction?: string;
+  outcome: Outcome;
+  repairAction: string | null;
+  retryable: false;
+  transactionState: TransactionState;
+}
+
+export interface CommandDefinition {
+  argumentUsage?: string;
+  commandIdentity: string;
+  effectClass: EffectClass;
+  route: readonly string[];
+  summary: string;
+  execute(args: string[]): Promise<CommandResult>;
+  stations(): readonly unknown[];
+}
+
+export function selectCommand(
+  commands: readonly CommandDefinition[],
+  args: readonly string[],
+): CommandDefinition | undefined {
+  return commands.find(
+    (command) =>
+      command.route.every((token, index) => token === args[index]) &&
+      (command.route.length === args.length ||
+        command.argumentUsage !== undefined),
+  );
+}
+
+export function commandSummaries(commands: readonly CommandDefinition[]) {
+  return commands.map(
+    ({ argumentUsage, commandIdentity, effectClass, route, summary }) => ({
+      ...(argumentUsage === undefined ? {} : { argumentUsage }),
+      commandIdentity,
+      effectClass,
+      route,
+      summary,
+    }),
+  );
+}
+
+export function builtInCommandSummaries() {
+  return [
+    {
+      commandIdentity: "shepherdr.dispatch",
+      effectClass: "inspect" as const,
+      route: [],
+      summary: "Validate the invocation.",
+    },
+    {
+      commandIdentity: "shepherdr.help",
+      effectClass: "inspect" as const,
+      route: ["--help"],
+      summary: "Show help.",
+    },
+    {
+      commandIdentity: "shepherdr.discovery",
+      effectClass: "inspect" as const,
+      route: ["--discover"],
+      summary: "Describe commands.",
+    },
+    {
+      commandIdentity: "shepherdr.command-discovery",
+      effectClass: "inspect" as const,
+      route: ["--discover-command"],
+      summary: "Describe one command's possible outcomes.",
+    },
+  ];
+}
+
+export function builtInStations(commandIdentity: string) {
+  if (
+    !builtInCommandSummaries().some(
+      (item) => item.commandIdentity === commandIdentity,
+    )
+  )
+    return [];
+  const stationFields =
+    commandIdentity === "shepherdr.dispatch"
+      ? {
+          causeCode: "USAGE_INVALID_INVOCATION",
+          outcome: "refused",
+          failureClass: "usage",
+          exitCode: 2,
+          guidance: {
+            nextAction: "Run shepherdr --help and choose a listed command.",
+          },
+          repairAction: "Choose one supported command and retry.",
+          trigger: "The invocation does not select a supported command.",
+        }
+      : {
+          causeCode: "SUCCESS_UNCHANGED",
+          outcome: "success",
+          failureClass: null,
+          exitCode: 0,
+          guidance: { nextAction: "No follow-up is required." },
+          repairAction: null,
+          trigger: "The requested help or discovery is produced.",
+        };
+  return [
+    {
+      commandIdentity,
+      ...stationFields,
+      effectClass: "inspect",
+      transactionState: "unchanged",
+      retryable: false,
+      retryDelayPolicy: { kind: "none" },
+      reachability: "required",
+      unreachableRationale: null,
+    },
+  ];
+}

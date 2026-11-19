@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - name: File size
+        run: bun run check:file-size
+      - name: Lint
+        run: bun run lint
+      - name: Format
+        if: ${{ !cancelled() }}
+        run: bun run format:check
+      - name: Typecheck
+        if: ${{ !cancelled() }}
+        run: bun run typecheck
+      - if: github.event_name == 'pull_request'
+        run: bun run --silent quality:fallow --base "origin/${{ github.base_ref }}"
+      - if: github.event_name == 'push'
+        run: bun run --silent quality:fallow --base "${{ github.event.before }}"
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - name: Test
+        run: bun run test --shard=${{ matrix.shard }}/3 --timings=tests/test-timings.json --update-timings
+      - name: Upload shard timings
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-timings-${{ matrix.shard }}
+          path: tests/test-timings.json
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run check:commits "origin/${{ github.base_ref }}"
+  fault-replay:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun run fault-replay

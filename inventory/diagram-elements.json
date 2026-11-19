@@ -1,0 +1,429 @@
+[
+  {
+    "id": "agents",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:20",
+    "element": "box",
+    "label": "Agent CLIs"
+  },
+  {
+    "id": "agents->azure",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:69",
+    "element": "arrow",
+    "label": "X3 provider route: Foundry [fork]"
+  },
+  {
+    "id": "agents->personal",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:68",
+    "element": "arrow",
+    "label": "X3 provider route: Personal"
+  },
+  {
+    "id": "agents->task",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:64",
+    "element": "arrow",
+    "label": "S1 task front door: status, ready"
+  },
+  {
+    "id": "app",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:18",
+    "element": "box",
+    "label": "herdr-app [not in pilot]"
+  },
+  {
+    "id": "azure",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:22",
+    "element": "box",
+    "label": "Azure AI Foundry [fork]"
+  },
+  {
+    "id": "bitbucket",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:24",
+    "element": "box",
+    "label": "Bitbucket Cloud [fork]"
+  },
+  {
+    "id": "claims",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:37",
+    "element": "box",
+    "label": "Publication claims [fork]"
+  },
+  {
+    "id": "doc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:41",
+    "element": "box",
+    "label": "Shared documents in herdr-core"
+  },
+  {
+    "id": "files",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:35",
+    "element": "box",
+    "label": "Saved task files"
+  },
+  {
+    "id": "github",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:23",
+    "element": "box",
+    "label": "GitHub"
+  },
+  {
+    "id": "hcore",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:19",
+    "element": "box",
+    "label": "herdr-core 0.1.21"
+  },
+  {
+    "id": "hcore->agents",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:67",
+    "element": "arrow",
+    "label": "X2 agent CLI runs in a terminal"
+  },
+  {
+    "id": "hcore->task",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:66",
+    "element": "arrow",
+    "label": "Keeps herdr-automations: herdr-task scheduler"
+  },
+  {
+    "id": "helpers",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:33",
+    "element": "box",
+    "label": "Helper CLIs"
+  },
+  {
+    "id": "installer",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:34",
+    "element": "box",
+    "label": "Installer and doctor"
+  },
+  {
+    "id": "installer->svc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:79",
+    "element": "arrow",
+    "label": "Installs the unit, checks health"
+  },
+  {
+    "id": "journal",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:36",
+    "element": "box",
+    "label": "Launch journal [fork]"
+  },
+  {
+    "id": "local",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:39",
+    "element": "box",
+    "label": "Local state"
+  },
+  {
+    "id": "mods",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:29",
+    "element": "box",
+    "label": "Window mods (28) [not in pilot]"
+  },
+  {
+    "id": "mods->app",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:49",
+    "element": "arrow",
+    "label": "H1 host module"
+  },
+  {
+    "id": "mods->files",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:51",
+    "element": "arrow",
+    "label": "S2 reads saved files"
+  },
+  {
+    "id": "mods->shared",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:53",
+    "element": "arrow",
+    "label": "Copies"
+  },
+  {
+    "id": "mods->svc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:52",
+    "element": "arrow",
+    "label": "S3 service API"
+  },
+  {
+    "id": "mods->task",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:50",
+    "element": "arrow",
+    "label": "S1 task front door"
+  },
+  {
+    "id": "net",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:17",
+    "element": "box",
+    "label": "Tailscale"
+  },
+  {
+    "id": "net->svc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:44",
+    "element": "arrow",
+    "label": "Proxies /shepherdr to 127.0.0.1:7788"
+  },
+  {
+    "id": "pb",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:14",
+    "element": "box",
+    "label": "Person in a browser"
+  },
+  {
+    "id": "pb->net",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:43",
+    "element": "arrow",
+    "label": "Opens /shepherdr/ over HTTPS"
+  },
+  {
+    "id": "pb->web",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:46",
+    "element": "arrow",
+    "label": "Uses"
+  },
+  {
+    "id": "peers",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:25",
+    "element": "box",
+    "label": "Other Shepherdr machines"
+  },
+  {
+    "id": "personal",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:21",
+    "element": "box",
+    "label": "Model providers: Personal"
+  },
+  {
+    "id": "pw",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:15",
+    "element": "box",
+    "label": "Person at the window [not in pilot]"
+  },
+  {
+    "id": "pw->mods",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:48",
+    "element": "arrow",
+    "label": "Uses [not in pilot]"
+  },
+  {
+    "id": "settings",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:38",
+    "element": "box",
+    "label": "Settings file"
+  },
+  {
+    "id": "shared",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:30",
+    "element": "box",
+    "label": "Shared logic"
+  },
+  {
+    "id": "svc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:31",
+    "element": "box",
+    "label": "Service"
+  },
+  {
+    "id": "svc->agents",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:59",
+    "element": "arrow",
+    "label": "Reads / commands and skills; enabled plugins [new]"
+  },
+  {
+    "id": "svc->azure",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:60",
+    "element": "arrow",
+    "label": "Lists deployments via az [fork]"
+  },
+  {
+    "id": "svc->doc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:58",
+    "element": "arrow",
+    "label": "doc.get and doc.set"
+  },
+  {
+    "id": "svc->hcore",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:57",
+    "element": "arrow",
+    "label": "H2 core link: hc connect"
+  },
+  {
+    "id": "svc->local",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:62",
+    "element": "arrow",
+    "label": "Writes port and link"
+  },
+  {
+    "id": "svc->net",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:45",
+    "element": "arrow",
+    "label": "Shares itself: tailscale serve"
+  },
+  {
+    "id": "svc->peers",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:63",
+    "element": "arrow",
+    "label": "Syncs settings with the host machine"
+  },
+  {
+    "id": "svc->settings",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:61",
+    "element": "arrow",
+    "label": "Reads and writes"
+  },
+  {
+    "id": "svc->shared",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:55",
+    "element": "arrow",
+    "label": "Imports"
+  },
+  {
+    "id": "svc->task",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:56",
+    "element": "arrow",
+    "label": "S1: scheduler --ensure; launch run, provider show, select [fork]"
+  },
+  {
+    "id": "task",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:32",
+    "element": "box",
+    "label": "herdr-task"
+  },
+  {
+    "id": "task->bitbucket",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:76",
+    "element": "arrow",
+    "label": "X1 forge: Bitbucket REST [fork]"
+  },
+  {
+    "id": "task->claims",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:72",
+    "element": "arrow",
+    "label": "Claims each publication [fork]"
+  },
+  {
+    "id": "task->files",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:70",
+    "element": "arrow",
+    "label": "Reads and writes task lists"
+  },
+  {
+    "id": "task->github",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:75",
+    "element": "arrow",
+    "label": "X1 forge: GitHub via gh"
+  },
+  {
+    "id": "task->hcore",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:65",
+    "element": "arrow",
+    "label": "H3 hc program: hc run, admitted [fork]"
+  },
+  {
+    "id": "task->helpers",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:77",
+    "element": "arrow",
+    "label": "Runs herdr-browser"
+  },
+  {
+    "id": "task->journal",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:71",
+    "element": "arrow",
+    "label": "Claims each start before sending [fork]"
+  },
+  {
+    "id": "task->local",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:74",
+    "element": "arrow",
+    "label": "Caches the Codex sandbox probe [new]"
+  },
+  {
+    "id": "task->peers",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:78",
+    "element": "arrow",
+    "label": "Runs actions there: hc exec --on [new], ssh"
+  },
+  {
+    "id": "task->settings",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:73",
+    "element": "arrow",
+    "label": "Reads"
+  },
+  {
+    "id": "web",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:28",
+    "element": "box",
+    "label": "Web app"
+  },
+  {
+    "id": "web->shared",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:54",
+    "element": "arrow",
+    "label": "Imports"
+  },
+  {
+    "id": "web->svc",
+    "kind": "diagram-element",
+    "source": "docs/design/current-architecture.mmd:47",
+    "element": "arrow",
+    "label": "S3 service API: api/action, live and terminal WebSocket"
+  }
+]

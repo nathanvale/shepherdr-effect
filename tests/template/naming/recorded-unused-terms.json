@@ -1,0 +1,35 @@
+{
+  "about": "Terms that GLOSSARY.md defines and no tracked file uses yet, each with the reason and the ticket that will bring it into use. The glossary files test fails on an unused term not listed here, on a listed term that a tracked file now uses, and on a listed term that GLOSSARY.md no longer defines: remove an entry in the change that first uses its term. Recording is the default taken on 19 November 2026 while MAG-136 holds the open choice between recording these terms and moving them to a design note.",
+  "terms": [
+    {
+      "term": "Task key",
+      "reason": "GLOSSARY.md names it in code as type TaskKey and prefix taskKey, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    },
+    {
+      "term": "Task reference",
+      "reason": "GLOSSARY.md names it in code as type TaskRef, function parseTaskRef and prefix taskRef, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    },
+    {
+      "term": "Feedback problem",
+      "reason": "GLOSSARY.md names it in code as type FeedbackProblem, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    },
+    {
+      "term": "Credential name",
+      "reason": "GLOSSARY.md names it in code as field credentialName, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    },
+    {
+      "term": "herdr-core reply",
+      "reason": "GLOSSARY.md names it in code as prefix reply, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    },
+    {
+      "term": "Person-only command",
+      "reason": "GLOSSARY.md names it in code as function requirePerson, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
+      "ticket": "MAG-136"
+    }
+  ]
+}

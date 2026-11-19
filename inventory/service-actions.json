@@ -1,0 +1,392 @@
+[
+  {
+    "id": "accept",
+    "kind": "service-action",
+    "source": "service/actions.ts:657",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "answer",
+    "kind": "service-action",
+    "source": "service/actions.ts:217",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "archive",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "artifact-delete",
+    "kind": "service-action",
+    "source": "service/actions.ts:668",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "artifact-note",
+    "kind": "service-action",
+    "source": "service/actions.ts:675",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "artifact-say",
+    "kind": "service-action",
+    "source": "service/actions.ts:675",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "artifact-send",
+    "kind": "service-action",
+    "source": "service/actions.ts:675",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "assistant-close",
+    "kind": "service-action",
+    "source": "service/actions.ts:426",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "assistant-pick",
+    "kind": "service-action",
+    "source": "service/main.ts:608",
+    "handler": "main.ts"
+  },
+  {
+    "id": "autopilot-run",
+    "kind": "service-action",
+    "source": "service/main.ts:563",
+    "handler": "main.ts"
+  },
+  {
+    "id": "azure-choices",
+    "kind": "service-action",
+    "source": "service/main.ts:600",
+    "handler": "main.ts"
+  },
+  {
+    "id": "azure-refresh",
+    "kind": "service-action",
+    "source": "service/main.ts:588",
+    "handler": "main.ts"
+  },
+  {
+    "id": "call",
+    "kind": "service-action",
+    "source": "service/actions.ts:667",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "close",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "delete",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "earlier",
+    "kind": "service-action",
+    "source": "service/actions.ts:544",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "evidence",
+    "kind": "service-action",
+    "source": "service/actions.ts:657",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "fork",
+    "kind": "service-action",
+    "source": "service/actions.ts:549",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "held-drop",
+    "kind": "service-action",
+    "source": "service/actions.ts:440",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "held-now",
+    "kind": "service-action",
+    "source": "service/actions.ts:440",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "keys",
+    "kind": "service-action",
+    "source": "service/actions.ts:574",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "limits-check",
+    "kind": "service-action",
+    "source": "service/main.ts:705",
+    "handler": "main.ts"
+  },
+  {
+    "id": "machine-add",
+    "kind": "service-action",
+    "source": "service/actions.ts:398",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "machine-hosts",
+    "kind": "service-action",
+    "source": "service/actions.ts:392",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "machine-mac-open",
+    "kind": "service-action",
+    "source": "service/actions.ts:416",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "mode@actions.ts",
+    "kind": "service-action",
+    "source": "service/actions.ts:364",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "mode@main.ts",
+    "kind": "service-action",
+    "source": "service/main.ts:731",
+    "handler": "main.ts"
+  },
+  {
+    "id": "model-menu@actions.ts",
+    "kind": "service-action",
+    "source": "service/actions.ts:378",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "model-menu@main.ts",
+    "kind": "service-action",
+    "source": "service/main.ts:608",
+    "handler": "main.ts"
+  },
+  {
+    "id": "model-pin",
+    "kind": "service-action",
+    "source": "service/actions.ts:374",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "move",
+    "kind": "service-action",
+    "source": "service/actions.ts:266",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "order",
+    "kind": "service-action",
+    "source": "service/actions.ts:271",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "pin",
+    "kind": "service-action",
+    "source": "service/actions.ts:256",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "react",
+    "kind": "service-action",
+    "source": "service/actions.ts:243",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "read",
+    "kind": "service-action",
+    "source": "service/actions.ts:662",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "rename",
+    "kind": "service-action",
+    "source": "service/actions.ts:339",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "reopen",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "restart",
+    "kind": "service-action",
+    "source": "service/actions.ts:378",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "restart-info",
+    "kind": "service-action",
+    "source": "service/actions.ts:378",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "rewind",
+    "kind": "service-action",
+    "source": "service/actions.ts:533",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "role-info",
+    "kind": "service-action",
+    "source": "service/main.ts:722",
+    "handler": "main.ts"
+  },
+  {
+    "id": "schedule",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "secret",
+    "kind": "service-action",
+    "source": "service/main.ts:541",
+    "handler": "main.ts"
+  },
+  {
+    "id": "secrets-move",
+    "kind": "service-action",
+    "source": "service/main.ts:706",
+    "handler": "main.ts"
+  },
+  {
+    "id": "section",
+    "kind": "service-action",
+    "source": "service/actions.ts:318",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "send",
+    "kind": "service-action",
+    "source": "service/actions.ts:578",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "serve-from",
+    "kind": "service-action",
+    "source": "service/main.ts:714",
+    "handler": "main.ts"
+  },
+  {
+    "id": "setting",
+    "kind": "service-action",
+    "source": "service/main.ts:551",
+    "handler": "main.ts"
+  },
+  {
+    "id": "space-commit",
+    "kind": "service-action",
+    "source": "service/actions.ts:485",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "space-remove",
+    "kind": "service-action",
+    "source": "service/actions.ts:513",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "steer",
+    "kind": "service-action",
+    "source": "service/actions.ts:644",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "stop",
+    "kind": "service-action",
+    "source": "service/actions.ts:644",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "stop-job",
+    "kind": "service-action",
+    "source": "service/actions.ts:645",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-agents",
+    "kind": "service-action",
+    "source": "service/actions.ts:473",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-close",
+    "kind": "service-action",
+    "source": "service/actions.ts:463",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-end",
+    "kind": "service-action",
+    "source": "service/actions.ts:463",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-move",
+    "kind": "service-action",
+    "source": "service/actions.ts:463",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-new",
+    "kind": "service-action",
+    "source": "service/actions.ts:473",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-rename",
+    "kind": "service-action",
+    "source": "service/actions.ts:448",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "tab-switch",
+    "kind": "service-action",
+    "source": "service/actions.ts:494",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "task-resume",
+    "kind": "service-action",
+    "source": "service/actions.ts:651",
+    "handler": "actions.ts"
+  },
+  {
+    "id": "task-select",
+    "kind": "service-action",
+    "source": "service/main.ts:653",
+    "handler": "main.ts"
+  },
+  {
+    "id": "template",
+    "kind": "service-action",
+    "source": "service/main.ts:701",
+    "handler": "main.ts"
+  },
+  {
+    "id": "usage",
+    "kind": "service-action",
+    "source": "service/main.ts:577",
+    "handler": "main.ts"
+  },
+  {
+    "id": "worktree",
+    "kind": "service-action",
+    "source": "service/actions.ts:421",
+    "handler": "actions.ts"
+  }
+]

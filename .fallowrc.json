@@ -1,0 +1,100 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "typeAware": {
+    "enabled": true,
+    "require": "complete"
+  },
+  "audit": {
+    "gate": "new-only",
+    "healthBaseline": "fallow-health-recorded-hits.json"
+  },
+  "boundaries": {
+    "zones": [
+      {
+        "name": "cli",
+        "patterns": ["src/**"]
+      },
+      {
+        "name": "scripts",
+        "patterns": ["scripts/**"]
+      },
+      {
+        "name": "tests",
+        "patterns": ["tests/**"]
+      },
+      {
+        "name": "lint-config",
+        "patterns": ["eslint.config.mjs", "eslint-rules.mjs", "config/**"]
+      }
+    ],
+    "rules": [
+      {
+        "from": "cli",
+        "allow": []
+      },
+      {
+        "from": "scripts",
+        "allow": ["cli"]
+      },
+      {
+        "from": "tests",
+        "allow": ["cli", "scripts", "lint-config"]
+      },
+      {
+        "from": "lint-config",
+        "allow": []
+      }
+    ],
+    "coverage": {
+      "requireAllFiles": true
+    }
+  },
+  "rules": {
+    "boundary-violation": "error",
+    "css-broken-reference": "error",
+    "css-dead-surface": "error",
+    "css-duplicate-block": "error",
+    "css-selector-complexity": "error",
+    "css-token-drift": "error",
+    "dev-dependencies-in-production": "error",
+    "empty-catalog-groups": "error",
+    "invalid-client-export": "error",
+    "misplaced-directive": "error",
+    "mixed-client-server-barrel": "error",
+    "policy-violation": "error",
+    "private-type-leaks": "error",
+    "re-export-cycle": "error",
+    "require-suppression-reason": "error",
+    "stale-suppressions": "error",
+    "test-only-dependencies": "error",
+    "type-only-dependencies": "error",
+    "unprovided-injects": "error",
+    "unrendered-components": "error",
+    "unused-catalog-entries": "error",
+    "unused-component-emits": "error",
+    "unused-component-inputs": "error",
+    "unused-component-outputs": "error",
+    "unused-component-props": "error",
+    "unused-dev-dependencies": "error",
+    "unused-dependency-overrides": "error",
+    "unused-load-data-keys": "error",
+    "unused-optional-dependencies": "error",
+    "unused-server-actions": "error",
+    "unused-store-members": "error",
+    "unused-svelte-events": "error"
+  },
+  "ignoreExports": [
+    {
+      "file": "scripts/process-runner.ts",
+      "exports": ["repositoryLocation", "Finished", "Child"]
+    }
+  ],
+  "supportEntry": ["scripts/check-file-size.ts"],
+  "entry": [
+    "scripts/doctor.ts",
+    "scripts/check-commits.ts",
+    "scripts/check-names.ts",
+    "scripts/planted-faults.ts",
+    "scripts/test-area.ts"
+  ]
+}

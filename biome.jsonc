@@ -1,0 +1,37 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.7/schema.json",
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
+      "!**/.fallow",
+      "!**/bun.lock",
+      "!eslint-suppressions.json",
+      // Written by `inventory extract`, which is the one owner of their text.
+      "!inventory",
+      "!!.agents/skills/fallow",
+      "!!.agents/skills/fallow-setup",
+      "!!.claude/skills/fallow",
+      "!!.claude/skills/fallow-setup"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  }
+}

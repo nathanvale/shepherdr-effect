@@ -1,0 +1,77 @@
+#!/bin/sh
+set -eu
+
+bin=node_modules/.bin
+for tool in biome eslint tsc fallow; do
+  if [ ! -x "$bin/$tool" ]; then
+    echo "pre-commit: node_modules/.bin/$tool is missing. Repair: run bun install --frozen-lockfile, then commit again." >&2
+    exit 1
+  fi
+done
+
+check_staged_types() (
+  snapshot=
+  trap '[ -z "$snapshot" ] || rm -rf -- "$snapshot"' 0
+  trap 'exit 1' HUP INT TERM
+
+  if ! {
+    tree=$(git write-tree) &&
+      temp_root=$(CDPATH= cd "${TMPDIR:-/tmp}" && pwd -P) &&
+      snapshot=$(mktemp -d "$temp_root/template-typecheck.XXXXXX") &&
+      mkdir "$snapshot/project" &&
+      GIT_INDEX_FILE="$snapshot/index" git read-tree "$tree" &&
+      GIT_INDEX_FILE="$snapshot/index" git --work-tree="$snapshot/project" checkout-index --all &&
+      ln -s "$PWD/node_modules" "$snapshot/project/node_modules"
+  }; then
+    echo "pre-commit: could not prepare the staged tree (above). Repair: resolve the Git or filesystem error and retry. Done when git commit reaches the staged type check." >&2
+    exit 1
+  fi
+
+  cd "$snapshot/project"
+  "$bin/tsc" --noEmit -p tsconfig.json || {
+    echo "pre-commit: TypeScript rejected the staged tree (above). Repair: fix the type errors and stage the repaired files. Done when git commit passes the staged type check." >&2
+    exit 1
+  }
+)
+
+staged() {
+  git diff --cached --name-only --diff-filter=ACMR -z -- "$@"
+}
+
+bun scripts/check-names.ts --staged || {
+  echo "pre-commit: the names check failed on the staged names (above). Repair: rename each name it lists as its line says, using git mv so the old name leaves the commit too, and commit again. Done when bun run check:names --staged passes." >&2
+  exit 1
+}
+
+if [ ! -f node_modules/tiktoken/package.json ]; then
+  echo "pre-commit: tiktoken is missing. Repair: run bun install --frozen-lockfile, then commit again." >&2
+  exit 1
+fi
+bun --no-install scripts/check-file-size.ts --staged
+
+if [ -n "$(staged | tr -d '\0')" ]; then
+  staged | xargs -0 "$bin/biome" format --no-errors-on-unmatched --files-ignore-unknown=true || {
+    echo "pre-commit: Biome formatting differs in the files above. Repair: run bun run format, stage the rewritten files with git add, and commit again. Done when bun run format:check passes." >&2
+    exit 1
+  }
+fi
+
+source_edits=$(staged '*.ts' '*.mts' '*.cts' '*.mjs' | tr -d '\0')
+if [ -n "$source_edits" ]; then
+  staged '*.ts' '*.mts' '*.cts' '*.mjs' | xargs -0 "$bin/eslint" --max-warnings 0 --no-warn-ignored -- || {
+    echo "pre-commit: lint errors above. Repair: correct each one in code, stage the change, and commit again. Done when bun run lint passes." >&2
+    exit 1
+  }
+fi
+
+if ! git diff --cached --no-renames --quiet -- \
+  '*.ts' '*.mts' '*.cts' '*.mjs' ':(glob)**/tsconfig*.json'; then
+  check_staged_types
+fi
+
+if [ -n "$source_edits" ]; then
+  "$bin/fallow" audit --staged --quiet || {
+    echo "pre-commit: fallow found new problems in the staged changes (above). Repair: correct each one in code, stage the change, and commit again. Done when node_modules/.bin/fallow audit --staged passes." >&2
+    exit 1
+  }
+fi

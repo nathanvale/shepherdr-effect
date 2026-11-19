@@ -1,0 +1,88 @@
+%% Shepherdr fork: C4 context and container view, one source for both levels.
+%% Reflects nathanvale/herdr-projects main @ 9859c3447a5b57e781310f254f0b1776ec4f1b25 (2026-11-17, PR 64), Shepherdr 3.1.35.
+%% Previous version: "Shepherdr 3.1.33: parts and seams", drawn from main @ d57a0261 (3.1.33).
+%% Upstream eliasstravik/herdr-projects: merge base abd5a0f1 = v3.1.35; upstream main b2797aaa = v3.1.44 is NOT merged.
+%% Runtime checked 2026-11-19 07:30 AEDT in agents-pilot: shepherdr doctor whole, web-only install, SOURCE_COMMIT 9859c344,
+%%   herdr-core 0.1.21, bun 1.4.4, tailscale 1.104.5.
+%% Legend: [fork] not in upstream v3.1.35. [new] added since d57a0261. [not in pilot] in the code, not running in agents-pilot.
+%% Seams keep the earlier labels: S1 task front door, S2 saved files, S3 service API, H1 host module, H2 core link,
+%%   H3 hc program, X1 forge, X2 agent CLI, X3 provider route.
+%% Citations: paths relative to the repo root at 9859c344; "proc:" is a process in the agents-pilot ps listing.
+C4Container
+title Shepherdr fork 3.1.35 @ 9859c344: context and containers
+
+Person(pb, "Person in a browser", "Phone, tablet or desktop on the tailnet")
+Person(pw, "Person at the window [not in pilot]", "Uses herdr-app on a desktop")
+
+System_Ext(net, "Tailscale", "proc: tailscaled --tun=userspace-networking. service/tailscale.ts")
+System_Ext(app, "herdr-app [not in pilot]", "Third-party window host for the mods")
+System_Ext(hcore, "herdr-core 0.1.21", "Third-party terminals, labels, documents. proc: herdr-core serve, herdr-core hold")
+System_Ext(agents, "Agent CLIs", "Worker, reviewer, Assistant: claude, codex in herdr-core terminals. proc: claude")
+System_Ext(personal, "Model providers: Personal", "Anthropic, OpenAI accounts")
+System_Ext(azure, "Azure AI Foundry [fork]", "az cognitiveservices and Foundry model endpoints")
+System_Ext(github, "GitHub", "Pull requests and checks through gh")
+System_Ext(bitbucket, "Bitbucket Cloud [fork]", "api.bitbucket.org/2.0 REST")
+System_Ext(peers, "Other Shepherdr machines", "Reached through herdr-core or ssh. None in pilot")
+
+System_Boundary(shep, "Shepherdr fork, web-only install under /home/agent") {
+  Container(web, "Web app", "React 19, Vite, PWA", "web/src and 15 plugins in web/plugins. Built to web/dist")
+  Container(mods, "Window mods (28) [not in pilot]", "JavaScript in herdr-app", "mods/*/main.js")
+  Container(shared, "Shared logic", "JavaScript library, not a process", "core/ and lib/; copied into mods by bin/sync-shared")
+  Container(svc, "Service", "Bun 1.4.4, one per machine", "service/main.ts. proc: bun service/main.ts on 127.0.0.1:7788")
+  Container(task, "herdr-task", "Python 3 task engine", "mods/tasks/bin/herdr-task. proc: herdr-task scheduler, herdr-task _track")
+  Container(helpers, "Helper CLIs", "Python and shell", "herdr-artifact, herdr-secret, herdr-browser in ~/.local/bin")
+  Container(installer, "Installer and doctor", "Python 3, on demand", "bin/shepherdr")
+  ContainerDb(files, "Saved task files", "JSON and locks", "~/.local/share/shepherdr/tasks/*.json")
+  ContainerDb(journal, "Launch journal [fork]", "JSON, fsync and rename", "tasks/.launches.json")
+  ContainerDb(claims, "Publication claims [fork]", "JSON", "tasks/.publications.json. Not yet created in pilot")
+  ContainerDb(settings, "Settings file", "JSON", "~/.config/shepherdr/settings.json")
+  ContainerDb(local, "Local state", "JSON", "~/.local/state/shepherdr: service/service.json, web.json; codex-sandbox.json [new]")
+}
+ContainerDb_Ext(doc, "Shared documents in herdr-core", "herdr-core docs", "shepherdr, shepherdr.web, shepherdr.node")
+
+Rel(pb, net, "Opens /shepherdr/ over HTTPS", "service/main.ts:3, tailnet only")
+Rel(net, svc, "Proxies /shepherdr to 127.0.0.1:7788", "service/tailscale.ts:126")
+Rel(svc, net, "Shares itself: tailscale serve", "service/tailscale.ts:126")
+Rel(pb, web, "Uses", "service/main.ts:70 serves web/dist")
+Rel(web, svc, "S3 service API: api/action, live and terminal WebSocket", "web/src/kernel.ts:744, 769")
+Rel(pw, mods, "Uses [not in pilot]", "mods/*/main.js")
+Rel(mods, app, "H1 host module", "mods/tasks/main.js:20")
+Rel(mods, task, "S1 task front door", "mods/tasks/main.js:40")
+Rel(mods, files, "S2 reads saved files", "mods/tasks/main.js:33")
+Rel(mods, svc, "S3 service API", "mods/tasks/main.js:946")
+Rel(mods, shared, "Copies", "bin/sync-shared, lib/COPIES")
+Rel(web, shared, "Imports", "web/plugins/chat/client.tsx:5")
+Rel(svc, shared, "Imports", "service/main.ts:60")
+Rel(svc, task, "S1: scheduler --ensure; launch run, provider show, select [fork]", "service/jobs.ts:87, actions.ts:562, selections.ts:23")
+Rel(svc, hcore, "H2 core link: hc connect", "service/hc/client.ts:67")
+Rel(svc, doc, "doc.get and doc.set", "service/host.ts:123, 132; service/store.ts:13")
+Rel(svc, agents, "Reads / commands and skills; enabled plugins [new]", "service/main.ts:855, core/slash.js:33")
+Rel(svc, azure, "Lists deployments via az [fork]", "service/azure-deployments.ts:90")
+Rel(svc, settings, "Reads and writes", "service/settings.ts:73, 83")
+Rel(svc, local, "Writes port and link", "service/main.ts:88")
+Rel(svc, peers, "Syncs settings with the host machine", "service/sync.ts:1")
+Rel(agents, task, "S1 task front door: status, ready", "templates/worker.md:3")
+Rel(task, hcore, "H3 hc program: hc run, admitted [fork]", "herdr_task/launch.py:906, launch_admission.py:349")
+Rel(hcore, task, "Keeps herdr-automations: herdr-task scheduler", "herdr_task/scheduler.py:36; proc: herdr-task scheduler")
+Rel(hcore, agents, "X2 agent CLI runs in a terminal", "herdr_task/launch.py:906 hc run -- argv")
+Rel(agents, personal, "X3 provider route: Personal", "herdr_task/providers.py:33")
+Rel(agents, azure, "X3 provider route: Foundry [fork]", "herdr_task/providers.py:5, 33")
+Rel(task, files, "Reads and writes task lists", "herdr_task/base.py:21")
+Rel(task, journal, "Claims each start before sending [fork]", "herdr_task/launch_admission.py:84, 128")
+Rel(task, claims, "Claims each publication [fork]", "herdr_task/publications.py:60")
+Rel(task, settings, "Reads", "herdr_task/settings.py:20")
+Rel(task, local, "Caches the Codex sandbox probe [new]", "herdr_task/sandbox.py:21, 120")
+Rel(task, github, "X1 forge: GitHub via gh", "herdr_task/forge.py:3, github.py:45")
+Rel(task, bitbucket, "X1 forge: Bitbucket REST [fork]", "herdr_task/bitbucket_http.py:43")
+Rel(task, helpers, "Runs herdr-browser", "herdr_task/browsers.py:35")
+Rel(task, peers, "Runs actions there: hc exec --on [new], ssh", "herdr_task/link.py:125, machines.py:948")
+Rel(installer, svc, "Installs the unit, checks health", "bin/shepherdr:611, 509")
+
+UpdateElementStyle(azure, $borderColor="#b45309")
+UpdateElementStyle(bitbucket, $borderColor="#b45309")
+UpdateElementStyle(journal, $borderColor="#b45309")
+UpdateElementStyle(claims, $borderColor="#b45309")
+UpdateElementStyle(pw, $borderColor="#9ca3af")
+UpdateElementStyle(app, $borderColor="#9ca3af")
+UpdateElementStyle(mods, $borderColor="#9ca3af")
+UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")

@@ -1,0 +1,9 @@
+[
+  {
+    "id": "5477ac8-handlers",
+    "patch": "tests/planted-faults/patches/5477ac8-handlers.patch",
+    "testFile": "tests/state-check.test.ts",
+    "title": "^no folder is a usage refusal$",
+    "source": "5477ac8 feat: add the state check command"
+  }
+]

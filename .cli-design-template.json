@@ -1,0 +1,11 @@
+{
+  "specRevision": "4",
+  "templateRevision": "a11c06d22e61277fca5a547a99272bb61dd3a41a",
+  "templateDirty": false,
+  "sourcePacket": "https://mermaid.ai/app/projects/940d39a4-c08b-4b93-8c20-857afb8eff8c/diagrams/6b7364f4-7339-4543-a17b-73f1a15cbe26",
+  "starter": "simple",
+  "profile": "durable",
+  "entryPoint": "src/cli.ts",
+  "commandOwner": "src/commands.ts",
+  "registrationVersion": 1
+}

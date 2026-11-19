@@ -1,0 +1,149 @@
+[
+  {
+    "id": "doc.get",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "doc.set",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "events.subscribe",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "file.read",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "file.write",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "hello",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:88",
+    "required": false,
+    "called": true
+  },
+  {
+    "id": "machine.exec",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "machine.list",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "rpc.discover",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:95",
+    "required": false,
+    "called": true
+  },
+  {
+    "id": "server.status",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "terminal.attach",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "terminal.get",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.interrupt",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.keys",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "terminal.kill",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "terminal.label",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.list",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.read",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.run",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  },
+  {
+    "id": "terminal.send",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": true
+  },
+  {
+    "id": "terminal.wait",
+    "kind": "herdr-core-rpc-method",
+    "source": "service/hc/client.ts:19",
+    "required": true,
+    "called": false
+  }
+]

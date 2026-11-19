@@ -1,0 +1,458 @@
+[
+  {
+    "id": "_allow",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:570",
+    "hidden": true
+  },
+  {
+    "id": "_hold-news",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:577",
+    "hidden": true
+  },
+  {
+    "id": "_job",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:100",
+    "hidden": true
+  },
+  {
+    "id": "_session-note",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:574",
+    "hidden": true
+  },
+  {
+    "id": "_track",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:584",
+    "hidden": true
+  },
+  {
+    "id": "accept",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:292",
+    "hidden": false
+  },
+  {
+    "id": "add",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:215",
+    "hidden": false
+  },
+  {
+    "id": "adopt",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:249",
+    "hidden": false
+  },
+  {
+    "id": "alert",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:266",
+    "hidden": false
+  },
+  {
+    "id": "assistants",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:447",
+    "hidden": false
+  },
+  {
+    "id": "auto",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:329",
+    "hidden": false
+  },
+  {
+    "id": "auto add",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:356",
+    "hidden": false
+  },
+  {
+    "id": "auto edit",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:358",
+    "hidden": false
+  },
+  {
+    "id": "auto feed",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:364",
+    "hidden": false
+  },
+  {
+    "id": "auto list",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:360",
+    "hidden": false
+  },
+  {
+    "id": "auto pause",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:365",
+    "hidden": false
+  },
+  {
+    "id": "auto resume",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:366",
+    "hidden": false
+  },
+  {
+    "id": "auto rm",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:411",
+    "hidden": false
+  },
+  {
+    "id": "auto run-now",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:412",
+    "hidden": false
+  },
+  {
+    "id": "auto show",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:363",
+    "hidden": false
+  },
+  {
+    "id": "autopilot",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:367",
+    "hidden": false
+  },
+  {
+    "id": "autopilot check",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:395",
+    "hidden": false
+  },
+  {
+    "id": "autopilot heartbeat",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:400",
+    "hidden": false
+  },
+  {
+    "id": "autopilot list",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:383",
+    "hidden": false
+  },
+  {
+    "id": "autopilot off",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:388",
+    "hidden": false
+  },
+  {
+    "id": "autopilot on",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:387",
+    "hidden": false
+  },
+  {
+    "id": "autopilot run-now",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:399",
+    "hidden": false
+  },
+  {
+    "id": "autopilot set",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:389",
+    "hidden": false
+  },
+  {
+    "id": "autopilot show",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:382",
+    "hidden": false
+  },
+  {
+    "id": "backup",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:326",
+    "hidden": false
+  },
+  {
+    "id": "complete",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:406",
+    "hidden": false
+  },
+  {
+    "id": "config",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:309",
+    "hidden": false
+  },
+  {
+    "id": "done",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:291",
+    "hidden": false
+  },
+  {
+    "id": "edit",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:297",
+    "hidden": false
+  },
+  {
+    "id": "feedback",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:270",
+    "hidden": false
+  },
+  {
+    "id": "fix",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:537",
+    "hidden": false
+  },
+  {
+    "id": "home",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:430",
+    "hidden": false
+  },
+  {
+    "id": "home pass",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:442",
+    "hidden": false
+  },
+  {
+    "id": "home report",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:436",
+    "hidden": true
+  },
+  {
+    "id": "home show",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:433",
+    "hidden": false
+  },
+  {
+    "id": "launch",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:476",
+    "hidden": false
+  },
+  {
+    "id": "launch folder",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:515",
+    "hidden": false
+  },
+  {
+    "id": "launch reconcile",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:508",
+    "hidden": false
+  },
+  {
+    "id": "launch recover",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:530",
+    "hidden": false
+  },
+  {
+    "id": "launch revive",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:525",
+    "hidden": false
+  },
+  {
+    "id": "launch run",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:482",
+    "hidden": false
+  },
+  {
+    "id": "launch status",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:504",
+    "hidden": false
+  },
+  {
+    "id": "list",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:212",
+    "hidden": false
+  },
+  {
+    "id": "machines",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:413",
+    "hidden": false
+  },
+  {
+    "id": "machines find",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:426",
+    "hidden": false
+  },
+  {
+    "id": "machines reach",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:421",
+    "hidden": false
+  },
+  {
+    "id": "machines sync",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:414",
+    "hidden": false
+  },
+  {
+    "id": "merge",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:541",
+    "hidden": false
+  },
+  {
+    "id": "progress",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:401",
+    "hidden": false
+  },
+  {
+    "id": "provider",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:456",
+    "hidden": false
+  },
+  {
+    "id": "provider plan",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:459",
+    "hidden": false
+  },
+  {
+    "id": "provider show",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:470",
+    "hidden": false
+  },
+  {
+    "id": "ready",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:240",
+    "hidden": false
+  },
+  {
+    "id": "reopen",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:295",
+    "hidden": false
+  },
+  {
+    "id": "restore-spaces",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:327",
+    "hidden": false
+  },
+  {
+    "id": "resume",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:545",
+    "hidden": false
+  },
+  {
+    "id": "review",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:314",
+    "hidden": true
+  },
+  {
+    "id": "review-more",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:261",
+    "hidden": false
+  },
+  {
+    "id": "reviewed",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:257",
+    "hidden": false
+  },
+  {
+    "id": "rm",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:308",
+    "hidden": false
+  },
+  {
+    "id": "sandbox",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:581",
+    "hidden": false
+  },
+  {
+    "id": "scheduler",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:323",
+    "hidden": false
+  },
+  {
+    "id": "select",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:560",
+    "hidden": false
+  },
+  {
+    "id": "show",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:228",
+    "hidden": false
+  },
+  {
+    "id": "start",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:230",
+    "hidden": false
+  },
+  {
+    "id": "status",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:262",
+    "hidden": false
+  },
+  {
+    "id": "switch",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:551",
+    "hidden": false
+  },
+  {
+    "id": "tell-assistant",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:451",
+    "hidden": false
+  },
+  {
+    "id": "tick",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:311",
+    "hidden": false
+  },
+  {
+    "id": "unarchive",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:296",
+    "hidden": false
+  },
+  {
+    "id": "where",
+    "kind": "herdr-task-command",
+    "source": "mods/tasks/bin/herdr_task/cli.py:211",
+    "hidden": false
+  }
+]

@@ -1,0 +1,525 @@
+{
+  "kind": "health",
+  "finding_counts": {
+    "config/anti-slop-rules.mjs": {
+      "crap_critical": {
+        "count": 3
+      },
+      "crap_high": {
+        "count": 9
+      },
+      "crap_moderate": {
+        "count": 5
+      }
+    },
+    "config/anti-slop-type-rules.mjs": {
+      "crap_critical": {
+        "count": 4
+      },
+      "crap_high": {
+        "count": 6
+      },
+      "crap_moderate": {
+        "count": 6
+      }
+    },
+    "config/payload-rules.mjs": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs": {
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 7
+      }
+    },
+    "scripts/check-commits.ts": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 2
+      }
+    },
+    "scripts/check-file-size.ts": {
+      "crap_critical": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 5
+      },
+      "crap_moderate": {
+        "count": 2
+      }
+    },
+    "scripts/check-names.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts": {
+      "crap_high": {
+        "count": 3
+      }
+    },
+    "scripts/planted-fault-patch.ts": {
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 3
+      }
+    },
+    "scripts/planted-faults.ts": {
+      "crap_critical": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 3
+      },
+      "crap_moderate": {
+        "count": 5
+      }
+    },
+    "scripts/repository.ts": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 3
+      }
+    },
+    "scripts/test-area.ts": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/toolchain-resolution.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    }
+  },
+  "identity_finding_counts": {
+    "config/anti-slop-rules.mjs\u0000CallExpression": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000SpreadElement": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000assignmentHolding": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000bindingIdentifier": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000constInitializer": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000copiesAccumulator": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000enclosingReduceCall": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isArrayAnnotation": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isKnownArrayExpression": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isTestFrameworkImport": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000isTestFrameworkObject": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000loopSpread": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reduceMember": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reduceSpread": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000reducerOf": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000referencesAccumulator": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-rules.mjs\u0000staticPropertyName": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000aliasSubstitutions": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000annotatedEvidence": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000assertionIsNarrower": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000checkAssertion": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000declaredTypeBinding": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000evaluate": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000forEachChild": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isBroadRecordReference": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isBroadRecordType": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isDefinitelyNarrowerRecordType": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isDefinitelyObjectType": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000isLocalConst": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000knownValueEvidence": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000lexicalTypeParameterNames": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000nearestTypeBindings": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/anti-slop-type-rules.mjs\u0000widenedBinding": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "config/payload-rules.mjs\u0000check": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/payload-rules.mjs\u0000named": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000CallExpression": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000CallExpression > MemberExpression.callee": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000Variable": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000castPlacements": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000commentBlocks": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000isAdmitted": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000namesNothing": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000onlyCall": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000resolves": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "config/template-rules.mjs\u0000traceIdentifier": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000check": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000main": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-commits.ts\u0000release": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000batchBlobSize": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000readRecordedHits": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000runFileSizeCheck": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000scan": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000stagedBlobs": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000stagedEntries": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000verdict": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/check-file-size.ts\u0000workingBytes": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/check-names.ts\u0000runNamesCheck": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowCheck": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowReadiness": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/doctor.ts\u0000fallowReport": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000<arrow>": {
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000anchorRefusal": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000hunksOf": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000place": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-fault-patch.ts\u0000shaped": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000add": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000faultsTouchedSince": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000main": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000readRecords": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replay": {
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replayAll": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000replayChangedSince": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000report": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/planted-faults.ts\u0000stepLimitMilliseconds": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000fields": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000holdsTestFile": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000requireText": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/repository.ts\u0000testArea": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/test-area.ts\u0000testArea": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/toolchain-resolution.ts\u0000acceptedBackends": {
+      "crap_moderate": {
+        "count": 1
+      }
+    }
+  },
+  "runtime_coverage_findings": [],
+  "target_keys": [
+    "src/commands.ts:hidden coupling",
+    "config/template-rules.mjs:untested risk",
+    "config/payload-rules.mjs:untested risk",
+    "scripts/planted-fault-patch.ts:untested risk",
+    "config/anti-slop-rules.mjs:untested risk",
+    "config/anti-slop-type-rules.mjs:untested risk",
+    "src/cli.ts:hidden coupling",
+    "tests/cli.test.ts:hidden coupling"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "web": "https://github.com/nathanvale/shepherdr-effect",
+  "checkCommitsSince": "d9b08e897aa1801cebdec3dd9a1eebabf76d75e8",
+  "testAreas": [
+    {
+      "name": "program",
+      "folder": "tests",
+      "holds": "files"
+    },
+    {
+      "name": "template",
+      "folder": "tests/template",
+      "holds": "folder",
+      "subfolders": true
+    }
+  ]
+}
