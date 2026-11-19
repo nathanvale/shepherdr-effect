@@ -4,9 +4,13 @@ Design candidate 1 with the grafts and corrections in
 [synthesis.md](synthesis.md) and the decisions made since, in the words of
 [GLOSSARY.md](../../GLOSSARY.md). Only the import schemas are built. A task
 start with a crash at each step, each store's authority, and other machines
-are in [module-map-crashes.md](module-map-crashes.md).
+are in [module-map-crashes.md](module-map-crashes.md). Which module holds each
+invariant is in [module-map-invariants.md](module-map-invariants.md).
 
-Changed since: see [the index](../agents/README.md).
+The architecture review of 19 November 2026 changes some rows. See
+[completion.md](completion.md), [task-status.md](task-status.md) and
+[launch-admission.md](launch-admission.md). The tables below still show the
+plan before those changes.
 
 Fork paths are relative to `/Users/nathanvale/code/herdr-projects` at
 `9859c344`; `ht/` is `mods/tasks/bin/herdr_task/`.
@@ -109,38 +113,6 @@ One per outside dependency, each with a `layer` and a `layerTest`.
 | Window, `src/adapters/window/`                                     | The window and its window mods             | later                                                                 | not designed                                                                                                     | later                | the window mods' calls                                                            |
 
 The clock is Effect's own `Clock`, with `TestClock` in tests: no module.
-
-## Invariants
-
-Each invariant in [grounding.md](grounding.md), the one module that holds it,
-and how.
-
-| Invariant                                                             | Module                            | Type or mechanism                                                                                                                          |
-| --------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| A launch's intent is recorded before any effect                       | Launch admission                  | The kernel flushes the intent before handler entry; the prepare step runs only inside the handler                                          |
-| Attempt states                                                        | Attempt                           | Five tags, read from the kernel's records, never stored in the store                                                                       |
-| One unresolved attempt per launch identity                            | Launch admission                  | `conflictKeyOf(launchIdentity)` is in the intent; the kernel's start admission refuses an overlapping unresolved case                      |
-| At send, the intent is the caller's and the launch revision unchanged | Launch admission                  | Only the owner run appends its events; the launch revision is compared just before `effect-started`; the send permit is made only after it |
-| Uncertain is never retried, never closed without positive evidence    | Attempt                           | Uncertain leaves only by `confirm(PositiveEvidence)` or `refute`; only adapters make evidence                                              |
-| Written whole and synced; unreadable refuses, never empty             | CLI kernel journal, Store, Import | The kernel's framed records; SQLite with full synchronisation; the import refuses an unreadable state file                                 |
-| No terminal starts outside launch admission                           | herdr-core link                   | A terminal start takes a `SendPermit`; the scheduler's terminal and remote jobs are utility launches                                       |
-| A publication stage's intent is synced before its effect              | Publication procedures            | Each publication stage is its own kernel operation with its own attempt id                                                                 |
-| An uncertain stage closes only on its attempt id                      | Publication                       | Its positive evidence is a pull request carrying its attempt id line, made only by `BitbucketForge`                                        |
-| A repository identity mismatch refuses before any call                | Completion                        | Forge adapters accept only `MatchedRepository`, made only by `matchRepository`                                                             |
-| Unknown GitHub checks never merge                                     | Completion                        | `decideMerge` makes a `MergePermit` only from a passed check observation                                                                   |
-| A Bitbucket merge is never sent                                       | Forge                             | `BitbucketForge` has no merge                                                                                                              |
-| Missing settings means Personal; unreadable refuses                   | Settings                          | `readStrict` returns a `SettingsView` or `SettingsUnreadable`                                                                              |
-| Resume, stale selection, Azure AI Foundry on the settings owner       | Provider route                    | `planFromRecordedBinding`, the `SelectionRevision` compare, the `settingsOwner` check                                                      |
-| Six stored states; the rest derived                                   | Task                              | `TaskState` has six literals and a store check; `TaskStatus` comes only from `deriveTaskStatus`                                            |
-| The person marks Done, or the Assistant relays the person's request   | Task                              | `markDone` takes a `PersonCaller` or an Assistant relay, and records which; same user, so not a security boundary                          |
-| One scheduler per machine, in `herdr-automations`                     | Tick procedures                   | A utility launch with launch identity `scheduler:<machine>`                                                                                |
-| One tick at a time                                                    | Tick procedures                   | The tick lock is a store row naming its holder (was `flock`)                                                                               |
-| Request admission                                                     | Request admission                 | The transport runs `admitRequest` before every handler and the Origin check before every upgrade                                           |
-| One service role per machine                                          | Transport                         | The daemon lock, scoped in `ServiceRoleLayer`                                                                                              |
-| The newest serving machine record wins                                | Reach                             | `electServingMachine` over the `shepherdr.host` shared document                                                                            |
-| Secrets travel by standard input only                                 | Process                           | `Secret` is not a string; only standard input takes it                                                                                     |
-| Only the real environment                                             | herdr-core link                   | `RealEnvironmentRefused` at layer build; `Process` refuses `hc`                                                                            |
-| A confirmed task launch puts its agent on its task once               | Launch admission                  | The task assignment is a second declared effect; `assignAgent` is keyed by attempt id                                                      |
 
 ## What exists in `src/` today
 
