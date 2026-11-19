@@ -16,4 +16,5 @@ Read the file whose trigger matches the task.
 | Changing what happens after `ready`: publishing, merging, Done or cleanup | [../design/completion.md](../design/completion.md)                       |
 | Changing how a task's status is found or printed                          | [../design/task-status.md](../design/task-status.md)                     |
 | Changing how an agent or a utility terminal is started                    | [../design/launch-admission.md](../design/launch-admission.md)           |
+| Using or building an adapter, or checking what a seam's test layer does   | [../design/adapter-seams.md](../design/adapter-seams.md)                 |
 | Repairing a comment that lint refuses, or removing its suppression entry  | [../design/comment-repair-plan.md](../design/comment-repair-plan.md)     |
