@@ -22,11 +22,6 @@
       "ticket": "MAG-136"
     },
     {
-      "term": "Link lost",
-      "reason": "GLOSSARY.md names it in code as error HerdrCoreUnavailable, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
-      "ticket": "MAG-136"
-    },
-    {
       "term": "herdr-core reply",
       "reason": "GLOSSARY.md names it in code as prefix reply, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
       "ticket": "MAG-136"
