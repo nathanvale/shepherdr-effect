@@ -66,15 +66,29 @@ Three more differences from the durable profile come from the design work:
   and `src/state-files` as well as `src/domains`.
 - `biome.jsonc` skips `inventory/`.
 
-Every other toolchain file equals the durable profile.
+The durable profile generates none of the template root's gates. This
+repository adopts them from the root one at a time. Each gate tool and lint
+rule file here is the root's own file, byte for byte.
 
-The template root has these gates, and this repository has none of them:
+Adopted from the template root:
 
-- `check:file-size` refuses a tracked text file over 5,000 tokens.
-- `check:names` refuses a new file or folder name that uses a word
-  `GLOSSARY.md` lists under Avoid.
+- `check:file-size` refuses a tracked text file over 5,000 tokens. It is the
+  first step of `bun run check`. `GLOSSARY.md` is its one recorded hit.
 - `doctor` runs before the tests. It checks the Bun version, the installed
   TypeScript versions and Fallow's own readiness.
+- The root's ESLint rules cover comments, host paths, the `in` operator,
+  `localeCompare`, test structure and type assertion shortcuts.
+  `eslint-suppressions.json` records no hit. The root also applies the
+  kernel's lint module, which this repository does not have, because it holds
+  no `kernel/`.
+- Fallow checks folder boundaries and a recorded health baseline. The zones
+  are the root's without its `kernel` zone. Fallow here also gates every
+  finding and requires complete type-aware evidence, which the root does not.
+
+The template root has these gates, and this repository does not have them yet:
+
+- `check:names` refuses a new file or folder name that uses a word
+  `GLOSSARY.md` lists under Avoid.
 - `check:commits` installs, type checks and lints each commit of a pull
   request.
 - `fault-replay` applies each recorded fault and confirms that a test fails.
@@ -85,11 +99,9 @@ The template root has these gates, and this repository has none of them:
   an agent's commit or push when Fallow fails.
 - The CI workflows run the checks on every pull request and every push to
   `main`, and the full check on macOS each night.
-- More ESLint rules cover comments, host paths, the `in` operator,
-  `localeCompare`, test structure and type assertion shortcuts.
-- Fallow there also checks folder boundaries and a recorded health baseline.
-  Fallow here gates every finding and requires complete type-aware evidence,
-  which the template root does not.
+
+The root's tests of its own gate tools stay in the template, as do its
+`CODING_STANDARDS.md` and `docs/standards/`.
 
 ## Checks this profile includes
 
