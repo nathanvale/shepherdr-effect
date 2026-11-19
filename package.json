@@ -16,6 +16,7 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test",
+    "test:area": "bun run scripts/test-area.ts",
     "quality:fallow": "node_modules/.bin/fallow audit --baseline-mode identity --format json --quiet --type-aware --type-aware-require complete --gate all",
     "check": "bun run check:file-size && bun run lint && bun run format:check && bun run typecheck && bun run test && bun run --silent quality:fallow",
     "format:check": "biome format .",

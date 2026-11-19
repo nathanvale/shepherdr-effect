@@ -68,6 +68,11 @@
         "count": 3
       }
     },
+    "scripts/test-area.ts": {
+      "crap_high": {
+        "count": 1
+      }
+    },
     "src/toolchain-resolution.ts": {
       "crap_moderate": {
         "count": 1
@@ -377,6 +382,11 @@
     },
     "scripts/repository.ts\u0000testArea": {
       "crap_moderate": {
+        "count": 1
+      }
+    },
+    "scripts/test-area.ts\u0000testArea": {
+      "crap_high": {
         "count": 1
       }
     },

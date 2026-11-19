@@ -90,6 +90,12 @@ Adopted from the template root:
   file uses unless `tests/template/naming/recorded-unused-terms.json` records
   it. Nine terms are recorded there. `names.test.ts` differs from the root's
   copy in one assertion, which names three paths this repository has.
+- `repository.json` describes this repository to the gate tools: its web
+  address, the commit check's fixed point and its test areas.
+  `bun run test:area <area>` runs one test area: `program` for the test files
+  in `tests/`, `template` for the gate tests under `tests/template/`. Run it
+  without an area to list the choices. The names check refuses a test file
+  outside those folders.
 
 The template root has these gates, and this repository does not have them yet:
 
