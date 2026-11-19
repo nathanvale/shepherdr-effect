@@ -42,7 +42,7 @@ The two ways to run are the existing merge policy (`tasks.merge`): `ask`,
 | It starts at the `ready` command. Publishing, the stored state `ready` and the merge policy are one step, so "Ready means published" has one owner. The review round rules stay pure in Task.                  | Nathan  |
 | It owns all five endings of a Ready task (below).                                                                                                                                                              | Nathan  |
 | The tick makes one call for each Ready task. That call reads the forge and moves the task to whichever ending applies. `accept`, `merge` and `adopt` record the person's decision and then make the same call. | Default |
-| It marks a task Done once its integration is confirmed, and the task records why: the person's approval, the merge policy, or a merge made outside Shepherdr.                                                  | Default |
+| It marks a task Done once its integration is confirmed, and the task records why: the person's approval, the merge policy, or a merge made outside Shepherdr.                                                  | Nathan  |
 | It keeps an integration record at the moment of each merge.                                                                                                                                                    | Nathan  |
 | Its cleanup decides when everything a Done task left behind is removed.                                                                                                                                        | Nathan  |
 
@@ -167,14 +167,13 @@ the folded-in modules are not written.
 
 ## Defaults Nathan can change
 
-| Default                                                         | The alternative                                                                                    |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Completion marks a merged task Done                             | A merged task waits for the person. Then every unattended merge stalls the tasks queued behind it. |
-| The tick makes one call for each Ready task                     | Tick procedures keeps the order of reading, waiting, merging and finishing.                        |
-| Every forge kind publishes in stages                            | Only Bitbucket has stages. GitHub keeps adopting the open pull request without a record.           |
-| The next call may close an Uncertain stage on positive evidence | Only the person closes it. Then one slow reply stops that task until the person returns.           |
-| A Bitbucket merge is never sent                                 | The unattended way of running may merge on Bitbucket. This changes an invariant in grounding.      |
-| A repository with no verification skill never merges unattended | A proof artifact the worker wrote counts until the repository has a verification skill.            |
+| Default                                                         | The alternative                                                                               |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| The tick makes one call for each Ready task                     | Tick procedures keeps the order of reading, waiting, merging and finishing.                   |
+| Every forge kind publishes in stages                            | Only Bitbucket has stages. GitHub keeps adopting the open pull request without a record.      |
+| The next call may close an Uncertain stage on positive evidence | Only the person closes it. Then one slow reply stops that task until the person returns.      |
+| A Bitbucket merge is never sent                                 | The unattended way of running may merge on Bitbucket. This changes an invariant in grounding. |
+| A repository with no verification skill never merges unattended | A proof artifact the worker wrote counts until the repository has a verification skill.       |
 
 ## Still open
 
@@ -187,7 +186,6 @@ the folded-in modules are not written.
 
 ## Glossary changes this needs
 
-- **Done** gains a third source: confirmed integration.
 - **Publication stage** applies to every forge kind.
 - **Merge permit** names both makers: the person's approval, and the
   conditions for an automatic merge.

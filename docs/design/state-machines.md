@@ -123,9 +123,16 @@ Where each row comes from in the old system:
 | Reopen               | `cmd_state` for `reopen`                                                                            |
 
 - **Done.** The person marks a task Done, or the Assistant does when the
-  person asks. The task stores which (`markedBy`). A worker, a reviewer and
-  the scheduler are refused. Code cannot check that the person asked: the
-  Assistant runs as the same user.
+  person asks. A worker, a reviewer and the scheduler are refused for
+  `MarkDone`. Code cannot check that the person asked: the Assistant runs as
+  the same user. Completion is the third source, through
+  `IntegrationConfirmed`. The task stores which (`markedBy`).
+- **IntegrationConfirmed** is refused as `NotReady` before `ready`, because
+  Completion starts at Ready. On a `done` task it changes nothing, so the
+  tick's second call converges. The task stores `markedBy: integration` and
+  why (`reason`): `person-approval`, `merge-policy` or
+  `merge-outside-shepherdr`. Without its reason it does not decode, and
+  neither does a task the person or the Assistant marked that carries one.
 - **AssignAgent** carries a Confirmed attempt, so no agent goes on a task
   from an Uncertain launch. Putting a reviewer on a task never changes its
   stored state, so it is not an event here.
@@ -161,24 +168,21 @@ Where each row comes from in the old system:
 ## Where the notes disagree
 
 The tables keep to what every note agrees on. Each point needs a decision.
+A third source of Done was the first point. Nathan decided it on 2026-11-19:
+Completion marks a task Done once its integration is confirmed
+(`IntegrationConfirmed`).
 
-1. **A third source of Done.** [completion.md](completion.md) lets Completion
-   mark a task Done once its integration is confirmed (a default). The
-   glossary, [grounding.md](grounding.md) and
-   [module-map-invariants.md](module-map-invariants.md) name two: the person
-   and the Assistant. The table has two, so a merged task stays `ready`. The
-   old tick and the old `ready` both mark a merged task done.
-2. **Closing an Uncertain attempt without evidence.**
+1. **Closing an Uncertain attempt without evidence.**
    [completion.md](completion.md) says closing a stage as not applied stays
    with the person. The invariants and the glossary let an Uncertain attempt
    leave only on evidence, and Cancelled is for an Intended attempt. No such
    transition is built.
-3. **Evidence for a push.** The invariants say an Uncertain stage closes
+2. **Evidence for a push.** The invariants say an Uncertain stage closes
    only on its attempt id. [completion.md](completion.md) closes a push on
    the remote branch alone, which carries no attempt id. The glossary lists
    five kinds of positive evidence and no push. Evidence kinds are not
    modelled here.
-4. **When `running` is stored.** [launch-admission.md](launch-admission.md)
+3. **When `running` is stored.** [launch-admission.md](launch-admission.md)
    writes it with the placement, before the terminal starts.
    [module-map-crashes.md](module-map-crashes.md) writes it in `assignAgent`,
    after confirmation. Only AssignAgent is built.
@@ -196,6 +200,8 @@ The tables keep to what every note agrees on. Each point needs a decision.
 - ReadyAgain does not check that the agent's own turn took the task back to
   work. The old `settle_back` reads `back.auto`, which is not modelled.
 - The import cannot fill `markedBy` for a task the old system marked done.
+- `IntegrationConfirmed` carries a reason and no evidence. Nothing here
+  checks that the integration was confirmed. Completion is not built.
 - An attempt stores no attempt owner and no times. No transition reads them.
 - A repeated AssignAgent for one attempt id is not refused here. That needs
   the agent rows, which belong to `assignAgent`.
