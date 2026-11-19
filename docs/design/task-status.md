@@ -51,9 +51,12 @@ agent, and tails of the session logs.
 - **A task's plain JSON output and its one line.** Agents, role templates and
   the chat read that output, and its words cannot change. Seven of its fields
   come from the status. It moves here from Result.
-- **A stream of status changes.** Live view and news subscribe. The module
-  watches herdr-core's events, the store's changes and its own grace timers,
-  so no caller keeps a timer.
+- **A stream of status changes.** Live view and news subscribe, and no
+  caller keeps a timer. The module watches herdr-core's events, the store's
+  changes, its own grace timers, and the files it reads that change on their
+  own: the session logs and the held-ask files. It refreshes what it cannot
+  watch (the process table and the terminal's screen) every 10 seconds while
+  a task has a live agent, as the old service refreshes its view.
 
 ## Decisions
 

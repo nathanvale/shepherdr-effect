@@ -7,8 +7,9 @@ changes [module-map.md](module-map.md) and
 "What moves in the module map".
 
 Nathan chose to explore this deepening on 19 November 2026 and then asked the
-review to keep going. Every decision below is the review's default. The ones
-that are his to make are under "Defaults Nathan can change".
+review to keep going. Every decision below is the review's default, except
+the rules under "What Shepherdr owes the kernel", which Nathan decided. The
+defaults that are his to change are under "Defaults Nathan can change".
 
 ## Why deepen it
 

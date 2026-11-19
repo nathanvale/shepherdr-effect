@@ -83,9 +83,16 @@ the pull request was adopted, and on Bitbucket. Those rules stay.
 - Each stage reads what exists before it acts, so a repeated stage finds
   nothing left to do.
 - **An Uncertain stage may be closed by the next call** (default), only as
-  completed, and only on exactly one pull request that carries the stage's
-  attempt id line. Closing a stage as not applied stays person-only. The
-  morning report lists every stage closed this way.
+  completed, and only on positive evidence for that stage:
+  - a pull request stage (open, draft, ready): exactly one pull request that
+    carries the stage's attempt id line;
+  - a push: the remote branch points at exactly the candidate commit the
+    stage pushed. A push carries no attempt id line, so this is its only
+    evidence.
+- A remote branch at any other commit, or a missing one after a push whose
+  reply was lost, is not evidence either way. That stage stays Uncertain for
+  the person. Closing any stage as not applied stays person-only. The
+  morning report lists every stage closed by the next call.
 - **A Bitbucket merge is never sent** (default: the rule stays). Unattended,
   a Bitbucket task stops at a prepared pull request.
 
