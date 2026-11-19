@@ -17,16 +17,6 @@
       "ticket": "MAG-136"
     },
     {
-      "term": "Conversation fork",
-      "reason": "GLOSSARY.md names it in code as tag ConversationFork, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
-      "ticket": "MAG-136"
-    },
-    {
-      "term": "Forge kind",
-      "reason": "GLOSSARY.md names it in code as type ForgeKind and field forge, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
-      "ticket": "MAG-136"
-    },
-    {
       "term": "Credential name",
       "reason": "GLOSSARY.md names it in code as field credentialName, and no tracked file holds the term yet. The compiling stubs that would hold it are still to be written: MAG-136 lists them under Design work left.",
       "ticket": "MAG-136"

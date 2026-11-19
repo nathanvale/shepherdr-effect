@@ -6,6 +6,8 @@ Design candidate 1 with the grafts and corrections in
 start with a crash at each step, each store's authority, and other machines
 are in [module-map-crashes.md](module-map-crashes.md).
 
+Changed since: see [the index](../agents/README.md).
+
 Fork paths are relative to `/Users/nathanvale/code/herdr-projects` at
 `9859c344`; `ht/` is `mods/tasks/bin/herdr_task/`.
 
