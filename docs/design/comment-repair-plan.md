@@ -78,6 +78,10 @@ export const Millis = Schema.Int.annotate({
 For a comment that says what a value or function is. Use the glossary's words
 ([domain.md](../agents/domain.md)).
 
+A name says what the thing is, in four words or fewer. A reason, a rule or a
+condition that needs a sentence is not a name: give it a type (rule 3) or a
+line in a design note (rule 5).
+
 ```ts
 // A file can break its schema in every record it holds: a few places say enough.
 const SHOWN = 8;
