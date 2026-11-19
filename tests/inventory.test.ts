@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import { listsKeptAsFiles } from "../src/inventory/lists.ts";
 import { stateFiles } from "../src/state-files/registry.ts";
 import {
   ACTIONS,
@@ -9,14 +10,14 @@ import {
   diagramText,
   forkCheckoutFiles,
   MAIN,
+  sourcesAsRead,
 } from "./inventory-fixtures.ts";
 import { testFolder } from "./support/test-folder.ts";
 
 const CLI_FILE = resolve(import.meta.dir, "../src/cli.ts");
 const roots: string[] = [];
 
-/** What the made-up fork holds, by list, as the extractor tests prove item by item. */
-const COUNTS = {
+const FORK_ITEM_COUNTS = {
   "herdr-task-commands": 12,
   "service-routes": 10,
   "service-actions": 10,
@@ -25,7 +26,7 @@ const COUNTS = {
   "terminal-labels": 6,
   "diagram-elements": 10,
 };
-const LISTS = Object.keys(COUNTS);
+const LISTS = Object.keys(FORK_ITEM_COUNTS);
 const FILES = LISTS.map((list) => `inventory/${list}.json`).sort();
 
 afterEach(async () => {
@@ -44,8 +45,7 @@ async function folderOf(files: Readonly<Record<string, string>>) {
   return root;
 }
 
-/** A fork folder, and a repository folder that holds only the diagram. */
-async function folders(
+async function forkAndRepository(
   fork: Readonly<Record<string, string>> = forkCheckoutFiles,
 ) {
   return {
@@ -54,8 +54,7 @@ async function folders(
   };
 }
 
-/** Runs the CLI inside a repository folder, as `bun run start` does from this one. */
-function inventory(repository: string, ...args: string[]) {
+function inventoryInRepository(repository: string, ...args: string[]) {
   const result = Bun.spawnSync(
     [process.execPath, "run", CLI_FILE, "inventory", ...args, "--json"],
     { cwd: repository, stderr: "pipe", stdout: "pipe" },
@@ -98,13 +97,24 @@ async function ids(repository: string, list: string): Promise<string[]> {
   return items.map(({ id }) => id);
 }
 
+test("the counts are what the extractors find in the made-up fork", () => {
+  expect(
+    Object.fromEntries(
+      listsKeptAsFiles.map((list) => [
+        list.name,
+        list.extract(sourcesAsRead).length,
+      ]),
+    ),
+  ).toEqual(FORK_ITEM_COUNTS);
+});
+
 test("extract keeps one file for each list, in id order, and writes nowhere else", async () => {
-  const { fork, repository } = await folders();
-  const observed = inventory(repository, "extract", "--fork", fork);
+  const { fork, repository } = await forkAndRepository();
+  const observed = inventoryInRepository(repository, "extract", "--fork", fork);
 
   expect(observed.exitCode).toBe(0);
   expect(observed.message).toBe(
-    `Extracted 7 lists (${Object.entries(COUNTS)
+    `Extracted 7 lists (${Object.entries(FORK_ITEM_COUNTS)
       .map(([list, items]) => `${list} ${String(items)}`)
       .join(", ")}). Wrote 7 of 7 files under inventory/.`,
   );
@@ -117,7 +127,7 @@ test("extract keeps one file for each list, in id order, and writes nowhere else
     transactionState: "completed",
     data: {
       fork,
-      lists: Object.entries(COUNTS).map(([list, items]) => ({
+      lists: Object.entries(FORK_ITEM_COUNTS).map(([list, items]) => ({
         list,
         items,
         file: `inventory/${list}.json`,
@@ -138,10 +148,10 @@ test("extract keeps one file for each list, in id order, and writes nowhere else
 });
 
 test("extract never reads a test file, and a second extract changes nothing", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
   const first = await filesUnder(repository);
-  const again = inventory(repository, "extract", "--fork", fork);
+  const again = inventoryInRepository(repository, "extract", "--fork", fork);
 
   expect(JSON.stringify(first)).not.toContain("testonly");
   expect(JSON.stringify(first)).not.toContain("test.only");
@@ -156,7 +166,7 @@ test("extract never reads a test file, and a second extract changes nothing", as
 });
 
 test("extract refuses a folder that is not the fork, and writes nothing", async () => {
-  const { repository } = await folders();
+  const { repository } = await forkAndRepository();
   const withoutCli = Object.fromEntries(
     Object.entries(forkCheckoutFiles).filter(([path]) => path !== CLI),
   );
@@ -165,7 +175,12 @@ test("extract refuses a folder that is not the fork, and writes nothing", async 
     await folderOf(withoutCli),
   ];
   for (const fork of cases) {
-    const observed = inventory(repository, "extract", "--fork", fork);
+    const observed = inventoryInRepository(
+      repository,
+      "extract",
+      "--fork",
+      fork,
+    );
 
     expect(observed.exitCode).toBe(3);
     expect(observed.result).toMatchObject({
@@ -185,7 +200,7 @@ test("extract that cannot write says its files are uncertain, not unchanged", as
     [DIAGRAM]: diagramText,
     inventory: "a file where the folder should be",
   });
-  const observed = inventory(repository, "extract", "--fork", fork);
+  const observed = inventoryInRepository(repository, "extract", "--fork", fork);
 
   expect(observed.exitCode).toBe(1);
   expect(observed.result).toMatchObject({
@@ -198,17 +213,17 @@ test("extract that cannot write says its files are uncertain, not unchanged", as
 });
 
 test("check passes on what extract kept, with and without the fork", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
   const before = await filesUnder(repository);
-  const lists = Object.entries(COUNTS).map(([list, items]) => ({
+  const lists = Object.entries(FORK_ITEM_COUNTS).map(([list, items]) => ({
     list,
     items,
     file: `inventory/${list}.json`,
   }));
   const registry = { items: stateFiles.length };
 
-  const alone = inventory(repository, "check");
+  const alone = inventoryInRepository(repository, "check");
   expect(alone.exitCode).toBe(0);
   expect(alone.message).toStartWith("7 of 7 inventory lists ok (");
   expect(alone.message).not.toContain("match the fork");
@@ -220,17 +235,14 @@ test("check passes on what extract kept, with and without the fork", async () =>
     data: { fork: null, lists, stateFiles: registry },
   });
 
-  const compared = inventory(repository, "check", "--fork", fork);
+  const compared = inventoryInRepository(repository, "check", "--fork", fork);
   expect(compared.exitCode).toBe(0);
   expect(compared.message).toEndWith("They match the fork.");
   expect(compared.result).toMatchObject({ data: { fork, lists } });
   expect(await filesUnder(repository)).toEqual(before);
 });
 
-test("check with the fork names each stale list and the ids that differ", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
-  const before = await filesUnder(repository);
+async function staleMainInFork(fork: string) {
   const main = (forkCheckoutFiles[MAIN] ?? "")
     .replace(
       'if (path === "/api/health")',
@@ -238,8 +250,14 @@ test("check with the fork names each stale list and the ids that differ", async 
     )
     .replace('if (body?.type === "usage") return json({ ok: true });', "");
   await writeFile(join(fork, MAIN), main);
+}
 
-  const observed = inventory(repository, "check", "--fork", fork);
+test("check with the fork names each stale list and the ids that differ", async () => {
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
+  await staleMainInFork(fork);
+
+  const observed = inventoryInRepository(repository, "check", "--fork", fork);
   const lines = [
     "service-routes: missing: /api/added; changed: /api/health",
     "service-actions: gone from the fork: usage",
@@ -256,14 +274,23 @@ test("check with the fork names each stale list and the ids that differ", async 
     outcome: "failed",
     transactionState: "unchanged",
   });
-  // The kept files are judged, never repaired: without the fork they still pass.
-  expect(await filesUnder(repository)).toEqual(before);
-  expect(inventory(repository, "check").exitCode).toBe(0);
 });
 
-test("check fails on a kept file that breaks its schema, and says where for each", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
+test("check judges the kept files and never repairs them: without the fork they still pass", async () => {
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
+  const before = await filesUnder(repository);
+  await staleMainInFork(fork);
+
+  inventoryInRepository(repository, "check", "--fork", fork);
+
+  expect(await filesUnder(repository)).toEqual(before);
+  expect(inventoryInRepository(repository, "check").exitCode).toBe(0);
+});
+
+async function checkAfterBreakingKeptFiles() {
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
   const kept = (list: string) => join(repository, `inventory/${list}.json`);
   const rewrite = async (list: string, change: (items: object[]) => unknown) =>
     writeFile(
@@ -285,7 +312,11 @@ test("check fails on a kept file that breaks its schema, and says where for each
   await rm(kept("diagram-elements"));
   await writeFile(kept("state-files"), "[]\n");
 
-  const observed = inventory(repository, "check", "--fork", fork);
+  return inventoryInRepository(repository, "check", "--fork", fork);
+}
+
+test("check fails on a kept file that breaks its schema, and says where for each", async () => {
+  const observed = await checkAfterBreakingKeptFiles();
   const handoff = observed.result.handoff as { inspect: string[] };
   const lines = handoff.inspect;
   expect(observed.exitCode).toBe(4);
@@ -301,10 +332,6 @@ test("check fails on a kept file that breaks its schema, and says where for each
     outcome: "failed",
   });
   expect(lines).toHaveLength(6);
-  // A key no list names, and a value of the wrong type, each at its place.
-  expect(lines[0]).toStartWith("inventory/service-routes.json: ");
-  expect(lines[0]).toContain("/0/extra ");
-  expect(lines[0]).toContain("/0/websocket ");
   expect(lines[1]).toBe(
     "inventory/service-actions.json: / Expected items in id order, each id once",
   );
@@ -318,14 +345,24 @@ test("check fails on a kept file that breaks its schema, and says where for each
   expect(lines[5]).toBe("inventory/state-files.json: no list has this name");
 });
 
-test("a kept list that drifted in many items names the first few", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
-  const kept = await ids(repository, "herdr-task-commands");
-  // One more line at the top: every command now stands a line lower.
-  await writeFile(join(fork, CLI), `# moved\n${forkCheckoutFiles[CLI] ?? ""}`);
+test("check names a key no list names, and a value of the wrong type, each at its place", async () => {
+  const observed = await checkAfterBreakingKeptFiles();
+  const handoff = observed.result.handoff as { inspect: string[] };
+  const lines = handoff.inspect;
 
-  const observed = inventory(repository, "check", "--fork", fork);
+  expect(lines[0]).toStartWith("inventory/service-routes.json: ");
+  expect(lines[0]).toContain("/0/extra ");
+  expect(lines[0]).toContain("/0/websocket ");
+});
+
+test("a kept list that drifted in many items names the first few", async () => {
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
+  const kept = await ids(repository, "herdr-task-commands");
+  const oneLineAdded = `# moved\n${forkCheckoutFiles[CLI] ?? ""}`;
+  await writeFile(join(fork, CLI), oneLineAdded);
+
+  const observed = inventoryInRepository(repository, "check", "--fork", fork);
 
   expect(kept).toHaveLength(12);
   expect(observed.exitCode).toBe(3);
@@ -345,8 +382,8 @@ for (const [name, command, args] of [
   ["check with --fork and no folder", "check", ["--fork"]],
 ] as const) {
   test(`${name} is a usage refusal`, async () => {
-    const { repository } = await folders();
-    const observed = inventory(repository, command, ...args);
+    const { repository } = await forkAndRepository();
+    const observed = inventoryInRepository(repository, command, ...args);
 
     expect(observed.exitCode).toBe(2);
     expect(observed.result).toMatchObject({
@@ -362,11 +399,11 @@ for (const [name, command, args] of [
 }
 
 test("check with a fork that cannot be read is refused, after the kept files pass", async () => {
-  const { fork, repository } = await folders();
-  inventory(repository, "extract", "--fork", fork);
+  const { fork, repository } = await forkAndRepository();
+  inventoryInRepository(repository, "extract", "--fork", fork);
   await rm(join(fork, ACTIONS));
 
-  const observed = inventory(repository, "check", "--fork", fork);
+  const observed = inventoryInRepository(repository, "check", "--fork", fork);
 
   expect(observed.exitCode).toBe(3);
   expect(observed.message).toContain(`${ACTIONS} is missing from the fork.`);

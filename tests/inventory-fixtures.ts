@@ -1,9 +1,5 @@
 import type { Sources } from "../src/inventory/lists.ts";
-
-/**
- * A small made-up fork: each file holds the shapes one extractor must read,
- * with the cases that are easy to get wrong. None of it is the real fork's text.
- */
+import type { SourceFile } from "../src/inventory/source.ts";
 
 export const CLI = "mods/tasks/bin/herdr_task/cli.py";
 export const AGENTS = "mods/tasks/bin/herdr_task/agents.py";
@@ -214,38 +210,41 @@ Rel(svc, doc, "doc.get", "service/host.ts:123")
 UpdateElementStyle(svc, $borderColor="#b45309")
 `;
 
-/** The fork's files, by path from its root. */
-export const forkCheckoutFiles: Readonly<Record<string, string>> = {
+export type PathFromForkRoot = string;
+export type FileText = string;
+
+const unreadTestFiles: Readonly<Record<PathFromForkRoot, FileText>> = {
+  "service/hub.test.ts": `await hub.call("test.only", {}); const l = "herdr.testonly";`,
+  "core/secrets.test.js": `const l = "herdr.testonly";`,
+};
+
+export const forkCheckoutFiles: Readonly<Record<PathFromForkRoot, FileText>> = {
   [CLI]: cli,
   [AGENTS]: agents,
   [MAIN]: main,
   [ACTIONS]: actions,
   [HUB]: hub,
-  // A test file is never read: what it names must not reach a list.
-  "service/hub.test.ts": `await hub.call("test.only", {}); const l = "herdr.testonly";`,
   [CLIENT]: client,
   [SECRETS]: secrets,
-  "core/secrets.test.js": `const l = "herdr.testonly";`,
+  ...unreadTestFiles,
 };
 
 export const diagramText = diagram;
 
-/** One of the fork's files as an extractor takes it. */
-export function file(path: string) {
+export function file(path: PathFromForkRoot): SourceFile {
   const text = forkCheckoutFiles[path];
   if (text === undefined) throw new Error(`The fixture has no ${path}`);
   return { path, text };
 }
 
-/** Where a piece of text first stands in a file, as an item's `source` says it. The first line is 1. */
 export function at(path: string, piece: string, text = file(path).text) {
-  const index = text.indexOf(piece);
-  if (index < 0) throw new Error(`${path} does not hold ${piece}`);
-  return `${path}:${String(text.slice(0, index).split("\n").length)}`;
+  const firstIndex = text.indexOf(piece);
+  if (firstIndex < 0) throw new Error(`${path} does not hold ${piece}`);
+  const oneBasedLine = text.slice(0, firstIndex).split("\n").length;
+  return `${path}:${String(oneBasedLine)}`;
 }
 
-/** The fork as its reader hands it over: tests left out, the service's own files before its core link's. */
-export const sources: Sources = {
+export const sourcesAsRead: Sources = {
   python: [file(AGENTS), file(CLI)],
   service: [file(ACTIONS), file(HUB), file(MAIN), file(CLIENT)],
   coreFolder: [file(SECRETS)],

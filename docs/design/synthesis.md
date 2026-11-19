@@ -155,6 +155,12 @@ Taken from the other design candidates and folded into the base by hand.
   missing, broken or unknown fails the check.
 - A list can differ in every item, so a failure names a few ids and counts the
   rest.
+- The tests' fixtures are hand-written and made up: the fork's files hold the
+  shapes one extractor must read, with the cases that are easy to get wrong,
+  and the state files hold made-up values, one or more for each schema. None of
+  it is the real fork's or the pilot's text.
+- The command line tests use `inventory check` as their real command: it runs
+  with no arguments, changes nothing and reads only committed files.
 
 ## Rejected
 

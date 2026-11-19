@@ -195,9 +195,6 @@ afterEach(async () => {
   for (const root of roots) expect(existsSync(root)).toBe(false);
 });
 
-// These tests are about the command line itself and need a real command to
-// run. `inventory check` runs with no arguments, changes nothing and reads
-// only committed files.
 test("JSON inventory check emits one 2.0 envelope and no stderr", () => {
   const result = invoke("inventory", "check", "--json");
   expect(result.exitCode).toBe(0);

@@ -1,14 +1,12 @@
-// Hand-written state files with made-up values, one or more for each schema.
-// Keyed by the path each would have under a state root.
-
 import { engineStateFiles } from "./engine-state-fixtures.ts";
 import { T0, taskListFiles } from "./task-list-fixtures.ts";
 
 const STATE = ".local/state/shepherdr";
 const HERDR_CORE = ".local/state/herdr-core/default";
 
-/** One valid file for every registry entry, at its path under a state root. */
-export const validFiles: Readonly<Record<string, unknown>> = {
+export type StatePath = string;
+
+export const validFiles: Readonly<Record<StatePath, unknown>> = {
   ...taskListFiles,
   ...engineStateFiles,
   ".config/shepherdr/settings.json": {
@@ -216,8 +214,7 @@ export const validFiles: Readonly<Record<string, unknown>> = {
   },
 };
 
-/** The text a file holds on disk: one JSON document, or one per line for a `.jsonl` log. */
-export function fileText(path: string, content: unknown): string {
+export function fileText(path: StatePath, content: unknown): string {
   if (!path.endsWith(".jsonl")) return `${JSON.stringify(content, null, 2)}\n`;
   const lines = Array.isArray(content) ? content : [content];
   return lines.map((line) => `${JSON.stringify(line)}\n`).join("");

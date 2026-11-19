@@ -276,6 +276,16 @@ const automation = {
   last_task: "WID-3",
 };
 
+const dotFolderTaskList = {
+  version: 1,
+  folder: "/example-home/.config/example",
+  kind: "folder",
+  name: "example",
+  slug: ".config-example",
+  next: 1,
+  tasks: [],
+};
+
 export const taskListFiles = {
   [`${TASKS}/widgets.json`]: {
     version: 1,
@@ -315,14 +325,5 @@ export const taskListFiles = {
     automations: [automation],
     auto_next: 2,
   },
-  // A folder whose path under home starts with a dot keeps the dot in its slug.
-  [`${TASKS}/.config-example.json`]: {
-    version: 1,
-    folder: "/example-home/.config/example",
-    kind: "folder",
-    name: "example",
-    slug: ".config-example",
-    next: 1,
-    tasks: [],
-  },
+  [`${TASKS}/.config-example.json`]: dotFolderTaskList,
 };
