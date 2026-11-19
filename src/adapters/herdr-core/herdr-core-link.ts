@@ -5,7 +5,7 @@ import type {
   RefutingEvidence,
 } from "../../domains/attempt/index.ts";
 import type { NotBuilt } from "../not-built.ts";
-import type { SendPermit } from "./send-permit.ts";
+import type { SendPermit, SendPermitRefusal } from "./send-permit.ts";
 
 export const TerminalAddress = Schema.NonEmptyString.pipe(
   Schema.brand("TerminalAddress"),
@@ -60,8 +60,6 @@ export type LaunchObservation =
   | PositiveEvidence
   | { readonly _tag: "Unobservable" };
 
-// Interface: `not-sent` is answered only when nothing of the request was
-// written to the link. Whenever that is in doubt the answer is `unanswered`.
 export class HerdrCoreUnavailable extends Data.TaggedError(
   "HerdrCoreUnavailable",
 )<{
@@ -74,7 +72,7 @@ export class TerminalNotFound extends Data.TaggedError("TerminalNotFound")<{
 }> {}
 
 export class SendPermitRefused extends Data.TaggedError("SendPermitRefused")<{
-  readonly reason: "not made by the send permit maker, or already spent";
+  readonly reason: SendPermitRefusal;
 }> {}
 
 export class SharedDocumentConflict extends Data.TaggedError(
@@ -86,9 +84,6 @@ export class MachineNotLinked extends Data.TaggedError("MachineNotLinked")<{
 }> {}
 
 export interface HerdrCoreShape {
-  // Interface: interrupting a start ends its request on the link: the call
-  // stops at once and its reply is given up. herdr-core may still start the
-  // terminal afterwards, and `observeLaunch` then finds it by its label.
   readonly startTerminal: (
     permit: SendPermit,
     start: TerminalStart,
@@ -155,9 +150,6 @@ export interface HerdrCoreShape {
     ReadonlyArray<string>,
     HerdrCoreUnavailable | NotBuilt
   >;
-  // Interface: positive evidence is exactly one terminal labelled with the
-  // attempt id. Anything else is `Unobservable`, because a link cannot tell
-  // that no request for that attempt is still pending in herdr-core.
   readonly observeLaunch: (
     attemptId: AttemptId,
   ) => Effect.Effect<LaunchObservation, HerdrCoreUnavailable | NotBuilt>;
@@ -168,7 +160,9 @@ function whyNothingWasSent(
 ): string | undefined {
   switch (failure._tag) {
     case "SendPermitRefused":
-      return "the send permit was refused, so no request was made";
+      return failure.reason === "not made by the send permit maker"
+        ? "the send permit was refused, so no request was made"
+        : undefined;
     case "HerdrCoreUnavailable":
       return failure.request === "not-sent"
         ? "the link was lost before the request was sent"
@@ -178,8 +172,6 @@ function whyNothingWasSent(
   }
 }
 
-// Interface: `reply` is the reply to the only start that the attempt's effect
-// made. After a second start for the same attempt id this answer can be untrue.
 export function observeStartReply(
   attemptId: AttemptId,
   reply: Result.Result<

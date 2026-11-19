@@ -23,9 +23,13 @@ import {
 const unlabelledAttemptId = AttemptId.make("no terminal carries this");
 const bytesOf = (text: string) => new TextEncoder().encode(text);
 
-const permitRefused = {
+const notMade = {
   _tag: "SendPermitRefused",
-  reason: "not made by the send permit maker, or already spent",
+  reason: "not made by the send permit maker",
+};
+const alreadyStarted = {
+  _tag: "SendPermitRefused",
+  reason: "a terminal start for this attempt id was already made",
 };
 
 test("a send permit starts one terminal, labelled with its attempt id", async () => {
@@ -71,9 +75,28 @@ test("a spent send permit, and a value that only looks like one, start nothing",
   );
 
   expect(seen).toEqual({
-    refusals: [permitRefused, permitRefused],
+    refusals: [alreadyStarted, notMade],
     terminals: [t1],
   });
+});
+
+test("a second send permit for an attempt id that already started a terminal starts nothing", async () => {
+  const seen = await onTestLink(
+    Effect.gen(function* () {
+      const link = yield* HerdrCore;
+      yield* started;
+      const second = yield* Effect.flip(
+        link.startTerminal(yield* permitFor(attemptId), workerStart),
+      );
+      const terminals = yield* link.listTerminals();
+      return {
+        refusal: failureOf(second),
+        terminals: terminals.map(({ address }) => address),
+      };
+    }),
+  );
+
+  expect(seen).toEqual({ refusal: alreadyStarted, terminals: [t1] });
 });
 
 test("a link that sent nothing finds exactly one terminal labelled with the attempt id, and cannot rule a start out otherwise", async () => {

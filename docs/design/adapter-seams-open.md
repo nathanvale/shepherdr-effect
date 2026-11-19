@@ -75,9 +75,13 @@ the kernel does.
 
 ## Not held, and not verified
 
-- One recorded effect makes one start. `observeStartReply` is true only
-  then. Nothing checks it: `SendPermitMaker` makes any number of send permits
-  for one Uncertain attempt.
+- One recorded effect makes one start, and `observeStartReply` is true only
+  then. `CliKernelJournal.record` refuses to perform an Uncertain effect
+  again, and one `SendPermitMaker` lets the link spend one permit for each
+  attempt id. A second maker, as in a restarted process, keeps no record of
+  the first: it can make a permit for an attempt id that already started a
+  terminal, and then the reply to that start is read as the first start's
+  answer. The journal's row for the effect is what would have to refuse it.
 - Anything can build refuting evidence. The seam checks only that it names
   the attempt. No herdr-core call is known to show that a request can no
   longer apply, so the person has no source for it yet and the dead end of

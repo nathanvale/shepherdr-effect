@@ -1,4 +1,4 @@
-import { Effect, Fiber, PubSub, Ref, Stream } from "effect";
+import { Effect, Fiber, PubSub, Ref, Result, Stream } from "effect";
 import {
   HerdrCoreUnavailable,
   type HerdrCoreShape,
@@ -131,11 +131,10 @@ export function herdrCoreTestLink(
     return {
       startTerminal: (permit, start) =>
         Effect.gen(function* () {
-          const attemptId = spendSendPermit(permit);
-          if (attemptId === undefined)
-            return yield* new SendPermitRefused({
-              reason: "not made by the send permit maker, or already spent",
-            });
+          const spent = spendSendPermit(permit);
+          if (Result.isFailure(spent))
+            return yield* new SendPermitRefused({ reason: spent.failure });
+          const attemptId = spent.success;
           yield* linked("startTerminal");
           const reply = script.startReply ?? "address";
           if (reply === "lost-before-start") return yield* unanswered;

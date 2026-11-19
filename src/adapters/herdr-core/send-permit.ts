@@ -1,10 +1,16 @@
-import { Context, Layer } from "effect";
+import { Context, Layer, Result } from "effect";
 import type { Attempt, AttemptId } from "../../domains/attempt/index.ts";
 
 type Uncertain = Extract<Attempt, { readonly _tag: "Uncertain" }>;
 
-const unspent = new WeakSet<SendPermit>();
-let issue: (attemptId: AttemptId) => SendPermit;
+export type SendPermitRefusal =
+  | "not made by the send permit maker"
+  | "a terminal start for this attempt id was already made";
+
+type AttemptsStarted = Set<AttemptId>;
+
+const startedByMaker = new WeakMap<SendPermit, AttemptsStarted>();
+let issue: (attemptId: AttemptId, started: AttemptsStarted) => SendPermit;
 
 export class SendPermit {
   readonly #attemptId: AttemptId;
@@ -18,23 +24,32 @@ export class SendPermit {
   }
 
   static {
-    issue = (attemptId) => {
+    issue = (attemptId, started) => {
       const permit = new SendPermit(attemptId);
-      unspent.add(permit);
+      startedByMaker.set(permit, started);
       return permit;
     };
   }
 }
 
-export function spendSendPermit(permit: SendPermit): AttemptId | undefined {
-  return unspent.delete(permit) ? permit.attemptId : undefined;
+export function spendSendPermit(
+  permit: SendPermit,
+): Result.Result<AttemptId, SendPermitRefusal> {
+  const started = startedByMaker.get(permit);
+  if (started === undefined)
+    return Result.fail("not made by the send permit maker");
+  if (started.has(permit.attemptId))
+    return Result.fail("a terminal start for this attempt id was already made");
+  started.add(permit.attemptId);
+  return Result.succeed(permit.attemptId);
 }
 
 export class SendPermitMaker extends Context.Service<
   SendPermitMaker,
   { readonly make: (uncertain: Uncertain) => SendPermit }
 >()("SendPermitMaker") {
-  static readonly layer = Layer.succeed(SendPermitMaker, {
-    make: (uncertain) => issue(uncertain.id),
+  static readonly layer = Layer.sync(SendPermitMaker, () => {
+    const started: AttemptsStarted = new Set();
+    return { make: (uncertain) => issue(uncertain.id, started) };
   });
 }

@@ -10,7 +10,13 @@ import {
 } from "../src/adapters/herdr-core/index.ts";
 import type { Attempt } from "../src/domains/attempt/index.ts";
 import { attemptId } from "./attempt-fixtures.ts";
-import { lookalikePermit, workerStart } from "./herdr-core-fixtures.ts";
+import {
+  lookalikePermit,
+  onTestLink,
+  permitFor,
+  started,
+  workerStart,
+} from "./herdr-core-fixtures.ts";
 import { utilityLaunch } from "./kernel-journal-fixtures.ts";
 
 type Uncertain = Extract<Attempt, { readonly _tag: "Uncertain" }>;
@@ -93,3 +99,18 @@ for (const startReply of ["lost-after-start", "lost-before-start"] as const)
       id: attemptId,
     });
   });
+
+test("a second start for an attempt id that already started a terminal is refused, and its refusal does not refute the launch", async () => {
+  const observed = await onTestLink(
+    Effect.gen(function* () {
+      const link = yield* HerdrCore;
+      yield* started;
+      const second = yield* Effect.result(
+        link.startTerminal(yield* permitFor(attemptId), workerStart),
+      );
+      return observeStartReply(attemptId, second);
+    }),
+  );
+
+  expect(observed).toEqual({ _tag: "Unobservable" });
+});
